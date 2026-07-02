@@ -1,0 +1,75 @@
+'use client';
+
+import * as React from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ProductGrid } from '@/components/product/product-grid';
+import { SectionHeading } from '@/components/common/section-heading';
+import {
+  getFeaturedProducts,
+  getBestSellers,
+  getNewProducts,
+} from '@/lib/products';
+
+type Tab = 'featured' | 'bestseller' | 'new';
+
+const tabs: { id: Tab; label: string }[] = [
+  { id: 'featured', label: 'Nổi bật' },
+  { id: 'bestseller', label: 'Bán chạy' },
+  { id: 'new', label: 'Mới về' },
+];
+
+export function FeaturedProducts() {
+  const [active, setActive] = React.useState<Tab>('featured');
+
+  const products = React.useMemo(() => {
+    if (active === 'featured') return getFeaturedProducts(8);
+    if (active === 'bestseller') return getBestSellers(8);
+    return getNewProducts(8);
+  }, [active]);
+
+  return (
+    <section className="bg-accent/30 py-16 sm:py-20">
+      <div className="container-page">
+        <div className="flex flex-col items-center gap-6">
+          <SectionHeading
+            eyebrow="Sản phẩm"
+            title="Sản phẩm nổi bật"
+            description="Những sản phẩm được khách hàng tin dùng nhất tại Gạo Trần Huy."
+          />
+
+          {/* Tabs */}
+          <div className="inline-flex items-center gap-1 rounded-full border bg-background p-1 shadow-sm">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActive(tab.id)}
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+                  active === tab.id
+                    ? 'bg-primary text-primary-foreground shadow'
+                    : 'text-foreground/70 hover:text-foreground'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <ProductGrid products={products} columns={4} />
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Button asChild size="lg" variant="outline">
+            <Link href="/san-pham">
+              Xem tất cả sản phẩm
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
