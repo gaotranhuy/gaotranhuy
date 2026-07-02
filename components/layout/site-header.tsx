@@ -88,10 +88,15 @@ export function SiteHeader() {
         )}
       >
         <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
-          {/* Logo */}
+          {/* Logo (Bản Desktop) */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-              <Wheat className="h-6 w-6" />
+            {/* Khối hình vuông ôm ảnh logo tự động thu nhỏ vừa vặn */}
+            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
+              <img 
+                src="/logo-brand.png" 
+                alt="Gạo Trần Huy Logo" 
+                className="max-h-full max-w-full object-contain"
+              />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
@@ -206,9 +211,14 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[340px]">
                 <SheetHeader>
+                  {/* Logo (Bản Mobile ẩn trong menu rút gọn) */}
                   <SheetTitle className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                      <Wheat className="h-5 w-5" />
+                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0.5">
+                      <img 
+                        src="/logo-brand.png" 
+                        alt="Gạo Trần Huy Logo" 
+                        className="max-h-full max-w-full object-contain"
+                      />
                     </div>
                     Gạo Trần Huy
                   </SheetTitle>
