@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* Nền sáng có chút ánh xanh lá cực nhẹ */
     --background: 140 33% 98%;
     --foreground: 140 14% 12%;
 
@@ -14,7 +13,6 @@
     --popover: 0 0% 100%;
     --popover-foreground: 140 14% 12%;
 
-    /* Màu xanh lá chủ đạo (Xanh mạ/Xanh lục) */
     --primary: 142 76% 36%;
     --primary-foreground: 140 33% 98%;
 
@@ -50,7 +48,6 @@
   }
 
   .dark {
-    /* Nền tối ngả xanh đen sang trọng */
     --background: 140 14% 8%;
     --foreground: 140 33% 96%;
 
@@ -60,7 +57,6 @@
     --popover: 140 14% 11%;
     --popover-foreground: 140 33% 96%;
 
-    /* Xanh lá sáng hơn để nổi trên nền tối */
     --primary: 142 70% 45%;
     --primary-foreground: 140 14% 8%;
 
@@ -116,7 +112,6 @@
     text-wrap: balance;
   }
 
-  /* Đã chuyển grain-bg sang ánh xanh lá */
   .grain-bg {
     background-image: radial-gradient(
         circle at 1px 1px,
