@@ -66,7 +66,7 @@ export function SiteFooter() {
         <div className="lg:col-span-1">
           <Link href="/" className="flex items-center gap-2.5">
             {/* Khối ôm ảnh logo tự động thu nhỏ vừa vặn tương tự site header */}
-            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
               <img 
                 src="/logo-brand.png" 
                 alt="Gạo Trần Huy Logo" 
