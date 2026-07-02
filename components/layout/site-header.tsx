@@ -100,7 +100,7 @@ export function SiteHeader() {
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-                Gạo Trần Huy
+                
               </span>
               <span className="text-[11px] font-medium text-muted-foreground">
                 {siteSettings.tagline}
