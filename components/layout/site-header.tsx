@@ -90,12 +90,12 @@ export function SiteHeader() {
         <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
           {/* Logo (Bản Desktop) */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            {/* Khối hình vuông ôm ảnh logo tự động thu nhỏ vừa vặn */}
-            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
+            {/* Đã tăng kích thước lên h-16 w-16 (hoặc đổi thành h-20 w-20 nếu muốn bự kịch khung máy tính) */}
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
               <img 
                 src="/logo-brand.png" 
                 alt="Gạo Trần Huy Logo" 
-                className="max-h-full max-w-full object-contain"
+                className="h-full w-full object-contain"
               />
             </div>
             <div className="flex flex-col leading-none">
@@ -213,11 +213,12 @@ export function SiteHeader() {
                 <SheetHeader>
                   {/* Logo (Bản Mobile ẩn trong menu rút gọn) */}
                   <SheetTitle className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-transparent p-0.5">
+                    {/* Đã tăng kích thước logo bản mobile lên h-12 w-12 */}
+                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
                       <img 
                         src="/logo-brand.png" 
                         alt="Gạo Trần Huy Logo" 
-                        className="max-h-full max-w-full object-contain"
+                        className="h-full w-full object-contain"
                       />
                     </div>
                     Gạo Trần Huy
