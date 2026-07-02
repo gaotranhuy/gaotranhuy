@@ -14,24 +14,26 @@ import { categoryMetadata, breadcrumbJsonLd } from '@/lib/seo';
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return getAllCategories().map((c) => ({ slug: c.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const cat = getCategoryBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const cat = getCategoryBySlug(slug);
   if (!cat) return { title: 'Không tìm thấy' };
   return categoryMetadata(cat);
 }
 
-export default function CategoryPage({ params }: PageProps) {
-  const category = getCategoryBySlug(params.slug);
+export default async function CategoryPage({ params }: PageProps) {
+  const { slug } = await params;
+  const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const products = getProductsByCategory(params.slug);
+  const products = getProductsByCategory(slug);
 
   const breadcrumbItems = [
     { name: 'Sản phẩm', url: '/san-pham' },

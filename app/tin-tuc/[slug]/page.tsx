@@ -13,21 +13,23 @@ import { formatDateLong } from '@/lib/format';
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return getAllNews().map((a) => ({ slug: a.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const article = getNewsBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const article = getNewsBySlug(slug);
   if (!article) return { title: 'Không tìm thấy' };
   return articleMetadata(article);
 }
 
-export default function NewsDetailPage({ params }: PageProps) {
-  const article = getNewsBySlug(params.slug);
+export default async function NewsDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const article = getNewsBySlug(slug);
   if (!article) notFound();
 
   const breadcrumbItems = [

@@ -18,21 +18,23 @@ import {
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return getAllProducts().map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const product = getProductBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
   if (!product) return { title: 'Không tìm thấy sản phẩm' };
   return productMetadata(product);
 }
 
-export default function ProductPage({ params }: PageProps) {
-  const product = getProductBySlug(params.slug);
+export default async function ProductPage({ params }: PageProps) {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
   if (!product) notFound();
 
   const category = getCategoryBySlug(product.categorySlug);
