@@ -6,7 +6,7 @@ import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { RelatedNews } from '@/components/news/related-news';
-import { getAllNews, getNewsBySlug } from '@/lib/news';
+import { fetchNewsBySlug } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong } from '@/lib/format';
 
@@ -16,20 +16,16 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return getAllNews().map((a) => ({ slug: a.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
+  const article = await fetchNewsBySlug(slug);
   if (!article) return { title: 'Không tìm thấy' };
   return articleMetadata(article);
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
+  const article = await fetchNewsBySlug(slug);
   if (!article) notFound();
 
   const breadcrumbItems = [

@@ -1,9 +1,9 @@
 import { NewsCard } from './news-card';
-import { getRelatedNews } from '@/lib/news';
+import { fetchRelatedNews } from '@/lib/supabase-data';
 import type { NewsArticle } from '@/types';
 
-export function RelatedNews({ article }: { article: NewsArticle }) {
-  const related = getRelatedNews(article, 3);
+export async function RelatedNews({ article }: { article: NewsArticle }) {
+  const related = await fetchRelatedNews(article, 3);
   if (related.length === 0) return null;
 
   return (

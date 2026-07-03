@@ -5,10 +5,9 @@ import { RelatedProducts } from '@/components/product/related-products';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { ContactCTA } from '@/components/common/contact-cta';
 import {
-  getProductBySlug,
-  getAllProducts,
+  fetchProductBySlug,
   getCategoryBySlug,
-} from '@/lib/products';
+} from '@/lib/supabase-data';
 import {
   productMetadata,
   productJsonLd,
@@ -21,20 +20,16 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ slug: p.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchProductBySlug(slug);
   if (!product) return { title: 'Không tìm thấy sản phẩm' };
   return productMetadata(product);
 }
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await fetchProductBySlug(slug);
   if (!product) notFound();
 
   const category = getCategoryBySlug(product.categorySlug);

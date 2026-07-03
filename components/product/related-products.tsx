@@ -1,9 +1,9 @@
 import { ProductGrid } from './product-grid';
-import { getRelatedProducts } from '@/lib/products';
+import { fetchRelatedProducts } from '@/lib/supabase-data';
 import type { Product } from '@/types';
 
-export function RelatedProducts({ product }: { product: Product }) {
-  const related = getRelatedProducts(product, 4);
+export async function RelatedProducts({ product }: { product: Product }) {
+  const related = await fetchRelatedProducts(product, 4);
   if (related.length === 0) return null;
 
   return (

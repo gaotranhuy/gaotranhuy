@@ -7,6 +7,8 @@ import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
 import { organizationJsonLd } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 export default function HomePage() {
   return (
     <>
