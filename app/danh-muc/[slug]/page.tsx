@@ -7,18 +7,14 @@ import { ContactCTA } from '@/components/common/contact-cta';
 import {
   getCategoryBySlug,
   getAllCategories,
-  getProductsByCategory,
-} from '@/lib/products';
+  fetchProductsByCategory,
+} from '@/lib/supabase-data';
 import { categoryMetadata, breadcrumbJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-}
-
-export function generateStaticParams() {
-  return getAllCategories().map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -33,7 +29,7 @@ export default async function CategoryPage({ params }: PageProps) {
   const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const products = getProductsByCategory(slug);
+  const products = await fetchProductsByCategory(slug);
 
   const breadcrumbItems = [
     { name: 'Sản phẩm', url: '/san-pham' },

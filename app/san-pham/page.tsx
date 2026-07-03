@@ -3,7 +3,9 @@ import { Suspense } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { ProductFilters } from '@/components/product/product-filters';
-import { getAllProducts, getAllCategories } from '@/lib/products';
+import { fetchAllProducts, getAllCategories } from '@/lib/supabase-data';
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Tất cả sản phẩm',
@@ -12,8 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/san-pham' },
 };
 
-export default function ProductsPage() {
-  const products = getAllProducts();
+export default async function ProductsPage() {
+  const products = await fetchAllProducts();
   const categories = getAllCategories();
 
   return (

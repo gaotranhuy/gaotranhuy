@@ -1,11 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { getAllProducts } from '@/lib/products';
-import { getAllCategories } from '@/lib/products';
-import { getAllNews } from '@/lib/news';
+import { fetchAllProducts } from '@/lib/supabase-data';
+import { getAllCategories } from '@/lib/supabase-data';
+import { fetchAllNews } from '@/lib/supabase-data';
 
 const SITE_URL = 'https://gaotranhuy.vn';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${SITE_URL}/san-pham`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
@@ -16,21 +16,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/dat-hang`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   ];
 
-  const categoryPages: MetadataRoute.Sitemap = getAllCategories().map((c) => ({
+  const categories = getAllCategories();
+  const categoryPages: MetadataRoute.Sitemap = categories.map((c) => ({
     url: `${SITE_URL}/danh-muc/${c.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
-  const productPages: MetadataRoute.Sitemap = getAllProducts().map((p) => ({
+  const products = await fetchAllProducts();
+  const productPages: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE_URL}/san-pham/${p.slug}`,
     lastModified: new Date(p.createdAt),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
-  const newsPages: MetadataRoute.Sitemap = getAllNews().map((a) => ({
+  const news = await fetchAllNews();
+  const newsPages: MetadataRoute.Sitemap = news.map((a) => ({
     url: `${SITE_URL}/tin-tuc/${a.slug}`,
     lastModified: new Date(a.publishedAt),
     changeFrequency: 'monthly',

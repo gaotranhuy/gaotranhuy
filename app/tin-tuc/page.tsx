@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { PageHeader } from '@/components/common/page-header';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { NewsCard } from '@/components/news/news-card';
-import { getAllNews } from '@/lib/news';
+import { fetchAllNews } from '@/lib/supabase-data';
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Tin tức',
@@ -11,8 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/tin-tuc' },
 };
 
-export default function NewsPage() {
-  const articles = getAllNews();
+export default async function NewsPage() {
+  const articles = await fetchAllNews();
 
   return (
     <>
