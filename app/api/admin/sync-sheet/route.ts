@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/admin-auth';
 import { getSupabase } from '@/lib/supabase-server';
 
@@ -6,6 +7,13 @@ const SHEET_ID = '10562yhbthC7zs9mEFkBo0Ly-8ul8Nkaf2hbJwBFTWXA';
 
 interface SheetRow {
   values: string[];
+}
+
+interface SheetResponse {
+  valueRanges?: {
+    valueRanges?: { values: string[][] }[];
+  };
+  values?: string[][];
 }
 
 async function fetchSheetTab(tabName: string): Promise<string[][]> {
@@ -162,6 +170,14 @@ export async function POST(req: NextRequest) {
         );
       }
     }
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/san-pham', 'layout');
+    revalidatePath('/danh-muc/[slug]', 'page');
+    revalidatePath('/san-pham/[slug]', 'page');
+    revalidatePath('/tin-tuc', 'layout');
+    revalidatePath('/tin-tuc/[slug]', 'page');
+    revalidatePath('/sitemap');
 
     return NextResponse.json({
       success: true,

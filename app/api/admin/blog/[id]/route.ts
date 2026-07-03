@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/admin-auth';
 import { getSupabase } from '@/lib/supabase-server';
+import { syncToSheet } from '@/lib/sheet-sync';
+
+function revalidateBlogPages() {
+  revalidatePath('/', 'layout');
+  revalidatePath('/tin-tuc', 'layout');
+  revalidatePath('/tin-tuc/[slug]', 'page');
+  revalidatePath('/sitemap');
+}
 
 export async function PUT(
   req: NextRequest,
@@ -42,6 +51,9 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    revalidateBlogPages();
+    syncToSheet('upsert', 'blog', data as Record<string, unknown>);
+
     return NextResponse.json({ post: data });
   } catch {
     return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
@@ -68,6 +80,9 @@ export async function DELETE(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    revalidateBlogPages();
+    syncToSheet('delete', 'blog', { id });
 
     return NextResponse.json({ success: true });
   } catch {
