@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Wheat, Sparkles, Leaf, Droplet, ShoppingBasket, Sprout } from 'lucide-react';
-import { getAllCategories, getCategoryProductCount } from '@/lib/products';
+import { getAllCategories, getCategoryProductCount } from '@/lib/supabase-data';
 import { SectionHeading } from '@/components/common/section-heading';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -13,7 +13,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ShoppingBasket,
 };
 
-export function CategorySection() {
+export async function CategorySection() {
   const categories = getAllCategories();
 
   return (
@@ -28,7 +28,6 @@ export function CategorySection() {
         <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-6">
           {categories.map((cat, index) => {
             const Icon = iconMap[cat.icon] ?? Wheat;
-            const count = getCategoryProductCount(cat.slug);
             return (
               <Link
                 key={cat.slug}
@@ -54,7 +53,9 @@ export function CategorySection() {
                 <h3 className="text-sm font-semibold leading-tight text-foreground">
                   {cat.name}
                 </h3>
-                <p className="mt-1 text-xs text-muted-foreground">{count} SP</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  <CategoryCount slug={cat.slug} />
+                </p>
                 <ArrowRight className="mt-2 h-4 w-4 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
               </Link>
             );
@@ -63,4 +64,9 @@ export function CategorySection() {
       </div>
     </section>
   );
+}
+
+async function CategoryCount({ slug }: { slug: string }) {
+  const count = await getCategoryProductCount(slug);
+  return <>{count} SP</>;
 }

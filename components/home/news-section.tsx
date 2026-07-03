@@ -3,10 +3,10 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SectionHeading } from '@/components/common/section-heading';
 import { NewsCard } from '@/components/news/news-card';
-import { getFeaturedNews } from '@/lib/news';
+import { fetchFeaturedNews } from '@/lib/supabase-data';
 
-export function NewsSection() {
-  const news = getFeaturedNews(3);
+export async function NewsSection() {
+  const news = await fetchFeaturedNews(3);
   const [featured, ...rest] = news;
 
   return (
