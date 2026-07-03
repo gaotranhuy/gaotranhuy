@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/admin-auth';
 import { getSupabase } from '@/lib/supabase-server';
+import { syncToSheet } from '@/lib/sheet-sync';
+
+function revalidateProductPages() {
+  revalidatePath('/', 'layout');
+  revalidatePath('/san-pham', 'layout');
+  revalidatePath('/danh-muc/[slug]', 'page');
+  revalidatePath('/san-pham/[slug]', 'page');
+  revalidatePath('/tin-tuc', 'layout');
+  revalidatePath('/sitemap');
+}
 
 export async function GET() {
   try {
@@ -85,6 +96,9 @@ export async function POST(req: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    revalidateProductPages();
+    syncToSheet('upsert', 'product', data as Record<string, unknown>);
 
     return NextResponse.json({ product: data });
   } catch {
