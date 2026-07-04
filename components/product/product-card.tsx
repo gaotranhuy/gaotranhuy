@@ -7,11 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AddToCartButton } from './add-to-cart-button';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
-import { getCategoryBySlug } from '@/lib/products';
 import type { Product } from '@/types';
 
 export function ProductCard({ product }: { product: Product }) {
-  const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
 
   return (
@@ -64,21 +62,11 @@ export function ProductCard({ product }: { product: Product }) {
       {/* 2. Phần thông tin chữ */}
       <div className="flex flex-1 flex-col p-4">
         
-        {/* Danh mục và Xuất xứ nằm gọn chung 1 dòng */}
-        <div className="flex items-center justify-between gap-2 mb-1.5 text-[11px] font-medium text-muted-foreground/80">
-          {category ? (
-            <Link
-              href={`/danh-muc/${category.slug}`}
-              className="text-primary hover:underline truncate max-w-[120px]"
-            >
-              {category.name}
-            </Link>
-          ) : (
-            <span />
-          )}
-          <div className="flex items-center gap-0.5 shrink-0 text-muted-foreground/60">
+        {/* ĐÃ SỬA TẠI ĐÂY: Bỏ hoàn toàn Link danh mục cũ, chỉ giữ lại nơi xuất xứ đẩy sát sang góc phải */}
+        <div className="flex items-center justify-end gap-2 mb-1.5 text-[11px] font-medium text-muted-foreground/60">
+          <div className="flex items-center gap-0.5 shrink-0">
             <MapPin className="h-3 w-3" />
-            <span className="truncate max-w-[90px]">{product.origin}</span>
+            <span className="truncate max-w-[120px]">{product.origin}</span>
           </div>
         </div>
 
@@ -132,6 +120,6 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
       </div>
-    </Card> // ĐÃ SỬA TẠI ĐÂY: Đổi từ </section> thành </Card> chuẩn cú pháp
+    </Card>
   );
 }
