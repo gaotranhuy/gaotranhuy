@@ -40,23 +40,33 @@ export function AddToCartButton({
     }
   };
 
+  const isIcon = size === 'icon';
+
   return (
     <Button
       variant={variant}
       size={size}
       onClick={handleAdd}
       disabled={!product.inStock}
-      className={cn(added && 'bg-success text-success-foreground hover:bg-success', className)}
+      className={cn(
+        'transition-all duration-300',
+        added && 'bg-success text-success-foreground hover:bg-success/90 border-none', 
+        className
+      )}
+      title={!product.inStock ? 'Tạm hết hàng' : label}
     >
       {added ? (
         <>
-          <Check className="h-4 w-4" />
-          Đã thêm
+          <Check className="h-4 w-4 shrink-0 animate-scale-in" />
+          {/* Nếu là size icon thì ẩn chữ đi để không vỡ nút vuông */}
+          <span className={cn(isIcon ? 'sr-only' : 'ml-1.5')}>Đã thêm</span>
         </>
       ) : (
         <>
-          <ShoppingBag className="h-4 w-4" />
-          {product.inStock ? label : 'Hết hàng'}
+          <ShoppingBag className="h-4 w-4 shrink-0" />
+          <span className={cn(isIcon ? 'sr-only' : 'ml-1.5')}>
+            {product.inStock ? label : 'Hết hàng'}
+          </span>
         </>
       )}
     </Button>
