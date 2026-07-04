@@ -35,15 +35,11 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  /* 
-    SỬA TẬI ĐÂY: Xử lý gộp mảng chuẩn UX
-    - Lọc bỏ ảnh trùng trong gallery nếu lỡ có chứa product.image.
-    - Ép product.image làm phần tử đầu tiên (vị trí số 0) để khi hiển thị, ảnh 1 luôn xuất hiện.
-  */
-  const uniqueGallery = product.gallery?.length
-    ? product.gallery.filter((img) => img !== product.image)
-    : [];
-  const gallery = [product.image, ...uniqueGallery];
+  // Quản lý vị trí tọa độ khi bắt đầu chạm màn hình
+  const [touchStart, setTouchStart] = React.useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+
+  const gallery = product.gallery?.length ? product.gallery : [product.image];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -57,6 +53,34 @@ export function ProductDetail({ product }: { product: Product }) {
     setActiveImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
   };
 
+  // ================= LOGIC XỬ LÝ VUỐT (SWIPE) TRÊN MOBILE =================
+  const minSwipeDistance = 50; // Khoảng cách tối thiểu (pixel) để tính là một cú vuốt
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset lại touch end cũ
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      // Vuốt từ phải sang trái -> Xem ảnh tiếp theo
+      handleNextImage();
+    } else if (isRightSwipe) {
+      // Vuốt từ trái sang phải -> Xem ảnh trước đó
+      handlePrevImage();
+    }
+  };
+  // ========================================================================
+
   const zaloOrderUrl = `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(
     `Tôi muốn đặt: ${product.name} - SL: ${quantity} - ${formatPrice(
       product.price * quantity
@@ -68,14 +92,19 @@ export function ProductDetail({ product }: { product: Product }) {
       
       {/* ================= KHU VỰC GALLERY ================= */}
       <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        {/* Khung ảnh bự ở trên */}
-        <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm">
+        {/* Khung ảnh bự ở trên: Bổ sung các sự kiện bắt vuốt chuột/tay */}
+        <div 
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm select-none cursor-grab active:cursor-grabbing"
+        >
           <Image
             src={gallery[activeImage]}
             alt={product.name}
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover transition-all duration-500"
+            className="object-cover transition-all duration-500 pointer-events-none"
             priority
           />
           
@@ -107,7 +136,7 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Hàng ảnh nhỏ ở dưới: Map qua biến `gallery` mới gộp ở trên để hiển thị đủ ảnh đại diện */}
+        {/* Hàng ảnh nhỏ ở dưới */}
         {gallery.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto py-1 w-full max-w-full scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {gallery.map((img, i) => (
