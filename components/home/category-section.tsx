@@ -10,44 +10,71 @@ interface CategorySectionProps {
 }
 
 export function CategorySection({ categories, allProducts }: CategorySectionProps) {
-  const [dynamicBg, setDynamicBg] = React.useState('bg-background/95');
+  // Chuyển về dùng class Tailwind thay vì inline style style để trình duyệt render bằng GPU
+  const [isInsideFeatured, setIsInsideFeatured] = React.useState(false);
 
   React.useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll('section');
-      let currentBg = 'bg-background/95 backdrop-blur';
+    // Biến lưu vị trí (top, bottom) của vùng Sản phẩm nổi bật để không phải tính lại liên tục
+    let featuredTop = 0;
+    let featuredBottom = 0;
 
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        
-        // Kiểm tra xem vị trí cuộn có đang giao thoa với vùng "Sản phẩm nổi bật"
-        // (Do Header cao h-16 trên mobile và h-20 trên desktop nên ta căn mốc 80px)
-        if (rect.top <= 80 && rect.bottom >= 80) {
-          if (section.innerHTML.includes('Sản phẩm nổi bật')) {
-            // Đổi sang màu xám/kem trùng khít với bg-accent/30 của khu vực nổi bật
-            currentBg = 'bg-[#f4f4f5]/90 backdrop-blur dark:bg-[#27272a]/90'; 
-          }
+    // Hàm cập nhật tọa độ thực tế của vùng Sản phẩm nổi bật
+    const updateCoordinates = () => {
+      const sections = document.querySelectorAll('section, main > div');
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].innerHTML.includes('Sản phẩm nổi bật')) {
+          const rect = sections[i].getBoundingClientRect();
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          featuredTop = rect.top + scrollTop;
+          featuredBottom = rect.bottom + scrollTop;
+          break;
         }
-      });
+      }
+    };
 
-      setDynamicBg(currentBg);
+    // Chạy ngay lần đầu và tính lại khi đổi kích thước màn hình
+    updateCoordinates();
+    window.addEventListener('resize', updateCoordinates);
+
+    // Sử dụng cơ chế khóa khung hình (Tối ưu hiệu năng cuộn)
+    let isTicking = false;
+
+    const handleScroll = () => {
+      if (!isTicking) {
+        window.requestAnimationFrame(() => {
+          const scrollPos = (window.scrollY || document.documentElement.scrollTop) + (window.innerWidth >= 1024 ? 85 : 69);
+
+          // Kiểm tra xem vị trí cuộn hiện tại có nằm trong vùng Sản phẩm nổi bật không
+          if (scrollPos >= featuredTop && scrollPos <= featuredBottom) {
+            setIsInsideFeatured(true);
+          } else {
+            setIsInsideFeatured(false);
+          }
+          isTicking = false;
+        });
+        isTicking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Chạy kiểm tra ngay khi load trang
+    handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', updateCoordinates);
+    };
   }, []);
 
   return (
     <section 
-      className={`sticky top-16 lg:top-20 z-30 w-full py-3 border-b border-border/40 transition-colors duration-300 ${dynamicBg}`}
+      className={`sticky top-16 lg:top-20 z-30 w-full py-3 border-b border-border/40 backdrop-blur transition-colors duration-300 ${
+        isInsideFeatured 
+          ? 'bg-[#f4f4f5]/90 dark:bg-[#27272a]/90' 
+          : 'bg-background/95'
+      }`}
     >
       <div className="container-page">
-        {/* Thanh danh mục cuộn ngang tối giản, ẩn hoàn toàn thanh scrollbar */}
         <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          
-          {/* Nút "Tất cả" */}
           <Link
             href="/san-pham"
             className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-all whitespace-nowrap hover:bg-primary/90 shadow-sm"
@@ -55,7 +82,6 @@ export function CategorySection({ categories, allProducts }: CategorySectionProp
             Tất cả
           </Link>
           
-          {/* 6 nút danh mục nhỏ gọn nằm ngang */}
           {categories.map((cat) => (
             <Link
               key={cat.slug}
