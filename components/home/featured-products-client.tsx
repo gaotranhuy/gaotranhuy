@@ -36,7 +36,8 @@ export function FeaturedProductsClient({
   }, [active, featured, bestSellers, newProducts]);
 
   return (
-    <section className="bg-accent/30 py-16 sm:py-20">
+    /* Đã thêm id="featured-section" vào đây để CategorySection bắt được màu nền chuẩn xác */
+    <section id="featured-section" className="bg-accent/30 py-16 sm:py-20">
       <div className="container-page">
         <div className="flex flex-col items-center gap-6">
           <SectionHeading
