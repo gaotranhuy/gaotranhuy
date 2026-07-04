@@ -10,42 +10,37 @@ interface CategorySectionProps {
 }
 
 export function CategorySection({ categories, allProducts }: CategorySectionProps) {
-  // Chuyển về dùng class Tailwind thay vì inline style style để trình duyệt render bằng GPU
   const [isInsideFeatured, setIsInsideFeatured] = React.useState(false);
 
   React.useEffect(() => {
-    // Biến lưu vị trí (top, bottom) của vùng Sản phẩm nổi bật để không phải tính lại liên tục
     let featuredTop = 0;
     let featuredBottom = 0;
 
-    // Hàm cập nhật tọa độ thực tế của vùng Sản phẩm nổi bật
+    // Hàm tính toán vị trí chuẩn xác dựa vào ID cố định
     const updateCoordinates = () => {
-      const sections = document.querySelectorAll('section, main > div');
-      for (let i = 0; i < sections.length; i++) {
-        if (sections[i].innerHTML.includes('Sản phẩm nổi bật')) {
-          const rect = sections[i].getBoundingClientRect();
-          const scrollTop = window.scrollY || document.documentElement.scrollTop;
-          featuredTop = rect.top + scrollTop;
-          featuredBottom = rect.bottom + scrollTop;
-          break;
-        }
+      const featuredSection = document.getElementById('featured-section');
+      if (featuredSection) {
+        const rect = featuredSection.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        featuredTop = rect.top + scrollTop;
+        featuredBottom = rect.bottom + scrollTop;
       }
     };
 
-    // Chạy ngay lần đầu và tính lại khi đổi kích thước màn hình
+    // Chạy tính toán vị trí ngay khi vào trang và khi đổi kích thước màn hình
     updateCoordinates();
     window.addEventListener('resize', updateCoordinates);
 
-    // Sử dụng cơ chế khóa khung hình (Tối ưu hiệu năng cuộn)
     let isTicking = false;
 
     const handleScroll = () => {
       if (!isTicking) {
         window.requestAnimationFrame(() => {
+          // Mốc kích hoạt đụng trần header (85px cho desktop, 69px cho mobile)
           const scrollPos = (window.scrollY || document.documentElement.scrollTop) + (window.innerWidth >= 1024 ? 85 : 69);
 
-          // Kiểm tra xem vị trí cuộn hiện tại có nằm trong vùng Sản phẩm nổi bật không
-          if (scrollPos >= featuredTop && scrollPos <= featuredBottom) {
+          // Nếu vị trí cuộn nằm trọn trong vùng ID "featured-section"
+          if (featuredTop > 0 && scrollPos >= featuredTop && scrollPos <= featuredBottom) {
             setIsInsideFeatured(true);
           } else {
             setIsInsideFeatured(false);
@@ -57,11 +52,14 @@ export function CategorySection({ categories, allProducts }: CategorySectionProp
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    
+    // Thêm một chút thời gian chờ (timeout) nhỏ để đảm bảo Next.js đã render xong HTML rồi mới đo vị trí
+    const timer = setTimeout(updateCoordinates, 500);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', updateCoordinates);
+      clearTimeout(timer);
     };
   }, []);
 
@@ -69,11 +67,12 @@ export function CategorySection({ categories, allProducts }: CategorySectionProp
     <section 
       className={`sticky top-16 lg:top-20 z-30 w-full py-3 border-b border-border/40 backdrop-blur transition-colors duration-300 ${
         isInsideFeatured 
-          ? 'bg-[#f4f4f5]/90 dark:bg-[#27272a]/90' 
-          : 'bg-background/95'
+          ? 'bg-[#f4f4f5]/90 dark:bg-[#27272a]/90' // Màu nền xám trùng khít với bg-accent/30 khi cuộn tới
+          : 'bg-background/95' // Màu trắng mặc định ban đầu
       }`}
     >
       <div className="container-page">
+        {/* Thanh danh mục cuộn ngang tối giản */}
         <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Link
             href="/san-pham"
