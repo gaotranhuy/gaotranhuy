@@ -1,5 +1,6 @@
 import { Hero } from '@/components/home/hero';
 import { CategorySection } from '@/components/home/category-section';
+import { FeaturedProducts } from '@/components/home/featured-products'; // Đã giữ lại dòng này
 import { Features } from '@/components/home/features';
 import { CTASection } from '@/components/home/cta-section';
 import { NewsSection } from '@/components/home/news-section';
@@ -10,7 +11,6 @@ import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  // Lấy dữ liệu đồng bộ và bất động bộ chính xác từ file supabase-data của bạn
   const categories = getAllCategories();
   const allProducts = await fetchAllProducts();
 
@@ -24,8 +24,11 @@ export default async function HomePage() {
       />
       <Hero />
       
-      {/* Truyền dữ liệu xuống component con */}
+      {/* Thanh danh mục cuộn ngang bám dính */}
       <CategorySection categories={categories} allProducts={allProducts} />
+      
+      {/* Đã đưa Sản phẩm nổi bật quay trở lại vị trí cũ */}
+      <FeaturedProducts />
       
       <Features />
       <CTASection />
