@@ -5,7 +5,9 @@ export async function CategorySection() {
   const categories = getAllCategories();
 
   return (
-    <section className="py-4 sm:py-6 bg-background">
+    // 1. Cấu hình "top-16" cho mobile và "lg:top-20" cho desktop để vừa khít với chiều cao của Header.
+    // z-30 đảm bảo đè lên nội dung trang nhưng nằm dưới Header (Header đang là z-40).
+    <section className="sticky top-16 lg:top-20 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-3 border-b border-border/40 transition-all">
       <div className="container-page">
         {/* Thanh danh mục cuộn ngang, ẩn thanh cuộn scrollbar trên mọi thiết bị */}
         <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
