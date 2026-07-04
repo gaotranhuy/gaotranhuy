@@ -20,7 +20,7 @@ export default function HomePage() {
       />
       <Hero />
       <CategorySection />
-      <FeaturedProducts />
+      
       <Features />
       <CTASection />
       <NewsSection />
