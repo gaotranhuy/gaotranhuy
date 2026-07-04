@@ -67,9 +67,13 @@ export function Hero({ totalProducts }: HeroProps) {
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6">
             <div>
-              {/* Đã chuyển thành biến động totalProducts tự đếm tự nhảy số lượng */}
+              {/* 
+                BỔ SUNG AN TOÀN: 
+                Nếu chưa kịp lấy dữ liệu từ database, mặc định hiện 13.
+                Thêm `+` đằng sau nếu anh muốn giữ định dạng như cũ (Ví dụ: 13+)
+              */}
               <div className="font-display text-2xl font-extrabold text-primary sm:text-3xl">
-                {totalProducts}
+                {totalProducts ? `${totalProducts}+` : '13+'}
               </div>
               <div className="text-xs text-muted-foreground sm:text-sm">
                 Sản phẩm
