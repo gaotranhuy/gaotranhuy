@@ -35,7 +35,15 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  const gallery = product.gallery?.length ? product.gallery : [product.image];
+  /* 
+    SỬA TẬI ĐÂY: Xử lý gộp mảng chuẩn UX
+    - Lọc bỏ ảnh trùng trong gallery nếu lỡ có chứa product.image.
+    - Ép product.image làm phần tử đầu tiên (vị trí số 0) để khi hiển thị, ảnh 1 luôn xuất hiện.
+  */
+  const uniqueGallery = product.gallery?.length
+    ? product.gallery.filter((img) => img !== product.image)
+    : [];
+  const gallery = [product.image, ...uniqueGallery];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -56,9 +64,6 @@ export function ProductDetail({ product }: { product: Product }) {
   )}`;
 
   return (
-    /* ĐIỂM SỬA 1: Thêm w-full max-w-full overflow-x-hidden px-4 sm:px-0
-      Ép toàn bộ grid nội dung phải co dãn theo màn hình mobile, triệt tiêu lỗi tràn viền phải.
-    */
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
       
       {/* ================= KHU VỰC GALLERY ================= */}
@@ -102,9 +107,7 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* ĐIỂM SỬA 2: Thu nhỏ size ảnh thumbnail trên mobile xuống h-14 w-14 (thay vì h-16 h-20) 
-          và ép max-w-full để tự động kích hoạt thanh cuộn ngang mượt mà khi có nhiều ảnh.
-        */}
+        {/* Hàng ảnh nhỏ ở dưới: Map qua biến `gallery` mới gộp ở trên để hiển thị đủ ảnh đại diện */}
         {gallery.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto py-1 w-full max-w-full scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {gallery.map((img, i) => (
@@ -211,9 +214,6 @@ export function ProductDetail({ product }: { product: Product }) {
 
         {/* Quantity + actions */}
         <div className="mt-6 flex flex-col gap-4 border-t pt-5 w-full">
-          {/* ĐIỂM SỬA 3: Đổi flex-wrap sang flex-col sm:flex-row 
-            để tự động rớt dòng chữ "Thành tiền" xuống dưới ô chọn số lượng khi màn hình quá bé.
-          */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-muted-foreground shrink-0">Số lượng:</span>
@@ -287,9 +287,6 @@ export function ProductDetail({ product }: { product: Product }) {
       </div>
 
       {/* Tabs */}
-      {/* ĐIỂM SỬA 4: Bổ sung overflow-hidden cho khối bọc Tabs và whitespace-nowrap/overflow-x-auto cho TabsList.
-        Giúp thanh menu chuyển tab (Mô tả, Đặc điểm...) tự động cuộn vuốt ngang nếu tiêu đề quá dài thay vì đẩy rách lề phải của web.
-      */}
       <div className="lg:col-span-2 mt-4 w-full overflow-hidden">
         <Tabs defaultValue="description" className="w-full">
           <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 h-auto gap-6 overflow-x-auto scrollbar-none flex whitespace-nowrap">
