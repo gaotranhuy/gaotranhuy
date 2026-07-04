@@ -62,6 +62,7 @@ const CATEGORIES = [
 
 const PER_PAGE = 10;
 
+// CẢI TIẾN: Thêm cấu trúc gallery dạng mảng vào form rỗng ban đầu
 const emptyForm = {
   slug: '',
   name: '',
@@ -74,6 +75,7 @@ const emptyForm = {
   old_price: '',
   unit: '',
   image: '',
+  gallery: [] as string[],
   features: '',
   tags: '',
   in_stock: true,
@@ -154,6 +156,7 @@ export function ProductsManager() {
       old_price: p.old_price ? String(p.old_price) : '',
       unit: p.unit || '',
       image: p.image || '',
+      gallery: p.gallery || [], // CẢI TIẾN: Nạp album ảnh cũ vào form khi sửa
       features: (p.features || []).join(', '),
       tags: (p.tags || []).join(', '),
       in_stock: p.in_stock,
@@ -208,7 +211,7 @@ export function ProductsManager() {
         old_price: form.old_price ? parseInt(form.old_price.replace(/\D/g, ''), 10) : null,
         unit: form.unit,
         image: form.image,
-        gallery: [],
+        gallery: form.gallery, // CẢI TIẾN: Đồng bộ mảng gallery sang trạng thái tạm thời
         features: payload.features,
         nutrition_facts: [],
         tags: payload.tags,
@@ -318,6 +321,20 @@ export function ProductsManager() {
     } finally {
       setSyncing(false);
     }
+  };
+
+  // CẢI TIẾN: Các hàm hỗ trợ thêm và xóa ảnh khỏi mảng album gallery
+  const handleAddGalleryImage = (url: string) => {
+    if (url && !form.gallery.includes(url)) {
+      setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
+    }
+  };
+
+  const handleRemoveGalleryImage = (indexToRemove: number) => {
+    setForm((prev) => ({
+      ...prev,
+      gallery: prev.gallery.filter((_, idx) => idx !== indexToRemove),
+    }));
   };
 
   return (
@@ -670,10 +687,48 @@ export function ProductsManager() {
               />
             </div>
 
-            <ImageUpload
-              value={form.image}
-              onChange={(url) => setForm({ ...form, image: url })}
-            />
+            {/* 1. Khu vực ảnh đại diện chính */}
+            <div className="space-y-2">
+              <Label className="font-semibold text-foreground">Ảnh đại diện chính</Label>
+              <ImageUpload
+                value={form.image}
+                onChange={(url) => setForm({ ...form, image: url })}
+              />
+            </div>
+
+            {/* 2. CẢI TIẾN: Khu vực quản lý album nhiều ảnh (Gallery) */}
+            <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+              <div>
+                <Label className="font-semibold text-foreground">Album ảnh chi tiết (Gallery)</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Tải lên các ảnh chi tiết hiển thị trong trang sản phẩm</p>
+              </div>
+
+              {/* Lưới hiển thị danh sách các ảnh đã có trong album */}
+              {form.gallery && form.gallery.length > 0 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {form.gallery.map((url, idx) => (
+                    <div key={idx} className="group relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+                      <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveGalleryImage(idx)}
+                        className="absolute right-1 top-1 rounded-full bg-destructive/90 p-1 text-white opacity-90 transition-opacity hover:bg-destructive shadow-sm group-hover:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Ô upload để add thêm ảnh mới vào mảng album */}
+              <div className="mt-2">
+                <ImageUpload
+                  value=""
+                  onChange={(url) => handleAddGalleryImage(url)}
+                />
+              </div>
+            </div>
 
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-sm">
