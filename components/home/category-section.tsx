@@ -1,72 +1,40 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, Wheat, Sparkles, Leaf, Droplet, ShoppingBasket, Sprout } from 'lucide-react';
-import { getAllCategories, getCategoryProductCount } from '@/lib/supabase-data';
-import { SectionHeading } from '@/components/common/section-heading';
+import { getAllCategories } from '@/lib/supabase-data';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Wheat,
-  Sparkles,
-  Leaf,
-  Sprout,
-  Droplet,
-  ShoppingBasket,
-};
+interface Category {
+  name: string;
+  slug: string;
+}
 
 export async function CategorySection() {
   const categories = getAllCategories();
 
   return (
-    <section className="py-16 sm:py-20">
+    <section className="sticky top-16 lg:top-20 z-30 w-full bg-background py-3 border-b border-border/40 shadow-sm">
       <div className="container-page">
-        <SectionHeading
-          eyebrow="Danh mục"
-          title="Khám phá theo danh mục"
-          description="Từ gạo bình dân đến đặc sản cao cấp, từ nước mắm nhĩ đến dầu lạc nguyên chất - tất cả đều có tại Gạo Trần Huy."
-        />
-
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((cat, index) => {
-            const Icon = iconMap[cat.icon] ?? Wheat;
-            return (
-              <Link
-                key={cat.slug}
-                href={`/danh-muc/${cat.slug}`}
-                className="group relative flex flex-col items-center overflow-hidden rounded-2xl border bg-card p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-lg"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="relative mb-3 h-20 w-20 overflow-hidden rounded-full bg-accent">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    sizes="80px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-primary shadow">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-sm font-semibold leading-tight text-foreground">
-                  {cat.name}
-                </h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  <CategoryCount slug={cat.slug} />
-                </p>
-                <ArrowRight className="mt-2 h-4 w-4 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-              </Link>
-            );
-          })}
+        {/* Thanh danh mục cuộn ngang, ẩn thanh cuộn scrollbar trên mọi thiết bị */}
+        <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          
+          {/* Nút "Tất cả" - mặc định nổi bật */}
+          <Link
+            href="/san-pham"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-all whitespace-nowrap hover:bg-primary/90 shadow-sm"
+          >
+            Tất cả
+          </Link>
+          
+          {/* Danh sách 6 danh mục gọn nhẹ dạng nút nhỏ */}
+          {categories.map((cat: Category) => (
+            <Link
+              key={cat.slug}
+              href={`/danh-muc/${cat.slug}`}
+              className="inline-flex items-center justify-center rounded-full border border-border bg-muted/50 px-5 py-2 text-sm font-medium text-foreground/80 transition-all whitespace-nowrap hover:border-primary hover:bg-primary/10 hover:text-primary"
+            >
+              {cat.name}
+            </Link>
+          ))}
         </div>
       </div>
     </section>
   );
-}
-
-async function CategoryCount({ slug }: { slug: string }) {
-  const count = await getCategoryProductCount(slug);
-  return <>{count} SP</>;
 }

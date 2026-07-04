@@ -6,12 +6,16 @@ import {
   Truck,
   Star,
   Sparkles,
-  Wheat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo } from '@/data/site';
 
-export function Hero() {
+// Khai báo kiểu dữ liệu đầu vào nhận từ Server Component (app/page.tsx)
+interface HeroProps {
+  totalProducts: number;
+}
+
+export function Hero({ totalProducts }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-accent/50 via-background to-background">
       <div className="grain-bg absolute inset-0 opacity-60" />
@@ -63,8 +67,13 @@ export function Hero() {
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6">
             <div>
+              {/* 
+                BỔ SUNG AN TOÀN: 
+                Nếu chưa kịp lấy dữ liệu từ database, mặc định hiện 13.
+                Thêm `+` đằng sau nếu anh muốn giữ định dạng như cũ (Ví dụ: 13+)
+              */}
               <div className="font-display text-2xl font-extrabold text-primary sm:text-3xl">
-                16+
+                {totalProducts ? `${totalProducts}+` : '13+'}
               </div>
               <div className="text-xs text-muted-foreground sm:text-sm">
                 Sản phẩm
