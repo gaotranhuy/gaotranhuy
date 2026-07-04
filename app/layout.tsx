@@ -1,40 +1,123 @@
-import { Hero } from '@/components/home/hero';
-import { CategorySection } from '@/components/home/category-section';
-import { FeaturedProducts } from '@/components/home/featured-products';
-import { Features } from '@/components/home/features';
-import { CTASection } from '@/components/home/cta-section';
-import { NewsSection } from '@/components/home/news-section';
-import { ContactCTA } from '@/components/common/contact-cta';
-import { organizationJsonLd } from '@/lib/seo';
-import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
+import './globals.css';
+import type { Metadata } from 'next';
+import { Inter, Be_Vietnam_Pro } from 'next/font/google';
+import { CartProvider } from '@/lib/cart-context';
+import { SiteHeader } from '@/components/layout/site-header';
+import { SiteFooter } from '@/components/layout/site-footer';
+import { CartDrawer } from '@/components/cart/cart-drawer';
+import { BackToTop } from '@/components/layout/back-to-top';
+import { Toaster } from '@/components/ui/sonner';
 
-export const revalidate = 3600;
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
-export default async function HomePage() {
-  // Lấy danh sách danh mục (đồng bộ) và toàn bộ sản phẩm từ database (bất đồng bộ)
-  const categories = getAllCategories();
-  const allProducts = await fetchAllProducts();
+const beVietnam = Be_Vietnam_Pro({
+  subsets: ['vietnamese', 'latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-be-vietnam',
+  display: 'swap',
+});
 
+const SITE_URL = 'https://gaotranhuy.vn';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Gạo Trần Huy | Gạo Thơm Dẻo, Nước Mắm Nam Ô, Đặc sản Việt',
+    template: '%s | Gạo Trần Huy',
+  },
+  description:
+    'Gạo Trần Huy chuyên cung cấp gạo bình dân, gạo đặc sản, gạo nếp, gạo lứt, nước mắm nhĩ Nam Ô và dầu lạc nguyên chất. Giao hàng tận nơi, giá hợp lý.',
+  keywords: [
+    'gạo trần huy',
+    'gạo bình dân',
+    'gạo đặc sản',
+    'gạo nếp',
+    'gạo lứt',
+    'gạo st25',
+    'nước mắm nam ô',
+    'dầu lạc nguyên chất',
+    'gạo thơm dẻo',
+    'bán gạo',
+  ],
+  authors: [{ name: 'Gạo Trần Huy' }],
+  creator: 'Gạo Trần Huy',
+  publisher: 'Gạo Trần Huy',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: SITE_URL,
+    siteName: 'Gạo Trần Huy',
+    title: 'Gạo Trần Huy | Gạo Thơm Dẻo, Nước Mắm Nam Ô, Đặc sản Việt',
+    description:
+      'Gạo bình dân, gạo đặc sản, gạo nếp, gạo lứt, nước mắm nhĩ Nam Ô và dầu lạc nguyên chất. Giao hàng tận nơi.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Gạo Trần Huy - Gạo thơm dẻo, đặc sản Việt',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Gạo Trần Huy | Gạo Thơm Dẻo, Đặc sản Việt',
+    description:
+      'Gạo bình dân, gạo đặc sản, gạo nếp, gạo lứt, nước mắm nhĩ Nam Ô và dầu lạc nguyên chất.',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  category: 'food',
+};
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#d68a2e' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a1410' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationJsonLd()),
-        }}
-      />
-      
-      {/* 1. Truyền số lượng sản phẩm tự động đếm từ database vào đây */}
-      <Hero totalProducts={allProducts.length} />
-      
-      {/* 2. Thanh danh mục cuộn ngang thuần Server cực nhẹ */}
-      <CategorySection />
-      
-      <FeaturedProducts />
-      <Features />
-      <CTASection />
-      <NewsSection />
-      <ContactCTA />
-    </>
+    <html lang="vi" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${beVietnam.variable} font-sans`}
+        suppressHydrationWarning
+      >
+        <CartProvider>
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+          <CartDrawer />
+          <BackToTop />
+        </CartProvider>
+        <Toaster position="top-center" richColors />
+      </body>
+    </html>
   );
 }
