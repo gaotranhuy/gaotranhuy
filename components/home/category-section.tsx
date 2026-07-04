@@ -13,66 +13,39 @@ export function CategorySection({ categories, allProducts }: CategorySectionProp
   const [isInsideFeatured, setIsInsideFeatured] = React.useState(false);
 
   React.useEffect(() => {
-    let featuredTop = 0;
-    let featuredBottom = 0;
+    // 1. Tìm phần tử ID "featured-section" mà ta đã đặt ở bước trước
+    const target = document.getElementById('featured-section');
+    if (!target) return;
 
-    // Hàm tính toán vị trí chuẩn xác dựa vào ID cố định
-    const updateCoordinates = () => {
-      const featuredSection = document.getElementById('featured-section');
-      if (featuredSection) {
-        const rect = featuredSection.getBoundingClientRect();
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        featuredTop = rect.top + scrollTop;
-        featuredBottom = rect.bottom + scrollTop;
+    // 2. Observer sẽ báo hiệu ngay khi vùng "Sản phẩm nổi bật" chạm vào thanh Sticky
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // isIntersecting = true nghĩa là phần nổi bật đang "chạm" hoặc nằm dưới thanh sticky
+        setIsInsideFeatured(entry.isIntersecting);
+      },
+      {
+        // rootMargin: '-85px 0px 0px 0px' 
+        // Số -85px này để trừ đi chiều cao của Header + Thanh danh mục 
+        // Khi vùng sản phẩm nổi bật lướt lên tới vị trí này, nó sẽ kích hoạt
+        rootMargin: '-85px 0px 0px 0px', 
+        threshold: 0
       }
-    };
+    );
 
-    // Chạy tính toán vị trí ngay khi vào trang và khi đổi kích thước màn hình
-    updateCoordinates();
-    window.addEventListener('resize', updateCoordinates);
+    observer.observe(target);
 
-    let isTicking = false;
-
-    const handleScroll = () => {
-      if (!isTicking) {
-        window.requestAnimationFrame(() => {
-          // Mốc kích hoạt đụng trần header (85px cho desktop, 69px cho mobile)
-          const scrollPos = (window.scrollY || document.documentElement.scrollTop) + (window.innerWidth >= 1024 ? 85 : 69);
-
-          // Nếu vị trí cuộn nằm trọn trong vùng ID "featured-section"
-          if (featuredTop > 0 && scrollPos >= featuredTop && scrollPos <= featuredBottom) {
-            setIsInsideFeatured(true);
-          } else {
-            setIsInsideFeatured(false);
-          }
-          isTicking = false;
-        });
-        isTicking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Thêm một chút thời gian chờ (timeout) nhỏ để đảm bảo Next.js đã render xong HTML rồi mới đo vị trí
-    const timer = setTimeout(updateCoordinates, 500);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', updateCoordinates);
-      clearTimeout(timer);
-    };
+    return () => observer.disconnect();
   }, []);
 
   return (
     <section 
       className={`sticky top-16 lg:top-20 z-30 w-full py-3 border-b border-border/40 backdrop-blur transition-colors duration-300 ${
         isInsideFeatured 
-          ? 'bg-[#f4f4f5]/90 dark:bg-[#27272a]/90' // Màu nền xám trùng khít với bg-accent/30 khi cuộn tới
-          : 'bg-background/95' // Màu trắng mặc định ban đầu
+          ? 'bg-[#f4f4f5]/90 dark:bg-[#27272a]/90' // Màu nền trùng với bg-accent/30
+          : 'bg-background/95' // Màu nền trắng mặc định
       }`}
     >
       <div className="container-page">
-        {/* Thanh danh mục cuộn ngang tối giản */}
         <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Link
             href="/san-pham"
