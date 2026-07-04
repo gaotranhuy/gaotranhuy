@@ -35,14 +35,12 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  // Đảm bảo luôn có mảng ảnh để chạy slide
   const gallery = product.gallery?.length ? product.gallery : [product.image];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
   };
 
-  // Các hàm điều hướng slide bằng nút bấm
   const handlePrevImage = () => {
     setActiveImage((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
   };
@@ -58,10 +56,12 @@ export function ProductDetail({ product }: { product: Product }) {
   )}`;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+    // SỬA TẠI ĐÂY: Thêm w-full và overflow-hidden để bọc toàn bộ grid không cho bung khung
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full overflow-hidden">
       
-      {/* ================= KHU VỰC CẢI TIẾN: MODERN SLIDE GALLERY ================= */}
-      <div className="flex flex-col gap-3">
+      {/* ================= KHU VỰC GALLERY: ĐÃ FIX RESPONSIVE ================= */}
+      {/* SỬA TẠI ĐÂY: Thêm w-full min-w-0 để ép khối ảnh phải co lại theo màn hình mobile */}
+      <div className="flex flex-col gap-3 w-full min-w-0">
         {/* Khung ảnh bự ở trên */}
         <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm">
           <Image
@@ -79,7 +79,6 @@ export function ProductDetail({ product }: { product: Product }) {
             </Badge>
           )}
 
-          {/* Hai nút mũi tên điều hướng slide trái / phải chuẩn UI/UX hiện đại */}
           {gallery.length > 1 && (
             <>
               <button
@@ -102,9 +101,9 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Hàng danh sách nhiều ảnh nhỏ ở dưới dạng cuộn ngang chống vỡ khung */}
+        {/* Hàng ảnh nhỏ ở dưới: Đã cố định max-w-full để tự động kích hoạt cuộn ngang mượt mà */}
         {gallery.length > 1 && (
-          <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-full scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {gallery.map((img, i) => (
               <button
                 key={i}
@@ -128,10 +127,11 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         )}
       </div>
-      {/* ================= END KHU VỰC CẢI TIẾN ================= */}
+      {/* ================= END GALLERY ================= */}
 
       {/* Info */}
-      <div className="flex flex-col">
+      {/* SỬA TẠI ĐÂY: Thêm w-full min-w-0 để phần text tự động xuống dòng khi màn hình hẹp */}
+      <div className="flex flex-col w-full min-w-0">
         {category && (
           <Link
             href={`/danh-muc/${category.slug}`}
@@ -141,17 +141,17 @@ export function ProductDetail({ product }: { product: Product }) {
           </Link>
         )}
 
-        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl lg:text-4xl break-words">
           {product.name}
         </h1>
 
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
           {product.shortDescription}
         </p>
 
         {/* Rating + sold */}
-        <div className="mt-4 flex flex-wrap items-center gap-4 border-b border-muted pb-4">
-          <div className="flex items-center gap-1.5">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-muted pb-4">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
@@ -176,12 +176,12 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
 
         {/* Price */}
-        <div className="mt-5 flex items-baseline gap-2 rounded-2xl bg-accent/20 px-5 py-4">
+        <div className="mt-5 flex flex-wrap items-baseline gap-2 rounded-2xl bg-accent/20 px-4 py-3.5 sm:px-5 sm:py-4">
           <span className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
             {formatPrice(product.price)}
           </span>
           {product.oldPrice && (
-            <span className="text-base text-muted-foreground line-through tracking-tight">
+            <span className="text-sm sm:text-base text-muted-foreground line-through tracking-tight">
               {formatPrice(product.oldPrice)}
             </span>
           )}
@@ -192,28 +192,29 @@ export function ProductDetail({ product }: { product: Product }) {
 
         {/* Quick info */}
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/60 p-3 bg-card">
+          <div className="flex items-center gap-2 rounded-xl border border-border/60 p-2.5 sm:p-3 bg-card min-w-0">
             <MapPin className="h-4 w-4 text-primary shrink-0" />
-            <div className="min-w-0">
-              <div className="text-[11px] text-muted-foreground">Xuất xứ</div>
-              <div className="text-sm font-semibold text-foreground truncate">{product.origin}</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground">Xuất xứ</div>
+              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">{product.origin}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/60 p-3 bg-card">
+          <div className="flex items-center gap-2 rounded-xl border border-border/60 p-2.5 sm:p-3 bg-card min-w-0">
             <Package className="h-4 w-4 text-primary shrink-0" />
-            <div className="min-w-0">
-              <div className="text-[11px] text-muted-foreground">Quy cách</div>
-              <div className="text-sm font-semibold text-foreground truncate">{product.weight}</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground">Quy cách</div>
+              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">{product.weight}</div>
             </div>
           </div>
         </div>
 
         {/* Quantity + actions */}
         <div className="mt-6 flex flex-col gap-4 border-t pt-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* SỬA TẠI ĐÂY: Đổi sang flex-col sm:flex-row để tự rớt dòng mượt mà trên mobile nhỏ */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground">Số lượng:</span>
-              <div className="flex items-center rounded-xl border border-border/80 bg-background overflow-hidden h-10">
+              <span className="text-sm font-medium text-muted-foreground shrink-0">Số lượng:</span>
+              <div className="flex items-center rounded-xl border border-border/80 bg-background overflow-hidden h-10 shrink-0">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -265,65 +266,66 @@ export function ProductDetail({ product }: { product: Product }) {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Truck className="h-4 w-4" />
             </div>
-            <span className="text-[11px] font-medium text-foreground/80">Giao nhanh tận nhà</span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Giao nhanh tận nhà</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ShieldCheck className="h-4 w-4" />
             </div>
-            <span className="text-[11px] font-medium text-foreground/80">Nguồn gốc sạch 100%</span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Nguồn gốc sạch 100%</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <RotateCcw className="h-4 w-4" />
             </div>
-            <span className="text-[11px] font-medium text-foreground/80">Đổi trả uy tín 24h</span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Đổi trả uy tín 24h</span>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="lg:col-span-2 mt-4">
+      <div className="lg:col-span-2 mt-4 w-full">
         <Tabs defaultValue="description" className="w-full">
-          <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 h-auto gap-6">
-            <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Mô tả sản phẩm</TabsTrigger>
-            <TabsTrigger value="features" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Đặc điểm nổi bật</TabsTrigger>
+          {/* SỬA TẠI ĐÂY: Thêm overflow-x-auto cho list tabs phòng khi tiêu đề dài quá không gây tràn màn hình điện thoại */}
+          <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 h-auto gap-6 overflow-x-auto scrollbar-none">
+            <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none whitespace-nowrap">Mô tả sản phẩm</TabsTrigger>
+            <TabsTrigger value="features" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none whitespace-nowrap">Đặc điểm nổi bật</TabsTrigger>
             {product.nutritionFacts && (
-              <TabsTrigger value="nutrition" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Thành phần dinh dưỡng</TabsTrigger>
+              <TabsTrigger value="nutrition" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none whitespace-nowrap">Thành phần dinh dưỡng</TabsTrigger>
             )}
           </TabsList>
           <TabsContent
             value="description"
-            className="prose prose-sm max-w-none pt-5 outline-none"
+            className="prose prose-sm max-w-none pt-5 outline-none w-full"
           >
-            <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80">
+            <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80 break-words">
               {product.description}
             </p>
           </TabsContent>
           <TabsContent
             value="features"
-            className="pt-5 outline-none"
+            className="pt-5 outline-none w-full"
           >
-            <ul className="grid gap-2.5 sm:grid-cols-2">
+            <ul className="grid gap-2.5 sm:grid-cols-2 w-full">
               {product.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
+                <li key={i} className="flex items-start gap-2 text-sm min-w-0">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                  <span className="text-foreground/80">{feature}</span>
+                  <span className="text-foreground/80 break-words flex-1">{feature}</span>
                 </li>
               ))}
             </ul>
           </TabsContent>
           {product.nutritionFacts && (
-            <TabsContent value="nutrition" className="pt-5 outline-none">
-              <div className="rounded-xl border overflow-hidden max-w-md bg-card">
+            <TabsContent value="nutrition" className="pt-5 outline-none w-full">
+              <div className="rounded-xl border overflow-hidden max-w-full sm:max-w-md bg-card">
                 <table className="w-full text-sm">
                   <tbody>
                     {product.nutritionFacts.map((fact, i) => (
                       <tr key={i} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                        <td className="py-2.5 px-4 font-medium text-muted-foreground">
+                        <td className="py-2.5 px-4 font-medium text-muted-foreground truncate max-w-[150px]">
                           {fact.label}
                         </td>
-                        <td className="py-2.5 px-4 text-right font-bold text-foreground">
+                        <td className="py-2.5 px-4 text-right font-bold text-foreground whitespace-nowrap">
                           {fact.value}
                         </td>
                       </tr>
