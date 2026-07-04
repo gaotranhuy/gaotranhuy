@@ -93,7 +93,7 @@ export function Hero() {
         <div className="relative animate-fade-in">
           <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted shadow-2xl">
             <Image
-              src="https://images.pexels.com/photos/7421205/pexels-photo-7421205.jpeg?auto=compress&cs=tinysrgb&w=1000"
+              src="https://res.cloudinary.com/f9krxetg/image/upload/v1783168677/IMG_7085_rvamwo.avif"
               alt="Gạo thơm dẻo đặc sản Gạo Trần Huy"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
