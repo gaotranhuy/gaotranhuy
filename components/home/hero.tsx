@@ -6,12 +6,16 @@ import {
   Truck,
   Star,
   Sparkles,
-  Wheat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo } from '@/data/site';
 
-export function Hero() {
+// Khai báo kiểu dữ liệu đầu vào nhận từ Server Component (app/page.tsx)
+interface HeroProps {
+  totalProducts: number;
+}
+
+export function Hero({ totalProducts }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-accent/50 via-background to-background">
       <div className="grain-bg absolute inset-0 opacity-60" />
@@ -63,8 +67,9 @@ export function Hero() {
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6">
             <div>
+              {/* Đã chuyển thành biến động totalProducts tự đếm tự nhảy số lượng */}
               <div className="font-display text-2xl font-extrabold text-primary sm:text-3xl">
-                16+
+                {totalProducts}
               </div>
               <div className="text-xs text-muted-foreground sm:text-sm">
                 Sản phẩm
