@@ -6,10 +6,15 @@ import { CTASection } from '@/components/home/cta-section';
 import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
 import { organizationJsonLd } from '@/lib/seo';
+// 1. Import hàm lấy danh mục từ lib dữ liệu của bạn
+import { getAllCategories } from '@/lib/supabase-data'; 
 
 export const revalidate = 3600;
 
 export default function HomePage() {
+  // 2. Lấy dữ liệu danh mục ngay trên Server Component
+  const categories = getAllCategories();
+
   return (
     <>
       <script
@@ -19,7 +24,10 @@ export default function HomePage() {
         }}
       />
       <Hero />
-      <CategorySection />
+      
+      {/* 3. Truyền biến categories vào prop của component tại đây */}
+      <CategorySection categories={categories} />
+      
       <FeaturedProducts />
       <Features />
       <CTASection />
