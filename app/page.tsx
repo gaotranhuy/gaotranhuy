@@ -5,15 +5,15 @@ import { CTASection } from '@/components/home/cta-section';
 import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
 import { organizationJsonLd } from '@/lib/seo';
-// Import thêm 2 hàm lấy dữ liệu từ file Supabase của bạn
-import { getAllCategories, getAllProducts } from '@/lib/supabase-data';
+// Thay đổi getAllProducts thành fetchAllProducts theo đúng gợi ý của hệ thống
+import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
   // Lấy dữ liệu danh mục và sản phẩm trực tiếp từ Server
   const categories = getAllCategories();
-  const allProducts = await getAllProducts(); // Nếu hàm này không cần await thì bạn có thể bỏ chữ await đi nhé
+  const allProducts = await fetchAllProducts(); // Đổi tên hàm tại đây
 
   return (
     <>
@@ -25,7 +25,7 @@ export default async function HomePage() {
       />
       <Hero />
       
-      {/* Truyền dữ liệu trực tiếp vào component đã sửa */}
+      {/* Truyền dữ liệu chính xác vào component */}
       <CategorySection categories={categories} allProducts={allProducts} />
       
       <Features />
