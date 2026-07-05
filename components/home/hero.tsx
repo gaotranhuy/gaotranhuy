@@ -6,6 +6,7 @@ import {
   Truck,
   Star,
   Sparkles,
+  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo } from '@/data/site';
@@ -16,6 +17,9 @@ interface HeroProps {
 }
 
 export function Hero({ totalProducts }: HeroProps) {
+  // Đường dẫn đến shop gaotranhuy trên Shopee
+  const shopeeShopUrl = `https://shopee.vn/gaotranhuy`;
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-accent/50 via-background to-background">
       <div className="grain-bg absolute inset-0 opacity-60" />
@@ -46,14 +50,16 @@ export function Hero({ totalProducts }: HeroProps) {
             Nam, giao hàng tận nơi.
           </p>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="text-base">
+          {/* Cụm nút bấm CTA - Tự động dàn hàng ngang trên PC và xếp chồng đẹp mắt trên Mobile */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap w-full sm:w-auto">
+            <Button asChild size="lg" className="text-base h-12 rounded-xl font-semibold">
               <Link href="/san-pham">
                 Khám phá sản phẩm
                 <ArrowRight className="ml-1 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="text-base">
+            
+            <Button asChild size="lg" variant="outline" className="text-base h-12 rounded-xl font-semibold">
               <a
                 href={`https://zalo.me/${contactInfo.zalo}`}
                 target="_blank"
@@ -62,13 +68,28 @@ export function Hero({ totalProducts }: HeroProps) {
                 Đặt hàng qua Zalo
               </a>
             </Button>
+
+            {/* Nút Đặt Hàng Qua Shopee với tông màu cam chuẩn thương hiệu */}
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#EE4D2D] text-white hover:bg-[#ff5733] border-none shadow-md text-base h-12 rounded-xl font-semibold active:scale-98 transition-transform"
+            >
+              <a
+                href={shopeeShopUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ShoppingBag className="mr-1.5 h-5 w-5" />
+                Đặt hàng qua Shopee
+              </a>
+            </Button>
           </div>
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6">
+          <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6 w-full">
             <div>
-              {/* 
-                BỔ SUNG AN TOÀN: 
+              {/* BỔ SUNG AN TOÀN: 
                 Nếu chưa kịp lấy dữ liệu từ database, mặc định hiện 13.
                 Thêm `+` đằng sau nếu anh muốn giữ định dạng như cũ (Ví dụ: 13+)
               */}
