@@ -16,6 +16,9 @@ interface HeroProps {
 }
 
 export function Hero({ totalProducts }: HeroProps) {
+  // Đường dẫn đến shop gaotranhuy trên Shopee
+  const shopeeShopUrl = `https://shopee.vn/gaotranhuy`;
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-accent/50 via-background to-background">
       <div className="grain-bg absolute inset-0 opacity-60" />
@@ -45,33 +48,52 @@ export function Hero({ totalProducts }: HeroProps) {
             dầu lạc nguyên chất. Tuyển chọn từ những vùng đất trù phú nhất Việt
             Nam, giao hàng tận nơi.
           </p>
+{/* Nhóm nút bấm: Ngắn gọn tự nhiên, nét chữ Zalo và Shopee đã được làm mảnh lại */}
+<div className="flex flex-row flex-wrap items-center gap-3">
+  <Button asChild size="lg" className="text-base h-12 rounded-xl font-semibold">
+    <Link href="/san-pham">
+      Khám phá sản phẩm
+      <ArrowRight className="ml-1 h-5 w-5" />
+    </Link>
+  </Button>
+  
+  {/* Nút Zalo: Nền trắng, chữ đen, nét chữ mảnh (font-normal) */}
+  <Button 
+    asChild 
+    size="lg" 
+    variant="outline" 
+    className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
+  >
+    <a
+      href={`https://zalo.me/${contactInfo.zalo}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Đặt hàng qua Zalo
+    </a>
+  </Button>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="text-base">
-              <Link href="/san-pham">
-                Khám phá sản phẩm
-                <ArrowRight className="ml-1 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="text-base">
-              <a
-                href={`https://zalo.me/${contactInfo.zalo}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Đặt hàng qua Zalo
-              </a>
-            </Button>
-          </div>
+  {/* Nút Shopee: Không icon, nền trắng, chữ đen, nét chữ mảnh (font-normal) */}
+  <Button
+    asChild
+    size="lg"
+    variant="outline"
+    className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
+  >
+    <a
+      href={shopeeShopUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Đặt hàng qua Shopee
+    </a>
+  </Button>
+</div>
+
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6">
+          <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6 w-full">
             <div>
-              {/* 
-                BỔ SUNG AN TOÀN: 
-                Nếu chưa kịp lấy dữ liệu từ database, mặc định hiện 13.
-                Thêm `+` đằng sau nếu anh muốn giữ định dạng như cũ (Ví dụ: 13+)
-              */}
               <div className="font-display text-2xl font-extrabold text-primary sm:text-3xl">
                 {totalProducts ? `${totalProducts}+` : '13+'}
               </div>

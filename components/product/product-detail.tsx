@@ -35,8 +35,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  /* 
-    SỬA TẠI ĐÂY: SỬA LẠI LOGIC GỘP MẢNG AN TOÀN TUYỆT ĐỐI
+  /* SỬA TẠI ĐÂY: SỬA LẠI LOGIC GỘP MẢNG AN TOÀN TUYỆT ĐỐI
     - Tạo mảng gallery chứa ảnh đại diện chính (product.image) luôn ở vị trí đầu tiên [0].
     - Nếu có album ảnh phụ (product.gallery), ta trải các ảnh phụ ra đứng ngay phía sau.
     - Dùng Set để tự động loại bỏ mọi ảnh trùng lặp kể cả khi lệch ký tự ẩn.
@@ -93,6 +92,9 @@ export function ProductDetail({ product }: { product: Product }) {
       product.price * quantity
     )}`
   )}`;
+
+  // Đường dẫn đến shop gaotranhuy trên Shopee
+  const shopeeShopUrl = `https://shopee.vn/gaotranhuy`;
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
@@ -286,20 +288,35 @@ export function ProductDetail({ product }: { product: Product }) {
             </div>
           </div>
 
+          {/* Grid chứa các nút CTA */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1 w-full">
             <Button
               size="lg"
               onClick={handleAddToCart}
               disabled={!product.inStock}
-              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-transform"
+              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-transform sm:col-span-2"
             >
               <ShoppingBag className="h-4 w-4 mr-1.5" />
               {product.inStock ? 'Thêm vào giỏ hàng' : 'Hết hàng tạm thời'}
             </Button>
+            
+            {/* Nút đặt hàng qua Zalo */}
             <Button size="lg" variant="outline" asChild className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide border-primary text-primary hover:bg-primary/5 active:scale-98 transition-transform">
               <a href={zaloOrderUrl} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4 mr-1.5 fill-current" />
-                Đặt hàng nhanh qua Zalo
+                Đặt Zalo Giao Nhanh Đà Nẵng
+              </a>
+            </Button>
+
+            {/* Nút Đặt hàng qua Shopee (Màu cam đặc trưng, hover mượt, căn chỉnh theo layout) */}
+            <Button 
+              size="lg" 
+              asChild 
+              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide bg-[#EE4D2D] text-white hover:bg-[#ff5733] shadow-md active:scale-98 transition-transform border-none"
+            >
+              <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer">
+                <ShoppingBag className="h-4 w-4 mr-1.5 fill-current" />
+                Đặt Shopee Giao Toàn Quốc
               </a>
             </Button>
           </div>
