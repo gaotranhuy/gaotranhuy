@@ -6,7 +6,6 @@ import {
   Truck,
   Star,
   Sparkles,
-  ShoppingBag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo } from '@/data/site';
@@ -50,9 +49,7 @@ export function Hero({ totalProducts }: HeroProps) {
             Nam, giao hàng tận nơi.
           </p>
 
-          {/* ĐÃ SỬA: Loại bỏ `w-full` để các nút ngắn gọn tự nhiên theo nội dung chữ như ban đầu.
-            Giữ `flex-row flex-wrap items-center` để dàn hàng ngang đồng đều trên cả mobile và PC.
-          */}
+          {/* Nhóm nút bấm: Ngắn gọn tự nhiên, xếp hàng ngang linh hoạt */}
           <div className="flex flex-row flex-wrap items-center gap-3">
             <Button asChild size="lg" className="text-base h-12 rounded-xl font-semibold">
               <Link href="/san-pham">
@@ -61,8 +58,13 @@ export function Hero({ totalProducts }: HeroProps) {
               </Link>
             </Button>
             
-            {/* Nút Zalo: Nền trắng chữ xanh theo tông mặc định (variant="outline") */}
-            <Button asChild size="lg" variant="outline" className="text-base h-12 rounded-xl font-semibold border-primary text-primary hover:bg-primary/5">
+            {/* Nút Zalo: Nền trắng, chữ đen, viền mờ nhạt, hover đổi nền xám nhẹ */}
+            <Button 
+              asChild 
+              size="lg" 
+              variant="outline" 
+              className="text-base h-12 rounded-xl font-semibold border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
+            >
               <a
                 href={`https://zalo.me/${contactInfo.zalo}`}
                 target="_blank"
@@ -72,19 +74,18 @@ export function Hero({ totalProducts }: HeroProps) {
               </a>
             </Button>
 
-            {/* Nút Shopee: Đã sửa thành nền trắng, chữ cam, viền cam nhạt, hover đổi nền cam nhẹ cực mượt */}
+            {/* Nút Shopee: Không icon, nền trắng, chữ đen đồng bộ hoàn toàn với nút Zalo */}
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="text-base h-12 rounded-xl font-semibold border-[#EE4D2D]/30 text-[#EE4D2D] hover:bg-[#EE4D2D]/5 hover:text-[#EE4D2D] hover:border-[#EE4D2D] active:scale-98 transition-all"
+              className="text-base h-12 rounded-xl font-semibold border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
             >
               <a
                 href={shopeeShopUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <ShoppingBag className="mr-1.5 h-5 w-5" />
                 Đặt hàng qua Shopee
               </a>
             </Button>
