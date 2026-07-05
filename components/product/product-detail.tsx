@@ -35,11 +35,11 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  // Quản lý vị trí tọa độ khi bắt đầu chạm màn hình
-  const [touchStart, setTouchStart] = React.useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
-
   const gallery = product.gallery?.length ? product.gallery : [product.image];
+
+  // Khai báo biến tạm dùng để lưu tọa độ điểm chạm ngón tay ban đầu
+  const touchStartX = React.useRef<number>(0);
+  const touchEndX = React.useRef<number>(0);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -53,33 +53,41 @@ export function ProductDetail({ product }: { product: Product }) {
     setActiveImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
   };
 
-  // ================= LOGIC XỬ LÝ VUỐT (SWIPE) TRÊN MOBILE =================
-  const minSwipeDistance = 50; // Khoảng cách tối thiểu (pixel) để tính là một cú vuốt
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null); // Reset lại touch end cũ
-    setTouchStart(e.targetTouches[0].clientX);
+  /* ===========================================================================
+    CẢI TIẾN THÊM LOGIC CẢM ỨNG (SWIPE GESTURES):
+    - handleTouchStart: Ghi lại vị trí ngón tay vừa chạm vào màn hình.
+    - handleTouchEnd: Ghi lại vị trí ngón tay nhấc lên, so sánh khoảng cách 
+      để xác định xem người dùng vuốt sang trái hay sang phải.
+    ===========================================================================
+  */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
   };
 
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
+  const handleTouchEnd = () => {
+    // Nếu khoảng cách di chuyển quá ngắn (dưới 50px), coi như là chạm nhầm (tap) và bỏ qua
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    const isSwipeThreshold = Math.abs(distance) > 50;
 
-    if (isLeftSwipe) {
-      // Vuốt từ phải sang trái -> Xem ảnh tiếp theo
-      handleNextImage();
-    } else if (isRightSwipe) {
-      // Vuốt từ trái sang phải -> Xem ảnh trước đó
-      handlePrevImage();
+    if (isSwipeThreshold) {
+      if (distance > 0) {
+        // Vuốt từ phải sang trái -> Xem ảnh kế tiếp
+        handleNextImage();
+      } else {
+        // Vuốt từ trái sang phải -> Quay lại ảnh trước
+        handlePrevImage();
+      }
     }
+
+    // Reset lại tọa độ sau khi vuốt xong
+    touchStartX.current = 0;
+    touchEndX.current = 0;
   };
-  // ========================================================================
 
   const zaloOrderUrl = `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(
     `Tôi muốn đặt: ${product.name} - SL: ${quantity} - ${formatPrice(
@@ -90,14 +98,17 @@ export function ProductDetail({ product }: { product: Product }) {
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
       
-      {/* ================= KHU VỰC GALLERY ================= */}
+      {/* ================= KHU VỰC GALLERY: ĐÃ THÊM TÍNH NĂNG VUỐT ẢNH ================= */}
       <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        {/* Khung ảnh bự ở trên: Bổ sung các sự kiện bắt vuốt chuột/tay */}
+        {/* Khung ảnh bự ở trên:
+          Gắn thêm 3 sự kiện cảm ứng (onTouchStart, onTouchMove, onTouchEnd) 
+          giúp nhận diện thao tác vuốt lướt trên điện thoại một cách hoàn hảo.
+        */}
         <div 
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm select-none cursor-grab active:cursor-grabbing"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm cursor-grab active:cursor-grabbing select-none"
         >
           <Image
             src={gallery[activeImage]}
@@ -119,7 +130,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
                 aria-label="Ảnh trước"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -127,7 +138,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
                 aria-label="Ảnh tiếp theo"
               >
                 <ChevronRight className="h-5 w-5" />
