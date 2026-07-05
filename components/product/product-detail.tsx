@@ -35,11 +35,22 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  // Quản lý vị trí tọa độ khi bắt đầu chạm màn hình
-  const [touchStart, setTouchStart] = React.useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+  /* 
+    SỬA TẠI ĐÂY: SỬA LẠI LOGIC GỘP MẢNG AN TOÀN TUYỆT ĐỐI
+    - Tạo mảng gallery chứa ảnh đại diện chính (product.image) luôn ở vị trí đầu tiên [0].
+    - Nếu có album ảnh phụ (product.gallery), ta trải các ảnh phụ ra đứng ngay phía sau.
+    - Dùng Set để tự động loại bỏ mọi ảnh trùng lặp kể cả khi lệch ký tự ẩn.
+  */
+  const rawGallery = product.gallery?.length 
+    ? [product.image, ...product.gallery] 
+    : [product.image];
+    
+  // Loại bỏ các phần tử rỗng hoặc trùng lặp hoàn toàn
+  const gallery = Array.from(new Set(rawGallery.filter(Boolean)));
 
-  const gallery = product.gallery?.length ? product.gallery : [product.image];
+  // Khai báo biến tạm dùng để lưu tọa độ điểm chạm ngón tay khi vuốt
+  const touchStartX = React.useRef<number>(0);
+  const touchEndX = React.useRef<number>(0);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -53,33 +64,29 @@ export function ProductDetail({ product }: { product: Product }) {
     setActiveImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
   };
 
-  // ================= LOGIC XỬ LÝ VUỐT (SWIPE) TRÊN MOBILE =================
-  const minSwipeDistance = 50; // Khoảng cách tối thiểu (pixel) để tính là một cú vuốt
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null); // Reset lại touch end cũ
-    setTouchStart(e.targetTouches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
   };
 
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    const isSwipeThreshold = Math.abs(distance) > 50;
 
-    if (isLeftSwipe) {
-      // Vuốt từ phải sang trái -> Xem ảnh tiếp theo
-      handleNextImage();
-    } else if (isRightSwipe) {
-      // Vuốt từ trái sang phải -> Xem ảnh trước đó
-      handlePrevImage();
+    if (isSwipeThreshold) {
+      if (distance > 0) {
+        handleNextImage();
+      } else {
+        handlePrevImage();
+      }
     }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
   };
-  // ========================================================================
 
   const zaloOrderUrl = `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(
     `Tôi muốn đặt: ${product.name} - SL: ${quantity} - ${formatPrice(
@@ -92,21 +99,27 @@ export function ProductDetail({ product }: { product: Product }) {
       
       {/* ================= KHU VỰC GALLERY ================= */}
       <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        {/* Khung ảnh bự ở trên: Bổ sung các sự kiện bắt vuốt chuột/tay */}
+        {/* Khung ảnh bự ở trên */}
         <div 
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm select-none cursor-grab active:cursor-grabbing"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm cursor-grab active:cursor-grabbing select-none"
         >
-          <Image
-            src={gallery[activeImage]}
-            alt={product.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover transition-all duration-500 pointer-events-none"
-            priority
-          />
+          {gallery[activeImage] ? (
+            <Image
+              src={gallery[activeImage]}
+              alt={product.name}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover transition-all duration-500 pointer-events-none"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+              Không có hình ảnh
+            </div>
+          )}
           
           {discount && (
             <Badge className="absolute left-4 top-4 bg-rose-500 text-white font-semibold shadow-sm border-none z-10">
@@ -119,7 +132,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
                 aria-label="Ảnh trước"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -127,7 +140,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
                 aria-label="Ảnh tiếp theo"
               >
                 <ChevronRight className="h-5 w-5" />
