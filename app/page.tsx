@@ -5,6 +5,7 @@ import { Features } from '@/components/home/features';
 import { CTASection } from '@/components/home/cta-section';
 import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
+import { FloatingContact } from '@/components/common/floating-contact'; // 1. Import ở đây
 import { organizationJsonLd } from '@/lib/seo';
 import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
 
@@ -35,6 +36,9 @@ export default async function HomePage() {
       <CTASection />
       <NewsSection />
       <ContactCTA />
+
+      {/* 2. Thêm vào cuối để nút hiển thị đè lên toàn bộ giao diện */}
+      <FloatingContact />
     </>
   );
 }
