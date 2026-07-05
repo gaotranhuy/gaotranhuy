@@ -5,7 +5,7 @@ import { Features } from '@/components/home/features';
 import { CTASection } from '@/components/home/cta-section';
 import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
-import { FloatingContact } from '@/components/common/floating-contact'; // Import component
+
 import { organizationJsonLd } from '@/lib/seo';
 import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
 
@@ -32,8 +32,7 @@ export default async function HomePage() {
       <NewsSection />
       <ContactCTA />
 
-      {/* Đặt widget nằm dưới cùng trang chủ */}
-      <FloatingContact />
+  
     </>
   );
 }
