@@ -35,9 +35,20 @@ export function ProductDetail({ product }: { product: Product }) {
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  const gallery = product.gallery?.length ? product.gallery : [product.image];
+  /* 
+    SỬA TẠI ĐÂY: SỬA LẠI LOGIC GỘP MẢNG AN TOÀN TUYỆT ĐỐI
+    - Tạo mảng gallery chứa ảnh đại diện chính (product.image) luôn ở vị trí đầu tiên [0].
+    - Nếu có album ảnh phụ (product.gallery), ta trải các ảnh phụ ra đứng ngay phía sau.
+    - Dùng Set để tự động loại bỏ mọi ảnh trùng lặp kể cả khi lệch ký tự ẩn.
+  */
+  const rawGallery = product.gallery?.length 
+    ? [product.image, ...product.gallery] 
+    : [product.image];
+    
+  // Loại bỏ các phần tử rỗng hoặc trùng lặp hoàn toàn
+  const gallery = Array.from(new Set(rawGallery.filter(Boolean)));
 
-  // Khai báo biến tạm dùng để lưu tọa độ điểm chạm ngón tay ban đầu
+  // Khai báo biến tạm dùng để lưu tọa độ điểm chạm ngón tay khi vuốt
   const touchStartX = React.useRef<number>(0);
   const touchEndX = React.useRef<number>(0);
 
@@ -53,13 +64,6 @@ export function ProductDetail({ product }: { product: Product }) {
     setActiveImage((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
   };
 
-  /* ===========================================================================
-    CẢI TIẾN THÊM LOGIC CẢM ỨNG (SWIPE GESTURES):
-    - handleTouchStart: Ghi lại vị trí ngón tay vừa chạm vào màn hình.
-    - handleTouchEnd: Ghi lại vị trí ngón tay nhấc lên, so sánh khoảng cách 
-      để xác định xem người dùng vuốt sang trái hay sang phải.
-    ===========================================================================
-  */
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
   };
@@ -69,22 +73,17 @@ export function ProductDetail({ product }: { product: Product }) {
   };
 
   const handleTouchEnd = () => {
-    // Nếu khoảng cách di chuyển quá ngắn (dưới 50px), coi như là chạm nhầm (tap) và bỏ qua
     if (!touchStartX.current || !touchEndX.current) return;
     const distance = touchStartX.current - touchEndX.current;
     const isSwipeThreshold = Math.abs(distance) > 50;
 
     if (isSwipeThreshold) {
       if (distance > 0) {
-        // Vuốt từ phải sang trái -> Xem ảnh kế tiếp
         handleNextImage();
       } else {
-        // Vuốt từ trái sang phải -> Quay lại ảnh trước
         handlePrevImage();
       }
     }
-
-    // Reset lại tọa độ sau khi vuốt xong
     touchStartX.current = 0;
     touchEndX.current = 0;
   };
@@ -98,26 +97,29 @@ export function ProductDetail({ product }: { product: Product }) {
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
       
-      {/* ================= KHU VỰC GALLERY: ĐÃ THÊM TÍNH NĂNG VUỐT ẢNH ================= */}
+      {/* ================= KHU VỰC GALLERY ================= */}
       <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        {/* Khung ảnh bự ở trên:
-          Gắn thêm 3 sự kiện cảm ứng (onTouchStart, onTouchMove, onTouchEnd) 
-          giúp nhận diện thao tác vuốt lướt trên điện thoại một cách hoàn hảo.
-        */}
+        {/* Khung ảnh bự ở trên */}
         <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm cursor-grab active:cursor-grabbing select-none"
         >
-          <Image
-            src={gallery[activeImage]}
-            alt={product.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover transition-all duration-500 pointer-events-none"
-            priority
-          />
+          {gallery[activeImage] ? (
+            <Image
+              src={gallery[activeImage]}
+              alt={product.name}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover transition-all duration-500 pointer-events-none"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+              Không có hình ảnh
+            </div>
+          )}
           
           {discount && (
             <Badge className="absolute left-4 top-4 bg-rose-500 text-white font-semibold shadow-sm border-none z-10">
