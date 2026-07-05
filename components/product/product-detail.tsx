@@ -304,7 +304,7 @@ export function ProductDetail({ product }: { product: Product }) {
             <Button size="lg" variant="outline" asChild className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide border-primary text-primary hover:bg-primary/5 active:scale-98 transition-transform">
               <a href={zaloOrderUrl} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4 mr-1.5 fill-current" />
-                Đặt hàng nhanh qua Zalo
+                Đặt Zalo Giao Nhanh Đà Nẵng
               </a>
             </Button>
 
@@ -316,7 +316,7 @@ export function ProductDetail({ product }: { product: Product }) {
             >
               <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer">
                 <ShoppingBag className="h-4 w-4 mr-1.5 fill-current" />
-                Mua trực tiếp trên Shopee
+                Đặt Shopee Giao Toàn Quốc
               </a>
             </Button>
           </div>
