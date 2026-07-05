@@ -48,48 +48,48 @@ export function Hero({ totalProducts }: HeroProps) {
             dầu lạc nguyên chất. Tuyển chọn từ những vùng đất trù phú nhất Việt
             Nam, giao hàng tận nơi.
           </p>
+{/* Nhóm nút bấm: Ngắn gọn tự nhiên, nét chữ Zalo và Shopee đã được làm mảnh lại */}
+<div className="flex flex-row flex-wrap items-center gap-3">
+  <Button asChild size="lg" className="text-base h-12 rounded-xl font-semibold">
+    <Link href="/san-pham">
+      Khám phá sản phẩm
+      <ArrowRight className="ml-1 h-5 w-5" />
+    </Link>
+  </Button>
+  
+  {/* Nút Zalo: Nền trắng, chữ đen, nét chữ mảnh (font-normal) */}
+  <Button 
+    asChild 
+    size="lg" 
+    variant="outline" 
+    className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
+  >
+    <a
+      href={`https://zalo.me/${contactInfo.zalo}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Đặt hàng qua Zalo
+    </a>
+  </Button>
 
-          {/* Nhóm nút bấm: Ngắn gọn tự nhiên, xếp hàng ngang linh hoạt */}
-          <div className="flex flex-row flex-wrap items-center gap-3">
-            <Button asChild size="lg" className="text-base h-12 rounded-xl font-semibold">
-              <Link href="/san-pham">
-                Khám phá sản phẩm
-                <ArrowRight className="ml-1 h-5 w-5" />
-              </Link>
-            </Button>
-            
-            {/* Nút Zalo: Nền trắng, chữ đen, viền mờ nhạt, hover đổi nền xám nhẹ */}
-            <Button 
-              asChild 
-              size="lg" 
-              variant="outline" 
-              className="text-base h-12 rounded-xl font-semibold border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
-            >
-              <a
-                href={`https://zalo.me/${contactInfo.zalo}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Đặt hàng qua Zalo
-              </a>
-            </Button>
+  {/* Nút Shopee: Không icon, nền trắng, chữ đen, nét chữ mảnh (font-normal) */}
+  <Button
+    asChild
+    size="lg"
+    variant="outline"
+    className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
+  >
+    <a
+      href={shopeeShopUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Đặt hàng qua Shopee
+    </a>
+  </Button>
+</div>
 
-            {/* Nút Shopee: Không icon, nền trắng, chữ đen đồng bộ hoàn toàn với nút Zalo */}
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="text-base h-12 rounded-xl font-semibold border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all"
-            >
-              <a
-                href={shopeeShopUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Đặt hàng qua Shopee
-              </a>
-            </Button>
-          </div>
 
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-6 border-t pt-6 w-full">
