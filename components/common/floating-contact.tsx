@@ -5,8 +5,8 @@ import Image from 'next/image';
 
 export function FloatingContact() {
   // Thay link Zalo và Shopee của bạn vào đây
-  const zaloUrl = "https://zalo.me/0xxxxxxxxx"; 
-  const shopeeUrl = "https://shopee.vn/your-shop-username";
+  const zaloUrl = "https://zalo.me/0931555551"; 
+  const shopeeUrl = "https://shopee.vn/gaotranhuy";
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-4 py-2 md:py-3">
