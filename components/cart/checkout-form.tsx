@@ -60,14 +60,14 @@ export function CheckoutForm() {
       })
       .join('\n');
 
-    // 2. Thiết kế mẫu tin nhắn báo đơn hàng cực kỳ chuyên nghiệp gửi về máy chủ shop
+    // 2. Thiết kế mẫu tin nhắn báo đơn hàng chuyên nghiệp gửi về máy chủ shop
     const telegramMessage = 
       `🚨 CÓ ĐƠN HÀNG GẠO MỚI! 🚨\n\n` +
       `👤 Khách hàng: ${form.name}\n` +
       `📞 Số điện thoại: ${form.phone}\n` +
       `📍 Địa chỉ giao: ${form.address}\n` +
       (form.note ? `📝 Ghi chú: ${form.note}\n` : '') +
-      `\n🌾 SẢN PHẨM ĐẶT MUA:\n${productLines}\n\n` +
+      `\n📦 SẢN PHẨM ĐẶT MUA:\n${productLines}\n\n` +
       `-----------------------------\n` +
       `💰 Tiền hàng: ${formatPrice(totalPrice)}\n` +
       `🚚 Phí vận chuyển: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
@@ -75,9 +75,9 @@ export function CheckoutForm() {
 
     try {
       // 3. ĐIỀU LUỒNG NGẦM: Đẩy dữ liệu đơn hàng trực tiếp lên API Bot Telegram
-      // Ní hãy điền Token và Chat ID ní vừa tạo ở BotFather vào đây nhé:
-      const TELEGRAM_BOT_TOKEN = '8763178902:AAG7Gpy5GT24JZUiic1xQHRtn-F9HHV3BGQ'; 
-      const TELEGRAM_CHAT_ID = '1143273237'; 
+      // (Nhớ điền mã Token của ní ở chỗ này)
+      const TELEGRAM_BOT_TOKEN = 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY'; 
+      const TELEGRAM_CHAT_ID = 'ĐIỀN_ID_CHAT_CỦA_BẠN_VÀO_ĐÂY'; 
 
       await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
@@ -93,7 +93,8 @@ export function CheckoutForm() {
       setSubmitted(true);
     } catch (err) {
       console.error('Lỗi khi đẩy đơn hàng về hệ thống:', err);
-    } filter {
+    } finally {
+      // Sửa từ filter thành finally thành công vượt qua Vercel Build lỗi dấu ngoặc
       setSubmitting(false);
     }
   };
