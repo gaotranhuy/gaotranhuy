@@ -50,6 +50,8 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
+    // FIX: Sửa lại đường dẫn property lấy trực tiếp từ `i` (i.name, i.price) 
+    // thay vì lồng qua `i.product` bị undefined gây crash hàm nửa chừng.
     const orderText =
       `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
       `👤 Khách: ${form.name}\n` +
@@ -60,8 +62,8 @@ export function CheckoutForm() {
       items
         .map(
           (i) =>
-            `   - ${i.product.name} x${i.quantity}: ${formatPrice(
-              i.product.price * i.quantity
+            `   - ${i.product?.name || (i as any).name} x${i.quantity}: ${formatPrice(
+              (i.product?.price || (i as any).price) * i.quantity
             )}`
         )
         .join('\n') +
@@ -69,11 +71,19 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng: ${formatPrice(grandTotal)}`;
 
+    // Định dạng số điện thoại chuẩn 84 quốc tế bỏ số 0 đầu
     const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
-    window.open(
-      `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`,
-      '_blank'
-    );
+    const zaloUrl = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`;
+
+    // GIẢI PHÁP VƯỢT LỖI CHẶN POP-UP: Tạo thẻ liên kết ảo và kích hoạt .click()
+    // Giúp đánh lừa trình duyệt di động đây là hành vi click trực tiếp, form nội dung sẽ được gửi đi
+    const link = document.createElement('a');
+    link.href = zaloUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     setSubmitting(false);
     setSubmitted(true);
@@ -353,11 +363,11 @@ export function CheckoutForm() {
             </h2>
             <ul className="max-h-64 space-y-3 overflow-y-auto">
               {items.map((item) => (
-                <li key={item.product.id} className="flex gap-3">
+                <li key={item.product?.id || (item as any).id} className="flex gap-3">
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <Image
-                      src={item.product.image}
-                      alt={item.product.name}
+                      src={item.product?.image || (item as any).image}
+                      alt={item.product?.name || (item as any).name}
                       fill
                       sizes="56px"
                       className="object-cover"
@@ -368,13 +378,13 @@ export function CheckoutForm() {
                   </div>
                   <div className="flex flex-1 flex-col">
                     <span className="line-clamp-1 text-sm font-medium">
-                      {item.product.name}
+                      {item.product?.name || (item as any).name}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {item.product.unit}
+                      {item.product?.unit || (item as any).unit}
                     </span>
                     <span className="text-sm font-semibold text-primary">
-                      {formatPrice(item.product.price * item.quantity)}
+                      {formatPrice((item.product?.price || (item as any).price) * item.quantity)}
                     </span>
                   </div>
                 </li>
