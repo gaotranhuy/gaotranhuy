@@ -12,6 +12,9 @@ import {
   MapPin,
   MessageCircle,
   Send,
+  Truck,
+  Store,
+  ShoppingCart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,17 +24,18 @@ import { useCart } from '@/lib/cart-context';
 import { formatPrice } from '@/lib/format';
 import { siteSettings, contactInfo } from '@/data/site';
 
-type PaymentMethod = 'cod' | 'transfer' | 'zalo';
+type ShippingRegion = 'da-nang' | 'nationwide';
 
 export function CheckoutForm() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
+  const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
   const [form, setForm] = React.useState({
     name: '',
     phone: '',
     address: '',
     note: '',
   });
-  const [payment, setPayment] = React.useState<PaymentMethod>('cod');
+  const [submitting, setSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
 
   const shippingFee =
@@ -44,7 +48,10 @@ export function CheckoutForm() {
     e.preventDefault();
     if (!form.name || !form.phone || !form.address) return;
 
-    const orderText = `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
+    setSubmitting(true);
+
+    const orderText =
+      `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
       `👤 Khách: ${form.name}\n` +
       `📞 SĐT: ${form.phone}\n` +
       `📍 Địa chỉ: ${form.address}\n` +
@@ -62,18 +69,12 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng: ${formatPrice(grandTotal)}`;
 
-    if (payment === 'zalo') {
-      window.open(
-        `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(orderText)}`,
-        '_blank'
-      );
-    } else {
-      window.open(
-        `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(orderText)}`,
-        '_blank'
-      );
-    }
+    window.open(
+      `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(orderText)}`,
+      '_blank'
+    );
 
+    setSubmitting(false);
     setSubmitted(true);
     clearCart();
   };
@@ -85,7 +86,9 @@ export function CheckoutForm() {
           <Check className="h-10 w-10" />
         </div>
         <div>
-          <h2 className="font-display text-2xl font-bold">Đặt hàng thành công!</h2>
+          <h2 className="font-display text-2xl font-bold">
+            Đặt hàng thành công!
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Cảm ơn bạn đã đặt hàng. Chúng tôi đã chuyển bạn đến Zalo để xác nhận
             đơn. Gạo Trần Huy sẽ liên hệ với bạn trong thời gian sớm nhất.
@@ -93,7 +96,7 @@ export function CheckoutForm() {
         </div>
         <div className="flex gap-2">
           <Button asChild>
-            <Link href="/san-pham">Ti tục mua sắm</Link>
+            <Link href="/san-pham">Tiếp tục mua sắm</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/">Về trang chủ</Link>
@@ -131,144 +134,217 @@ export function CheckoutForm() {
         Đặt hàng
       </h1>
 
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        {/* Form */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        {/* Form area */}
         <div className="space-y-6">
+          {/* Shipping region selector */}
           <div className="rounded-2xl border bg-card p-5">
-            <h2 className="mb-4 text-base font-semibold">Thông tin giao hàng</h2>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Họ và tên <span className="text-destructive">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="Nguyễn Văn A"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Số điện thoại <span className="text-destructive">*</span>
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    required
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="0901 234 567"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Địa chỉ giao hàng <span className="text-destructive">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Textarea
-                    required
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    placeholder="Số nhà, đường, phường, quận, thành phố"
-                    className="pl-10"
-                    rows={3}
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">Ghi chú (tùy chọn)</label>
-                <Textarea
-                  value={form.note}
-                  onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  placeholder="Thời gian giao hàng, lưu ý đặc biệt..."
-                  rows={2}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Payment method */}
-          <div className="rounded-2xl border bg-card p-5">
-            <h2 className="mb-4 text-base font-semibold">Phương thức thanh toán</h2>
-            <div className="grid gap-2">
-              {[
-                {
-                  id: 'cod' as PaymentMethod,
-                  label: 'Thanh toán tại nhà (COD)',
-                  desc: 'Trả tiền mặt khi nhận hàng',
-                  icon: MapPin,
-                },
-                {
-                  id: 'transfer' as PaymentMethod,
-                  label: 'Chuyển khoản',
-                  desc: 'Chuyển khoản ngân hàng, gửi biên lai',
-                  icon: Send,
-                },
-                {
-                  id: 'zalo' as PaymentMethod,
-                  label: 'Đặt qua Zalo',
-                  desc: 'Chat Zalo để xác nhận đơn',
-                  icon: MessageCircle,
-                },
-              ].map((method) => (
-                <label
-                  key={method.id}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-all ${
-                    payment === method.id
-                      ? 'border-primary bg-primary/5'
-                      : 'hover:border-primary/50'
+            <h2 className="mb-4 text-base font-semibold">Khu vực giao hàng</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setRegion('da-nang')}
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all ${
+                  region === 'da-nang'
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                    : 'hover:border-primary/50'
+                }`}
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                    region === 'da-nang'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={method.id}
-                    checked={payment === method.id}
-                    onChange={() => setPayment(method.id)}
-                    className="sr-only"
-                  />
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                      payment === method.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    <method.icon className="h-5 w-5" />
+                  <Truck className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">
+                    Nội thành Đà Nẵng
                   </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold">{method.label}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {method.desc}
-                    </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    Giao tận nơi, đặt hàng qua Zalo
                   </div>
-                  <div
-                    className={`h-5 w-5 rounded-full border-2 ${
-                      payment === method.id
-                        ? 'border-primary bg-primary'
-                        : 'border-muted'
-                    }`}
-                  >
-                    {payment === method.id && (
-                      <Check className="h-full w-full p-0.5 text-primary-foreground" />
-                    )}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRegion('nationwide')}
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all ${
+                  region === 'nationwide'
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                    : 'hover:border-primary/50'
+                }`}
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                    region === 'nationwide'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  <Store className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Ship toàn quốc</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    Đặt hàng qua Shopee, an toàn & bảo mật
                   </div>
-                </label>
-              ))}
+                </div>
+              </button>
             </div>
           </div>
+
+          {/* Case A: Da Nang local delivery form */}
+          {region === 'da-nang' && (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="rounded-2xl border bg-card p-5">
+                <h2 className="mb-4 text-base font-semibold">
+                  Thông tin giao hàng
+                </h2>
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Họ và tên <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        required
+                        value={form.name}
+                        onChange={(e) =>
+                          setForm({ ...form, name: e.target.value })
+                        }
+                        placeholder="Nguyễn Văn A"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Số điện thoại <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        required
+                        type="tel"
+                        value={form.phone}
+                        onChange={(e) =>
+                          setForm({ ...form, phone: e.target.value })
+                        }
+                        placeholder="0901 234 567"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Địa chỉ giao hàng{' '}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Textarea
+                        required
+                        value={form.address}
+                        onChange={(e) =>
+                          setForm({ ...form, address: e.target.value })
+                        }
+                        placeholder="Số nhà, đường, phường, quận, TP. Đà Nẵng"
+                        className="pl-10"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Ghi chú (tùy chọn)
+                    </label>
+                    <Textarea
+                      value={form.note}
+                      onChange={(e) =>
+                        setForm({ ...form, note: e.target.value })
+                      }
+                      placeholder="Thời gian giao hàng, lưu ý đặc biệt..."
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
+                <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
+                <p className="text-muted-foreground">
+                  Đơn hàng sẽ được gửi qua <strong>Zalo</strong> để shop xác nhận
+                  và giao hàng tận nơi trong nội thành Đà Nẵng.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                size="lg"
+                disabled={submitting}
+                className="w-full gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    Đang chuyển...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Gửi đơn hàng qua Zalo
+                  </>
+                )}
+              </Button>
+            </form>
+          )}
+
+          {/* Case B: Nationwide shipping - Shopee CTA */}
+          {region === 'nationwide' && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border bg-card p-6 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <ShoppingCart className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-lg font-bold">Đặt hàng qua Shopee</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                  Để đặt hàng giao toàn quốc, vui lòng hoàn tất thanh toán trên
+                  gian hàng Shopee của chúng tôi. Shopee đảm bảo thanh toán an
+                  toàn và giao hàng đến tận tay bạn trên toàn quốc.
+                </p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-5 w-full gap-2 sm:w-auto"
+                >
+                  <a
+                    href={contactInfo.shopee}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    Mua hàng trên Shopee
+                  </a>
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
+                <Store className="h-5 w-5 shrink-0 text-primary" />
+                <p className="text-muted-foreground">
+                  Shopee hỗ trợ thanh toán bảo mật, vận chuyển toàn quốc và chính
+                  sách đổi trả rõ ràng.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Summary */}
+        {/* Order summary */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -327,15 +403,9 @@ export function CheckoutForm() {
                 </span>
               </div>
             </div>
-            <Button type="submit" size="lg" className="mt-5 w-full">
-              Xác nhận đặt hàng
-            </Button>
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Bằng việc đặt hàng, bạn đồng ý với điều khoản của Gạo Trần Huy.
-            </p>
           </div>
         </aside>
-      </form>
+      </div>
     </div>
   );
 }
