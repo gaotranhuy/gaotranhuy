@@ -21,4 +21,5 @@ export const contactInfo: ContactInfo = {
   facebook: 'https://www.facebook.com/share/172h9krRwX/?mibextid=wwXIfr',
   tiktok: 'https://www.tiktok.com/@huy07kt?_r=1&_t=ZS-97gnmLX82kv',
   youtube: 'https://youtube.com/@gaotranhuy',
+  shopee: 'https://shopee.vn/gaotranhuy',
 };
