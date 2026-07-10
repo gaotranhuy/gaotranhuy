@@ -50,7 +50,7 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // Chuẩn hóa dữ liệu sản phẩm an toàn
+    // Chuẩn hóa dữ liệu sản phẩm an toàn không lo rỗng
     const productLines = items
       .map((item) => {
         const i = item as any;
@@ -74,7 +74,7 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    // 🔥 GIẢI PHÁP ĐẶC TRỊ ZALO: TỰ ĐỘNG SAO CHÉP ĐƠN HÀNG VÀO BỘ NHỚ TẠM CỦA KHÁCH
+    // 🔥 BƯỚC 1: LUÔN TỰ ĐỘNG COPY ĐƠN HÀNG ĐỂ PHÒNG HỜ ZALO CHẶN CHỮ TRÊN ANDROID
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(orderText);
@@ -86,30 +86,30 @@ export function CheckoutForm() {
         document.execCommand("copy");
         document.body.removeChild(textArea);
       }
-      alert("📋 Thông tin đơn hàng đã được tự động SAO CHÉP!\n\nSau khi Zalo mở lên, bạn chỉ cần bấm đè vào ô chat và chọn 'DÁN' (Paste) để gửi cho shop xác nhận nhé.");
     } catch (err) {
-      console.log("Không thể sao chép tự động");
+      console.log("Không thể sao chép");
     }
 
-    // Định dạng số điện thoại và mở Zalo thẳng ô chat của bạn
+    // Định dạng số điện thoại chuẩn quốc tế 84
     const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
-    const zaloUrl = `https://zalo.me/${zaloPhone}`;
+    
+    // Tạo link API Zalo chuẩn kèm text điền sẵn
+    const zaloUrl = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`;
 
-    try {
-      const link = document.createElement('a');
-      link.href = zaloUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      window.location.href = zaloUrl;
-    }
+    // 🔥 BƯỚC 2: ĐẶC TRỊ LỖI CHẶN POPUP & LỖI WEB TRÊN ANDROID
+    // Sử dụng trực tiếp window.location.href thay vì mở tab mới để trình duyệt Android không chặn.
+    // Đồng thời, hiển thị một thông báo hướng dẫn ngắn gọn cho khách hàng nếu họ cần dùng nút dán.
+    alert("📋 Đơn hàng đã được ghi nhận và sao chép!\n\nBấm OK hệ thống sẽ tự động kích hoạt ứng dụng Zalo thật trên máy bạn.");
 
-    setSubmitting(false);
-    setSubmitted(true);
-    clearCart();
+    // Chuyển hướng trực tiếp để kích hoạt app gốc
+    window.location.href = zaloUrl;
+
+    // Thiết lập độ trễ nhỏ để luồng điều hướng của hệ điều hành kịp thực thi trước khi xóa giỏ hàng
+    setTimeout(() => {
+      setSubmitting(false);
+      setSubmitted(true);
+      clearCart();
+    }, 800);
   };
 
   if (submitted) {
@@ -122,11 +122,11 @@ export function CheckoutForm() {
           <h2 className="font-display text-2xl font-bold">
             Đặt hàng thành công!
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Cảm ơn bạn đã đặt hàng. Hệ thống đã tự sao chép đơn, vui lòng nhấn **Dán** vào khung chat Zalo để gửi cho chúng tôi.
+          <p className="mt-2 text-sm text-muted-foreground px-4">
+            Cảm ơn bạn đã đặt hàng. Nếu phần tin nhắn trống, bạn chỉ cần <strong>Nhấn đè vào ô chat</strong> rồi chọn <strong>Dán (Paste)</strong> để gửi đơn hàng đã copy cho Gạo Trần Huy nhé!
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-2">
           <Button asChild>
             <Link href="/san-pham">Tiếp tục mua sắm</Link>
           </Button>
@@ -168,7 +168,6 @@ export function CheckoutForm() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
-          {/* Khu vực giao hàng */}
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">Khu vực giao hàng</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -228,7 +227,6 @@ export function CheckoutForm() {
             </div>
           </div>
 
-          {/* Form giao hàng Đà Nẵng */}
           {region === 'da-nang' && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="rounded-2xl border bg-card p-5">
@@ -309,7 +307,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Đơn hàng sẽ được tự động sao chép. Bạn chỉ cần <strong>Dán</strong> vào ô chat Zalo sau khi hệ thống chuyển hướng.
+                  Hệ thống bảo mật tối ưu cho Android: Đơn hàng sẽ tự động copy, sẵn sàng để gửi ngay khi app Zalo được kích hoạt mở.
                 </p>
               </div>
 
@@ -319,12 +317,11 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2"
               >
-                {submitting ? 'Đang chuyển...' : 'Xác nhận đơn & Mở Zalo'}
+                {submitting ? 'Đang kích hoạt Zalo...' : 'Xác nhận đơn hàng & Gửi qua Zalo'}
               </Button>
             </form>
           )}
 
-          {/* Luồng Toàn quốc */}
           {region === 'nationwide' && (
             <div className="space-y-6">
               <div className="rounded-2xl border bg-card p-6 text-center">
