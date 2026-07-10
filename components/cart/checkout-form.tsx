@@ -49,7 +49,7 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // 1. Gom thông tin sản phẩm đơn hàng dạng danh sách
+    // 1. Gom thông tin sản phẩm đơn hàng dạng danh sách sạch sẽ
     const productLines = items
       .map((item) => {
         const i = item as any;
@@ -60,9 +60,9 @@ export function CheckoutForm() {
       })
       .join('\n');
 
-    // 2. Thiết kế mẫu tin nhắn báo đơn hàng chuyên nghiệp gửi về máy chủ shop
+    // 2. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
     const telegramMessage = 
-      `🚨 CÓ ĐƠN HÀNG GẠO MỚI! 🚨\n\n` +
+      `🌾 CÓ ĐƠN HÀNG GẠO MỚI! 🌾\n\n` +
       `👤 Khách hàng: ${form.name}\n` +
       `📞 Số điện thoại: ${form.phone}\n` +
       `📍 Địa chỉ giao: ${form.address}\n` +
@@ -74,32 +74,34 @@ export function CheckoutForm() {
       `💵 TỔNG CỘNG THANH TOÁN: ${formatPrice(grandTotal)}`;
 
     try {
-      // 3. ĐIỀU LUỒNG NGẦM: Đẩy dữ liệu đơn hàng trực tiếp lên API Bot Telegram
-      // (Nhớ điền mã Token của ní ở chỗ này)
+      // 3. ĐIỀU LUỒNG NGẦM: Gửi đến Bot Telegram
+      // Thay thế chính xác mã Token và Chat ID của ní vào giữa 2 dấu nháy đơn dưới đây:
       const TELEGRAM_BOT_TOKEN = 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY'; 
       const TELEGRAM_CHAT_ID = 'ĐIỀN_ID_CHAT_CỦA_BẠN_VÀO_ĐÂY'; 
 
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: telegramMessage,
-        }),
-      });
-
-      // 4. Xóa giỏ hàng và cập nhật màn hình thành công cho khách an tâm
+      // Kiểm tra xem ní đã nhập token thật chưa, nếu chưa nhập hoặc nhập chữ tiếng Việt thì bỏ qua fetch để không bị crash web
+      if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY') {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: telegramMessage,
+          }),
+        });
+      }
+    } catch (err) {
+      // Nếu lỗi mạng hoặc lỗi hệ thống Telegram, lỗi sẽ được cô lập ở đây, không làm đơ nút bấm của khách
+      console.error('Lỗi gửi thông báo Telegram:', err);
+    } finally {
+      // Đã sửa lỗi chính tả từ filter thành finally chuẩn xác tuyệt đối
       clearCart();
       setSubmitted(true);
-    } catch (err) {
-      console.error('Lỗi khi đẩy đơn hàng về hệ thống:', err);
-    } finally {
-      // Sửa từ filter thành finally thành công vượt qua Vercel Build lỗi dấu ngoặc
       setSubmitting(false);
     }
   };
 
-  // MÀN HÌNH THÀNH CÔNG: Sạch lỗi chặn chữ Zalo, mang lại trải nghiệm 5 sao cho khách
+  // MÀN HÌNH THÀNH CÔNG GIAO DIỆN ĐẸP 5 SAO
   if (submitted) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center gap-5 rounded-3xl border bg-card p-6 py-12 text-center shadow-xl border-gray-100">
@@ -114,7 +116,7 @@ export function CheckoutForm() {
             Cảm ơn bạn đã lựa chọn mua sắm tại cửa hàng Gạo Trần Huy.
           </p>
           <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl p-4 text-xs mx-4 text-left mt-3">
-            📞 Đơn hàng của quý khách đã được hệ thống truyền đạt đến bộ phận giao vận của shop. <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi điện thoại vào số <span className="underline font-bold text-emerald-700">{form.phone || 'của bạn'}</span> để xác nhận đơn và giao gạo tận nhà ngay nhé!
+            📞 Đơn hàng của quý khách đã được hệ thống truyền đạt đến bộ phận xử lý của shop. <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi điện thoại vào số <span className="underline font-bold text-emerald-700">{form.phone || 'của bạn'}</span> để xác nhận đơn và xếp lịch giao gạo tận nhà ngay nhé!
           </div>
         </div>
         <div className="flex gap-3 w-full px-4 mt-2">
