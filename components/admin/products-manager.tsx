@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
-import { Plus, Search, Pencil, Trash2, Loader2, X, RefreshCw, Package } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Loader2,
+  X,
+  RefreshCw,
+  Package,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +29,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ImageUpload } from '@/components/admin/image-upload';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/format';
@@ -58,11 +68,10 @@ const CATEGORIES = [
   { slug: 'gao-pho-thong', name: 'Gạo Phổ Thông' },
   { slug: 'nuoc-mam-dau-lac', name: 'Nước Mắm & Dầu Lạc' },
   { slug: 'san-pham-khac', name: 'Sản Phẩm Khác' },
-];
+] as const;
 
 const PER_PAGE = 10;
 
-// CẢI TIẾN: Thêm cấu trúc gallery dạng mảng vào form rỗng ban đầu
 const emptyForm = {
   slug: '',
   name: '',
@@ -84,6 +93,56 @@ const emptyForm = {
   is_new: false,
 };
 
+function TableSkeleton() {
+  return (
+    <div className="overflow-x-auto rounded-xl border bg-card">
+      <table className="w-full text-sm">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-3 text-left font-semibold">ID</th>
+            <th className="px-4 py-3 text-left font-semibold">Ảnh</th>
+            <th className="px-4 py-3 text-left font-semibold">Tên</th>
+            <th className="px-4 py-3 text-left font-semibold">Danh mục</th>
+            <th className="px-4 py-3 text-right font-semibold">Giá</th>
+            <th className="px-4 py-3 text-center font-semibold">Tồn</th>
+            <th className="px-4 py-3 text-right font-semibold">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="border-b last:border-0">
+              <td className="px-4 py-3"><Skeleton className="h-4 w-12" /></td>
+              <td className="px-4 py-3"><Skeleton className="h-10 w-10 rounded" /></td>
+              <td className="px-4 py-3"><Skeleton className="h-4 w-32" /></td>
+              <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
+              <td className="px-4 py-3"><Skeleton className="ml-auto h-4 w-16" /></td>
+              <td className="px-4 py-3 text-center"><Skeleton className="mx-auto h-2 w-2 rounded-full" /></td>
+              <td className="px-4 py-3"><Skeleton className="ml-auto h-8 w-20" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="flex gap-3 rounded-xl border bg-card p-3">
+          <Skeleton className="h-16 w-16 shrink-0 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +155,7 @@ export function ProductsManager() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -156,7 +215,7 @@ export function ProductsManager() {
       old_price: p.old_price ? String(p.old_price) : '',
       unit: p.unit || '',
       image: p.image || '',
-      gallery: p.gallery || [], // CẢI TIẾN: Nạp album ảnh cũ vào form khi sửa
+      gallery: p.gallery || [],
       features: (p.features || []).join(', '),
       tags: (p.tags || []).join(', '),
       in_stock: p.in_stock,
@@ -208,10 +267,12 @@ export function ProductsManager() {
         origin: form.origin,
         weight: form.weight,
         price: parseInt(form.price.replace(/\D/g, ''), 10) || 0,
-        old_price: form.old_price ? parseInt(form.old_price.replace(/\D/g, ''), 10) : null,
+        old_price: form.old_price
+          ? parseInt(form.old_price.replace(/\D/g, ''), 10)
+          : null,
         unit: form.unit,
         image: form.image,
-        gallery: form.gallery, // CẢI TIẾN: Đồng bộ mảng gallery sang trạng thái tạm thời
+        gallery: form.gallery,
         features: payload.features,
         nutrition_facts: [],
         tags: payload.tags,
@@ -228,10 +289,17 @@ export function ProductsManager() {
       startTransition(() => {
         if (editingId) {
           setProducts((prev) =>
-            prev.map((p) => (p.id === editingId ? { ...p, ...optimisticProduct, id: editingId } : p))
+            prev.map((p) =>
+              p.id === editingId
+                ? { ...p, ...optimisticProduct, id: editingId }
+                : p
+            )
           );
         } else {
-          setProducts((prev) => [{ ...optimisticProduct, id: 'temp-' + Date.now() }, ...prev]);
+          setProducts((prev) => [
+            { ...optimisticProduct, id: 'temp-' + Date.now() },
+            ...prev,
+          ]);
         }
       });
 
@@ -249,9 +317,10 @@ export function ProductsManager() {
         return;
       }
 
-      toast.success(editingId ? 'Cập nhật thành công' : 'Thêm sản phẩm thành công', {
-        id: toastId,
-      });
+      toast.success(
+        editingId ? 'Cập nhật thành công' : 'Thêm sản phẩm thành công',
+        { id: toastId }
+      );
       setDialogOpen(false);
       await fetchProducts();
     } catch {
@@ -323,7 +392,6 @@ export function ProductsManager() {
     }
   };
 
-  // CẢI TIẾN: Các hàm hỗ trợ thêm và xóa ảnh khỏi mảng album gallery
   const handleAddGalleryImage = (url: string) => {
     if (url && !form.gallery.includes(url)) {
       setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
@@ -337,16 +405,20 @@ export function ProductsManager() {
     }));
   };
 
+  const categoryName = (slug: string) =>
+    CATEGORIES.find((c) => c.slug === slug)?.name || slug;
+
   return (
     <div>
+      {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
+          <h1 className="text-xl font-bold sm:text-2xl">Quản lý sản phẩm</h1>
           <p className="text-sm text-muted-foreground">
             {filtered.length} sản phẩm
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             onClick={handleSyncSheet}
@@ -358,17 +430,20 @@ export function ProductsManager() {
             ) : (
               <RefreshCw className="h-4 w-4" />
             )}
-            Đồng bộ Google Sheet
+            <span className="hidden sm:inline">Đồng bộ Google Sheet</span>
+            <span className="sm:hidden">Sheet</span>
           </Button>
           <Button onClick={openAdd} className="gap-2">
             <Plus className="h-4 w-4" />
-            Thêm sản phẩm
+            <span className="hidden sm:inline">Thêm sản phẩm</span>
+            <span className="sm:hidden">Thêm</span>
           </Button>
         </div>
       </div>
 
+      {/* Filters */}
       <div className="mb-4 flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative min-w-[200px] flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Tìm theo tên hoặc ID..."
@@ -387,7 +462,7 @@ export function ProductsManager() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Danh mục" />
           </SelectTrigger>
           <SelectContent>
@@ -401,102 +476,186 @@ export function ProductsManager() {
         </Select>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border bg-card">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-muted/50">
-            <tr>
-              <th className="px-4 py-3 text-left font-semibold">ID</th>
-              <th className="px-4 py-3 text-left font-semibold">Ảnh</th>
-              <th className="px-4 py-3 text-left font-semibold">Tên</th>
-              <th className="px-4 py-3 text-left font-semibold">Danh mục</th>
-              <th className="px-4 py-3 text-right font-semibold">Giá</th>
-              <th className="px-4 py-3 text-center font-semibold">Tồn</th>
-              <th className="px-4 py-3 text-right font-semibold">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-muted-foreground">
-                  <Loader2 className="mx-auto h-6 w-6 animate-spin" />
-                </td>
-              </tr>
-            ) : pageItems.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-12 text-center text-muted-foreground">
-                  <Package className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                  Không có sản phẩm
-                </td>
-              </tr>
-            ) : (
-              pageItems.map((p) => (
-                <tr key={p.id} className="border-b last:border-0 hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono text-xs">{p.id}</td>
-                  <td className="px-4 py-3">
-                    <div className="h-10 w-10 overflow-hidden rounded bg-muted">
-                      {p.image ? (
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {CATEGORIES.find((c) => c.slug === p.category_slug)?.name || p.category_slug}
-                  </td>
-                  <td className="px-4 py-3 text-right font-medium">
-                    {formatPrice(p.price)}
-                    {p.old_price && (
-                      <span className="ml-1 text-xs text-muted-foreground line-through">
-                        {formatPrice(p.old_price)}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-center">
+      {/* Content: table on desktop, cards on mobile */}
+      {loading ? (
+        <>
+          <div className="hidden sm:block">
+            <TableSkeleton />
+          </div>
+          <div className="sm:hidden">
+            <CardSkeleton />
+          </div>
+        </>
+      ) : pageItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border bg-card py-16 text-center">
+          <Package className="h-10 w-10 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">Không có sản phẩm</p>
+        </div>
+      ) : (
+        <>
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto rounded-xl border bg-card sm:block">
+            <table className="w-full text-sm">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">ID</th>
+                  <th className="px-4 py-3 text-left font-semibold">Ảnh</th>
+                  <th className="px-4 py-3 text-left font-semibold">Tên</th>
+                  <th className="px-4 py-3 text-left font-semibold">Danh mục</th>
+                  <th className="px-4 py-3 text-right font-semibold">Giá</th>
+                  <th className="px-4 py-3 text-center font-semibold">Tồn</th>
+                  <th className="px-4 py-3 text-right font-semibold">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageItems.map((p) => (
+                  <tr
+                    key={p.id}
+                    className="border-b transition-colors last:border-0 hover:bg-muted/30"
+                  >
+                    <td className="px-4 py-3 font-mono text-xs">{p.id}</td>
+                    <td className="px-4 py-3">
+                      <div className="h-10 w-10 overflow-hidden rounded bg-muted">
+                        {p.image ? (
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                'none';
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-medium">{p.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {categoryName(p.category_slug)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium">
+                      {formatPrice(p.price)}
+                      {p.old_price && (
+                        <span className="ml-1 text-xs text-muted-foreground line-through">
+                          {formatPrice(p.old_price)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={`inline-flex h-2 w-2 rounded-full ${
+                          p.in_stock ? 'bg-success' : 'bg-destructive'
+                        }`}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => openEdit(p)}
+                          className="h-8 w-8"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDelete(p.id, p.name)}
+                          disabled={deletingId === p.id}
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                        >
+                          {deletingId === p.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="grid gap-3 sm:hidden">
+            {pageItems.map((p) => (
+              <div
+                key={p.id}
+                className="flex gap-3 rounded-xl border bg-card p-3"
+              >
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                  {p.image ? (
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                </div>
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-medium">{p.name}</span>
+                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                      {p.id}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {categoryName(p.category_slug)}
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">
+                      {formatPrice(p.price)}
+                      {p.old_price && (
+                        <span className="ml-1 text-xs text-muted-foreground line-through">
+                          {formatPrice(p.old_price)}
+                        </span>
+                      )}
+                    </span>
                     <span
                       className={`inline-flex h-2 w-2 rounded-full ${
                         p.in_stock ? 'bg-success' : 'bg-destructive'
                       }`}
                     />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openEdit(p)}
-                        className="h-8 w-8"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDelete(p.id, p.name)}
-                        disabled={deletingId === p.id}
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                      >
-                        {deletingId === p.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                  </div>
+                  <div className="flex gap-1 pt-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEdit(p)}
+                      className="h-8 gap-1.5"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Sửa
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(p.id, p.name)}
+                      disabled={deletingId === p.id}
+                      className="h-8 gap-1.5 text-destructive hover:text-destructive"
+                    >
+                      {deletingId === p.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                      Xóa
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
@@ -523,6 +682,7 @@ export function ProductsManager() {
         </div>
       )}
 
+      {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
@@ -536,9 +696,7 @@ export function ProductsManager() {
                 <Label>Tên sản phẩm *</Label>
                 <Input
                   value={form.name}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                 />
               </div>
@@ -546,11 +704,8 @@ export function ProductsManager() {
                 <Label>Slug *</Label>
                 <Input
                   value={form.slug}
-                  onChange={(e) =>
-                    setForm({ ...form, slug: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
                   required
-                  placeholder="gao-thom-vang"
                 />
               </div>
             </div>
@@ -580,10 +735,7 @@ export function ProductsManager() {
                 <Label>Đơn vị</Label>
                 <Input
                   value={form.unit}
-                  onChange={(e) =>
-                    setForm({ ...form, unit: e.target.value })
-                  }
-                  placeholder="bịch 5kg"
+                  onChange={(e) => setForm({ ...form, unit: e.target.value })}
                 />
               </div>
             </div>
@@ -600,7 +752,6 @@ export function ProductsManager() {
                       price: e.target.value.replace(/[^\d]/g, ''),
                     })
                   }
-                  placeholder="95000"
                   required
                 />
               </div>
@@ -615,17 +766,13 @@ export function ProductsManager() {
                       old_price: e.target.value.replace(/[^\d]/g, ''),
                     })
                   }
-                  placeholder="110000"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Trọng lượng</Label>
                 <Input
                   value={form.weight}
-                  onChange={(e) =>
-                    setForm({ ...form, weight: e.target.value })
-                  }
-                  placeholder="5kg"
+                  onChange={(e) => setForm({ ...form, weight: e.target.value })}
                 />
               </div>
             </div>
@@ -635,20 +782,14 @@ export function ProductsManager() {
                 <Label>Nguồn gốc</Label>
                 <Input
                   value={form.origin}
-                  onChange={(e) =>
-                    setForm({ ...form, origin: e.target.value })
-                  }
-                  placeholder="Đồng bằng sông Cửu Long"
+                  onChange={(e) => setForm({ ...form, origin: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Tags (cách nhau bởi dấu phẩy)</Label>
                 <Input
                   value={form.tags}
-                  onChange={(e) =>
-                    setForm({ ...form, tags: e.target.value })
-                  }
-                  placeholder="bán chạy, giá tốt"
+                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
                 />
               </div>
             </div>
@@ -683,36 +824,45 @@ export function ProductsManager() {
                   setForm({ ...form, features: e.target.value })
                 }
                 rows={3}
-                placeholder="Hạt gạo dài, đều, ít tấm&#10;Cơm chín tơi xốp, dẻo vừa"
               />
             </div>
 
-            {/* 1. Khu vực ảnh đại diện chính */}
             <div className="space-y-2">
-              <Label className="font-semibold text-foreground">Ảnh đại diện chính</Label>
+              <Label className="font-semibold text-foreground">
+                Ảnh đại diện chính
+              </Label>
               <ImageUpload
                 value={form.image}
                 onChange={(url) => setForm({ ...form, image: url })}
               />
             </div>
 
-            {/* 2. CẢI TIẾN: Khu vực quản lý album nhiều ảnh (Gallery) */}
             <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4">
               <div>
-                <Label className="font-semibold text-foreground">Album ảnh chi tiết (Gallery)</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Tải lên các ảnh chi tiết hiển thị trong trang sản phẩm</p>
+                <Label className="font-semibold text-foreground">
+                  Album ảnh chi tiết (Gallery)
+                </Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Tải lên các ảnh chi tiết hiển thị trong trang sản phẩm
+                </p>
               </div>
 
-              {/* Lưới hiển thị danh sách các ảnh đã có trong album */}
               {form.gallery && form.gallery.length > 0 && (
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                   {form.gallery.map((url, idx) => (
-                    <div key={idx} className="group relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
-                      <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
+                    <div
+                      key={idx}
+                      className="group relative aspect-square w-full overflow-hidden rounded-lg border bg-muted"
+                    >
+                      <img
+                        src={url}
+                        alt={`Gallery ${idx}`}
+                        className="h-full w-full object-cover"
+                      />
                       <button
                         type="button"
                         onClick={() => handleRemoveGalleryImage(idx)}
-                        className="absolute right-1 top-1 rounded-full bg-destructive/90 p-1 text-white opacity-90 transition-opacity hover:bg-destructive shadow-sm group-hover:opacity-100"
+                        className="absolute right-1 top-1 rounded-full bg-destructive/90 p-1 text-white opacity-90 shadow-sm transition-opacity hover:bg-destructive group-hover:opacity-100"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -721,7 +871,6 @@ export function ProductsManager() {
                 </div>
               )}
 
-              {/* Ô upload để add thêm ảnh mới vào mảng album */}
               <div className="mt-2">
                 <ImageUpload
                   value=""
