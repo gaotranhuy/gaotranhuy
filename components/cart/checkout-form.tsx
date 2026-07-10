@@ -11,7 +11,6 @@ import {
   Phone,
   MapPin,
   MessageCircle,
-  Send,
   Truck,
   Store,
   ShoppingCart,
@@ -50,20 +49,20 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // Chuẩn hóa dữ liệu sản phẩm an toàn không lo rỗng
+    // 1. Kiểm tra an toàn tuyệt đối thuộc tính phẳng hoặc lồng của giỏ hàng
     const productLines = items
       .map((item) => {
         const i = item as any;
-        const name = i.product?.name || i.name || 'Sản phẩm';
-        const price = Number(i.product?.price || i.price || 0);
+        const name = i.name || i.product?.name || 'Sản phẩm Gạo';
+        const price = Number(i.price || i.product?.price || 0);
         const quantity = Number(i.quantity || 1);
         return `   - ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
       .join('\n');
 
-    // Tạo chuỗi văn bản đơn hàng chi tiết
+    // 2. Tạo chuỗi văn bản đơn hàng chi tiết không lo lỗi NaN
     const orderText =
-      `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
+      `🛒 ĐƠN HÀNG GẠO TRẦN HUY (ĐÀ NẴNG)\n\n` +
       `👤 Khách: ${form.name}\n` +
       `📞 SĐT: ${form.phone}\n` +
       `📍 Địa chỉ: ${form.address}\n` +
@@ -74,7 +73,7 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    // 🔥 BƯỚC 1: LUÔN TỰ ĐỘNG COPY ĐƠN HÀNG ĐỂ PHÒNG HỜ ZALO CHẶN CHỮ TRÊN ANDROID
+    // 3. TỰ ĐỘNG SAO CHÉP: Đảm bảo đơn hàng nằm chắc chắn trong khay nhớ tạm của khách
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(orderText);
@@ -87,29 +86,22 @@ export function CheckoutForm() {
         document.body.removeChild(textArea);
       }
     } catch (err) {
-      console.log("Không thể sao chép");
+      console.error("Lỗi sao chép khay nhớ tạm:", err);
     }
 
-    // Định dạng số điện thoại chuẩn quốc tế 84
-    const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
+    // 4. Kích hoạt Deep Link mở app Zalo Official Account
+    const oaId = "3621179647129049909";
+    const zaloOaUrl = `https://zalo.me/${oaId}?text=${encodeURIComponent(orderText)}`;
+
+    // 5. Chuyển hướng ngay trên tab cũ để ép Android/iOS bật ứng dụng gốc lên
+    window.location.href = zaloOaUrl;
     
-    // Tạo link API Zalo chuẩn kèm text điền sẵn
-    const zaloUrl = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`;
-
-    // 🔥 BƯỚC 2: ĐẶC TRỊ LỖI CHẶN POPUP & LỖI WEB TRÊN ANDROID
-    // Sử dụng trực tiếp window.location.href thay vì mở tab mới để trình duyệt Android không chặn.
-    // Đồng thời, hiển thị một thông báo hướng dẫn ngắn gọn cho khách hàng nếu họ cần dùng nút dán.
-    alert("📋 Đơn hàng đã được ghi nhận và sao chép!\n\nBấm OK hệ thống sẽ tự động kích hoạt ứng dụng Zalo thật trên máy bạn.");
-
-    // Chuyển hướng trực tiếp để kích hoạt app gốc
-    window.location.href = zaloUrl;
-
-    // Thiết lập độ trễ nhỏ để luồng điều hướng của hệ điều hành kịp thực thi trước khi xóa giỏ hàng
+    // Tạo độ trễ ngắn cho thiết bị xử lý chuyển tiếp trước khi clear giỏ hàng
     setTimeout(() => {
-      setSubmitting(false);
-      setSubmitted(true);
       clearCart();
-    }, 800);
+      setSubmitted(true);
+      setSubmitting(false);
+    }, 400);
   };
 
   if (submitted) {
@@ -122,11 +114,13 @@ export function CheckoutForm() {
           <h2 className="font-display text-2xl font-bold">
             Đặt hàng thành công!
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground px-4">
-            Cảm ơn bạn đã đặt hàng. Nếu phần tin nhắn trống, bạn chỉ cần <strong>Nhấn đè vào ô chat</strong> rồi chọn <strong>Dán (Paste)</strong> để gửi đơn hàng đã copy cho Gạo Trần Huy nhé!
+          <p className="mt-3 text-sm text-muted-foreground px-6 leading-relaxed">
+            Hệ thống đang mở ứng dụng Zalo để chuyển đơn hàng của bạn. <br />
+            <span className="text-primary font-semibold block mt-2">💡 MẸO GỬI ĐƠN NHANH:</span> 
+            Nếu ô chat Zalo bị trống chữ, bạn chỉ cần <strong>Nhấn giữ vào ô nhập tin nhắn</strong> chọn <strong>Dán (Paste)</strong> để gửi hóa đơn đã sao chép tự động nhé!
           </p>
         </div>
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-4">
           <Button asChild>
             <Link href="/san-pham">Tiếp tục mua sắm</Link>
           </Button>
@@ -194,7 +188,7 @@ export function CheckoutForm() {
                     Nội thành Đà Nẵng
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    Giao tận nơi, đặt hàng qua Zalo
+                    Giao tận nơi, đặt hàng qua Zalo OA
                   </div>
                 </div>
               </button>
@@ -307,7 +301,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Hệ thống bảo mật tối ưu cho Android: Đơn hàng sẽ tự động copy, sẵn sàng để gửi ngay khi app Zalo được kích hoạt mở.
+                  Hệ thống bảo vệ tối ưu: Đơn hàng tự động copy vào khay nhớ tạm. Khách hàng chỉ cần "Dán" vào ô chat Zalo nếu tính năng tự động điền bị thiết bị chặn.
                 </p>
               </div>
 
@@ -317,7 +311,7 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2"
               >
-                {submitting ? 'Đang kích hoạt Zalo...' : 'Xác nhận đơn hàng & Gửi qua Zalo'}
+                {submitting ? 'Đang mở ứng dụng Zalo...' : 'Xác nhận đơn hàng & Gửi qua Zalo'}
               </Button>
             </form>
           )}
