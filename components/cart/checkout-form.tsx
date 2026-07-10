@@ -69,10 +69,10 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng: ${formatPrice(grandTotal)}`;
 
-    window.open(
-      `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(orderText)}`,
-      '_blank'
-    );
+window.open(
+  `https://zalo.me/${contactInfo.zalo}?text=${encodeURIComponent(orderText)}`,
+  '_blank'
+);
 
     setSubmitting(false);
     setSubmitted(true);
