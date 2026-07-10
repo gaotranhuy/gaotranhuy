@@ -25,15 +25,29 @@ import { siteSettings, contactInfo } from '@/data/site';
 
 type ShippingRegion = 'da-nang' | 'nationwide';
 
+// Danh sách 12 Phường và 3 Xã mới chuẩn địa giới hành chính Đà Nẵng
+const DANANG_WARDS = [
+  'Phường Hải Châu', 'Phường Hòa Cường', 'Phường Thanh Khê', 'Phường An Khê',
+  'Phường An Hải', 'Phường Sơn Trà', 'Phường Cẩm Lệ', 'Phường Hòa Vang',
+  'Phường Khuê Mỹ', 'Phường Mỹ An', 'Phường Hòa Quý', 'Phường Hòa Hiệp',
+  'Xã Hòa Bắc', 'Xã Hòa Ninh', 'Xã Hòa Nhơn'
+];
+
 export function CheckoutForm() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
+  
+  // Tách biệt ô nhập Phường (để gợi ý) và Địa chỉ chi tiết
+  const [wardInput, setWardInput] = React.useState('');
+  const [showWardSuggestions, setShowWardSuggestions] = React.useState(false);
+  
   const [form, setForm] = React.useState({
     name: '',
     phone: '',
-    address: '',
+    address: '', // Số nhà, tên đường
     note: '',
   });
+  
   const [submitting, setSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -42,75 +56,90 @@ export function CheckoutForm() {
       ? 0
       : siteSettings.shippingFee;
   const grandTotal = totalPrice + shippingFee;
+  const missingForFreeShip = siteSettings.freeShippingThreshold - totalPrice;
+
+  // Lọc danh sách phường dựa trên ký tự khách nhập vào ô Phường
+  const filteredWards = DANANG_WARDS.filter((w) =>
+    w.toLowerCase().includes(wardInput.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.address) return;
+    if (!form.name || !form.phone || !form.address || !wardInput) return;
 
     setSubmitting(true);
 
-    // 1. Gom danh sách sản phẩm thành 1 chuỗi phẳng không xuống dòng để vượt bộ lọc Zalo
-    const productItemsStr = items
+    // 1. Gom thông tin sản phẩm đơn hàng dạng danh sách sạch sẽ
+    const productLines = items
       .map((item) => {
         const i = item as any;
-        const name = i.name || i.product?.name || 'Gạo';
+        const name = i.name || i.product?.name || 'Sản phẩm Gạo';
+        const price = Number(i.price || i.product?.price || 0);
         const quantity = Number(i.quantity || 1);
-        return `${name} (x${quantity})`;
+        return `• ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
-      .join(', ');
+      .join('\n');
 
-    // 2. Tạo chuỗi hóa đơn 1 dòng duy nhất - Khắc phục triệt để lỗi trống trơn trên App Zalo
-    const orderText = `ĐƠN HÀNG GẠO TRẦN HUY: KH ${form.name} - SĐT: ${form.phone} - ĐC: ${form.address} ${form.note ? `- Ghi chú: ${form.note}` : ''} - Sản phẩm: ${productItemsStr} - Tổng thanh toán: ${formatPrice(grandTotal)}`;
+    // Nối Phường nhập tay và Số nhà/Đường thành Địa chỉ đầy đủ
+    const fullAddress = `${form.address}, ${wardInput}, TP. Đà Nẵng`;
 
-    // 3. Vẫn tiến hành sao chép khay nhớ tạm để dự phòng tối đa cho khách
+    // 2. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
+    const telegramMessage = 
+      `🌾 CÓ ĐƠN HÀNG GẠO MỚI! 🌾\n\n` +
+      `👤 Khách hàng: ${form.name}\n` +
+      `📞 Số điện thoại: ${form.phone}\n` +
+      `📍 Địa chỉ giao: ${fullAddress}\n` +
+      (form.note ? `📝 Ghi chú: ${form.note}\n` : '') +
+      `\n📦 SẢN PHẨM ĐẶT MUA:\n${productLines}\n\n` +
+      `-----------------------------\n` +
+      `💰 Tiền hàng: ${formatPrice(totalPrice)}\n` +
+      `🚚 Phí vận chuyển: ${shippingFee === 0 ? 'Miễn phí (Free Ship)' : formatPrice(shippingFee)}\n` +
+      `💵 TỔNG CỘNG THANH TOÁN: ${formatPrice(grandTotal)}`;
+
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(orderText);
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = orderText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-      }
+      const TELEGRAM_BOT_TOKEN = '8857624974:AAEYfXquqPEjSIOCUvTivWE2tdkNMThNmkw'; 
+      const TELEGRAM_CHAT_ID = '8850729815';
+
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: telegramMessage,
+        }),
+      });
     } catch (err) {
-      console.error("Lỗi sao chép khay nhớ tạm:", err);
+      console.error('Lỗi gửi thông báo Telegram:', err);
+    } finally {
+      clearCart();
+      setSubmitted(true);
+      setSubmitting(false);
     }
-
-    // 4. Gọi Deep Link Zalo cá nhân nhận đơn trực tiếp chuẩn quốc tế
-    const personalZaloId = "84931555551";
-    const zaloUrl = `https://zalo.me/${personalZaloId}?text=${encodeURIComponent(orderText)}`;
-
-    // 5. Chuyển hướng ngay lập tức sang Zalo
-    window.location.href = zaloUrl;
-    
-    // Xóa giỏ hàng chạy ngầm
-    clearCart();
-    setSubmitted(true);
-    setSubmitting(false);
   };
 
+  // MÀN HÌNH THÀNH CÔNG GIAO DIỆN ĐẸP 5 SAO
   if (submitted) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-2xl border bg-card py-12 text-center shadow-sm">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/15 text-success">
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-5 rounded-3xl border bg-card p-6 py-12 text-center shadow-xl border-gray-100">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
           <Check className="h-10 w-10" />
         </div>
-        <div>
-          <h2 className="font-display text-2xl font-bold text-gray-900">
-            Đang chuyển sang Zalo...
+        <div className="space-y-2">
+          <h2 className="font-display text-2xl font-black text-emerald-600 tracking-tight">
+            ĐẶT HÀNG THÀNH CÔNG!
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground px-6 leading-relaxed">
-            Ứng dụng Zalo đang được mở để gửi đơn hàng của bạn. <br />
-            Bạn chỉ cần nhấn nút <span className="text-[#0068ff] font-bold">GỬI</span> trên Zalo là hoàn tất!
+          <p className="text-sm text-gray-700 px-4 leading-relaxed font-medium">
+            Cảm ơn bạn đã lựa chọn mua sắm tại cửa hàng Gạo Trần Huy.
           </p>
+          <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl p-4 text-xs mx-4 text-left mt-3">
+            📞 Đơn hàng của quý khách đã được hệ thống truyền đạt đến bộ phận xử lý của shop. <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi điện thoại vào số <span className="underline font-bold text-emerald-700">{form.phone || 'của bạn'}</span> để xác nhận đơn và xếp lịch giao gạo tận nhà ngay nhé!
+          </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <Button asChild>
-            <Link href="/san-pham">Tiếp tục mua sắm</Link>
+        <div className="flex gap-3 w-full px-4 mt-2">
+          <Button asChild className="flex-1 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700">
+            <Link href="/san-pham">Tiếp tục mua gạo</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="flex-1 py-6 rounded-xl">
             <Link href="/">Về trang chủ</Link>
           </Button>
         </div>
@@ -174,7 +203,7 @@ export function CheckoutForm() {
                     Nội thành Đà Nẵng
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    Giao tận nơi, tự động điền hóa đơn qua Zalo cá nhân
+                    Giao tận nơi, đặt nhận đơn tự động nhanh chóng
                   </div>
                 </div>
               </button>
@@ -209,10 +238,30 @@ export function CheckoutForm() {
 
           {region === 'da-nang' && (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="rounded-2xl border bg-card p-5">
-                <h2 className="mb-4 text-base font-semibold">
+              <div className="rounded-2xl border bg-card p-5 space-y-4">
+                <h2 className="text-base font-semibold">
                   Thông tin giao hàng
                 </h2>
+
+                {/* Thanh thông báo tiến độ Free Ship thông minh tích hợp trong Form */}
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                  {shippingFee === 0 ? (
+                    <p className="font-semibold text-emerald-700 flex items-center gap-1.5 text-sm">
+                      🎉 Tuyệt vời! Đơn hàng của bạn đã đạt mốc và được áp dụng gói <strong>Miễn phí giao hàng</strong>.
+                    </p>
+                  ) : (
+                    <p className="font-medium">
+                      💡 Mẹo nhỏ: Mua thêm <span className="text-orange-600 font-bold">{formatPrice(missingForFreeShip)}</span> tiền gạo nữa để được kích hoạt gói <span className="font-bold text-orange-600">Miễn phí ship</span> nhé ní!
+                    </p>
+                  )}
+                  <div className="w-full bg-gray-200/80 h-2 rounded-full mt-2.5 overflow-hidden">
+                    <div 
+                      className="bg-amber-500 h-full transition-all duration-300"
+                      style={{ width: `${Math.min((totalPrice / siteSettings.freeShippingThreshold) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
@@ -231,6 +280,7 @@ export function CheckoutForm() {
                       />
                     </div>
                   </div>
+
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
                       Số điện thoại <span className="text-destructive">*</span>
@@ -249,25 +299,75 @@ export function CheckoutForm() {
                       />
                     </div>
                   </div>
-                  <div className="grid gap-2">
-                    <label className="text-sm font-medium">
-                      Địa chỉ giao hàng{' '}
-                      <span className="text-destructive">*</span>
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Textarea
+
+                  {/* Thiết kế trường Phường/Xã nhập tay kèm bảng tìm kiếm nhanh */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2 relative">
+                      <label className="text-sm font-medium">
+                        Chọn Phường / Xã <span className="text-destructive">*</span>
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          required
+                          value={wardInput}
+                          onChange={(e) => {
+                            setWardInput(e.target.value);
+                            setShowWardSuggestions(true);
+                          }}
+                          onFocus={() => setShowWardSuggestions(true)}
+                          placeholder="Gõ để tìm phường (VD: Hải Châu)..."
+                          className="pl-10"
+                        />
+                      </div>
+                      
+                      {/* Danh sách gợi ý thông minh đổ xuống */}
+                      {showWardSuggestions && wardInput && filteredWards.length > 0 && (
+                        <ul className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] max-h-48 overflow-y-auto rounded-xl border bg-white py-1.5 shadow-lg text-sm">
+                          {filteredWards.map((w) => (
+                            <li key={w}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWardInput(w);
+                                  setShowWardSuggestions(false);
+                                }}
+                                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-medium text-gray-800"
+                              >
+                                {w}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">
+                        Số nhà, tên đường <span className="text-destructive">*</span>
+                      </label>
+                      <Input
                         required
                         value={form.address}
                         onChange={(e) =>
                           setForm({ ...form, address: e.target.value })
                         }
-                        placeholder="Số nhà, đường, phường, quận, TP. Đà Nẵng"
-                        className="pl-10"
-                        rows={3}
+                        placeholder="Ví dụ: 123 Nguyễn Chí Thanh"
                       />
                     </div>
                   </div>
+
+                  {/* Hiển thị chi phí ship trực quan tương tác ngay trong form */}
+                  <div className="flex items-center justify-between p-3.5 bg-gray-50 border border-gray-200/80 rounded-xl text-sm font-medium">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <Truck className="w-4 h-4 text-gray-400" />
+                      Phí giao hàng dự kiến:
+                    </span>
+                    <span className={shippingFee === 0 ? 'text-emerald-600 font-bold' : 'text-gray-900 font-bold'}>
+                      {shippingFee === 0 ? 'Miễn phí vận chuyển' : formatPrice(shippingFee)}
+                    </span>
+                  </div>
+
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
                       Ghi chú (tùy chọn)
@@ -284,20 +384,13 @@ export function CheckoutForm() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
-                <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
-                <p className="text-muted-foreground">
-                  Luồng 1 chạm tối ưu: Toàn bộ hóa đơn được xử lý gọn gàng trên 1 dòng để loại bỏ bộ lọc quét tin nhắn rác của ứng dụng Zalo.
-                </p>
-              </div>
-
               <Button
                 type="submit"
                 size="lg"
                 disabled={submitting}
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
-                {submitting ? 'Đang mở ứng dụng Zalo...' : 'Xác nhận đơn hàng & Gửi qua Zalo'}
+                {submitting ? 'Đang gửi đơn hàng...' : `Xác nhận đặt đơn ngay (${formatPrice(grandTotal)})`}
               </Button>
             </form>
           )}
@@ -323,7 +416,7 @@ export function CheckoutForm() {
           )}
         </div>
 
-        {/* Tóm tắt đơn hàng */}
+        {/* Tóm tắt đơn hàng bên phải */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -379,7 +472,7 @@ export function CheckoutForm() {
                 <span className="text-muted-foreground">Phí giao hàng</span>
                 <span className="font-medium">
                   {shippingFee === 0 ? (
-                    <span className="text-success">Miễn phí</span>
+                    <span className="text-emerald-600 font-bold">Miễn phí</span>
                   ) : (
                     formatPrice(shippingFee)
                   )}
