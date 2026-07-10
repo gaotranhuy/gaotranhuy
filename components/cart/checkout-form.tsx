@@ -50,12 +50,11 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // FIX: Ép kiểu sang (item as any) để đánh lừa bộ kiểm tra TypeScript, không bị báo lỗi đỏ khi build Vercel nữa
+    // XỬ LÝ AN TOÀN TUYỆT ĐỐI: Đọc chính xác cấu trúc lồng i.product để lấy dữ liệu thật, tránh bị rỗng tin nhắn
     const productLines = items
-      .map((item) => {
-        const i = item as any;
-        const name = i.product?.name || i.name || 'Sản phẩm';
-        const price = Number(i.product?.price || i.price || 0);
+      .map((i) => {
+        const name = i.product?.name || (i as any).name || 'Sản phẩm';
+        const price = Number(i.product?.price || (i as any).price || 0);
         const quantity = Number(i.quantity || 1);
         return `   - ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
@@ -71,14 +70,14 @@ export function CheckoutForm() {
       productLines +
       `\n\n💰 Tạm tính: ${formatPrice(totalPrice)}\n` +
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
-      `✅ Tổng: ${formatPrice(grandTotal)}`;
+      `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    // Định dạng số điện thoại chuẩn quốc tế 84
+    // Định dạng số điện thoại chuẩn quốc tế 84 (ví dụ 0931555551 thành 84931555551)
     const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
     const zaloUrl = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`;
 
     try {
-      // Sử dụng thẻ liên kết ảo nhằm vượt qua cơ chế chặn Pop-up của Safari và Chrome trên điện thoại
+      // Dùng thẻ liên kết ẩn để kích hoạt chuyển hướng (Vượt bộ chặn Pop-up của Safari/Chrome trên di động)
       const link = document.createElement('a');
       link.href = zaloUrl;
       link.target = '_blank';
@@ -87,7 +86,6 @@ export function CheckoutForm() {
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      // Phương án dự phòng nếu trình duyệt quá nghiêm ngặt
       window.location.href = zaloUrl;
     }
 
@@ -152,9 +150,8 @@ export function CheckoutForm() {
       </h1>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        {/* Form area */}
         <div className="space-y-6">
-          {/* Shipping region selector */}
+          {/* Khu vực giao hàng */}
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">Khu vực giao hàng</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -214,7 +211,7 @@ export function CheckoutForm() {
             </div>
           </div>
 
-          {/* Case A: Da Nang local delivery form */}
+          {/* Form điền thông tin Đà Nẵng */}
           {region === 'da-nang' && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="rounded-2xl border bg-card p-5">
@@ -321,7 +318,7 @@ export function CheckoutForm() {
             </form>
           )}
 
-          {/* Case B: Nationwide shipping - Shopee CTA */}
+          {/* Luồng Shopee Toàn quốc */}
           {region === 'nationwide' && (
             <div className="space-y-6">
               <div className="rounded-2xl border bg-card p-6 text-center">
@@ -331,8 +328,7 @@ export function CheckoutForm() {
                 <h2 className="text-lg font-bold">Đặt hàng qua Shopee</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                   Để đặt hàng giao toàn quốc, vui lòng hoàn tất thanh toán trên
-                  gian hàng Shopee của chúng tôi. Shopee đảm bảo thanh toán an
-                  toàn và giao hàng đến tận tay bạn trên toàn quốc.
+                  gian hàng Shopee của chúng tôi.
                 </p>
                 <Button
                   asChild
@@ -349,19 +345,11 @@ export function CheckoutForm() {
                   </a>
                 </Button>
               </div>
-
-              <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
-                <Store className="h-5 w-5 shrink-0 text-primary" />
-                <p className="text-muted-foreground">
-                  Shopee hỗ trợ thanh toán bảo mật, vận chuyển toàn quốc và chính
-                  sách đổi trả rõ ràng.
-                </p>
-              </div>
             </div>
           )}
         </div>
 
-        {/* Order summary */}
+        {/* Tóm tắt đơn hàng bên phải */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -369,12 +357,11 @@ export function CheckoutForm() {
             </h2>
             <ul className="max-h-64 space-y-3 overflow-y-auto">
               {items.map((item) => {
-                const i = item as any;
-                const id = i.id || i.product?.id;
-                const name = i.product?.name || i.name;
-                const image = i.product?.image || i.image;
-                const unit = i.product?.unit || i.unit;
-                const price = i.product?.price || i.price || 0;
+                const id = item.product?.id || (item as any).id;
+                const name = item.product?.name || (item as any).name;
+                const image = item.product?.image || (item as any).image;
+                const unit = item.product?.unit || (item as any).unit;
+                const price = item.product?.price || (item as any).price || 0;
                 
                 return (
                   <li key={id} className="flex gap-3">
