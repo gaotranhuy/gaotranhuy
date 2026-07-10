@@ -44,13 +44,13 @@ export function CheckoutForm() {
       : siteSettings.shippingFee;
   const grandTotal = totalPrice + shippingFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.address) return;
 
     setSubmitting(true);
 
-    // Chuẩn hóa dữ liệu sản phẩm an toàn không lo rỗng
+    // 1. Chuẩn hóa dữ liệu sản phẩm an toàn tối đa
     const productLines = items
       .map((item) => {
         const i = item as any;
@@ -61,7 +61,7 @@ export function CheckoutForm() {
       })
       .join('\n');
 
-    // Tạo chuỗi văn bản đơn hàng chi tiết
+    // 2. Tạo chuỗi văn bản đơn hàng chi tiết
     const orderText =
       `🛒 ĐƠN HÀNG GẠO TRẦN HUY (ĐÀ NẴNG)\n\n` +
       `👤 Khách: ${form.name}\n` +
@@ -74,24 +74,35 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    // Cấu hình link Zalo Official Account (Sử dụng ID OA thay vì Số điện thoại)
+    // 3. CƠ CHẾ DỰ PHÒNG: Tự động Sao chép đơn hàng vào máy đề phòng Zalo OA chặn chữ
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(orderText);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = orderText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error("Không thể sao chép khay nhớ tạm:", err);
+    }
+
+    // 4. Cấu hình link Zalo Official Account chuẩn mã hóa URI component
     const oaId = "3621179647129049909";
     const zaloOaUrl = `https://zalo.me/${oaId}?text=${encodeURIComponent(orderText)}`;
 
-    try {
-      // Chống chặn Pop-up trên Android & iOS bằng cách chuyển hướng tab hiện tại
-      window.location.href = zaloOaUrl;
-      
-      // Xóa giỏ hàng và chuyển sang giao diện thành công sau một khoảng chờ ngắn
-      setTimeout(() => {
-        clearCart();
-        setSubmitted(true);
-      }, 300);
-    } catch (error) {
-      console.error("Lỗi điều hướng Zalo OA:", error);
-    } finally {
+    // 5. Điều hướng an toàn bằng tab hiện tại chống chặn Pop-up
+    window.location.href = zaloOaUrl;
+    
+    // Giữ độ trễ nhỏ để hệ điều hành kịp bắt link mở App trước khi xóa State giỏ hàng
+    setTimeout(() => {
+      clearCart();
+      setSubmitted(true);
       setSubmitting(false);
-    }
+    }, 500);
   };
 
   if (submitted) {
@@ -105,7 +116,8 @@ export function CheckoutForm() {
             Đặt hàng thành công!
           </h2>
           <p className="mt-2 text-sm text-muted-foreground px-4">
-            Cảm ơn bạn đã đặt hàng. Hệ thống đã chuyển bạn đến ứng dụng Zalo để gửi xác nhận đơn hàng cho Gạo Trần Huy.
+            Đơn hàng đã được chuyển tới Zalo OA Gạo Trần Huy. <br />
+            <span className="text-primary font-medium">💡 Mẹo nhỏ:</span> Nếu khung chat bị trống chữ, bạn chỉ cần <strong>Nhấn giữ vào ô nhập tin nhắn</strong> rồi chọn <strong>Dán (Paste)</strong> để gửi ngay biểu mẫu đơn hàng đã tự động copy nhé!
           </p>
         </div>
         <div className="flex gap-2 mt-2">
@@ -289,7 +301,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Hệ thống kết nối trực tiếp với Zalo Official Account: Đơn hàng sẽ tự động điền sẵn vào khung chat ngay khi kích hoạt ứng dụng.
+                  Hệ thống tích hợp luồng xử lý kép: Form đơn hàng được nạp tự động vào link đồng thời sao chép vào khay nhớ tạm để đảm bảo trải nghiệm gửi đơn không gián đoạn.
                 </p>
               </div>
 
