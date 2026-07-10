@@ -49,43 +49,56 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // 1. Gom thông tin sản phẩm đơn hàng
+    // 1. Gom thông tin sản phẩm đơn hàng dạng danh sách
     const productLines = items
       .map((item) => {
         const i = item as any;
         const name = i.name || i.product?.name || 'Sản phẩm Gạo';
+        const price = Number(i.price || i.product?.price || 0);
         const quantity = Number(i.quantity || 1);
-        return `${name} (x${quantity})`;
+        return `• ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
-      .join(', ');
+      .join('\n');
+
+    // 2. Thiết kế mẫu tin nhắn báo đơn hàng cực kỳ chuyên nghiệp gửi về máy chủ shop
+    const telegramMessage = 
+      `🚨 CÓ ĐƠN HÀNG GẠO MỚI! 🚨\n\n` +
+      `👤 Khách hàng: ${form.name}\n` +
+      `📞 Số điện thoại: ${form.phone}\n` +
+      `📍 Địa chỉ giao: ${form.address}\n` +
+      (form.note ? `📝 Ghi chú: ${form.note}\n` : '') +
+      `\n🌾 SẢN PHẨM ĐẶT MUA:\n${productLines}\n\n` +
+      `-----------------------------\n` +
+      `💰 Tiền hàng: ${formatPrice(totalPrice)}\n` +
+      `🚚 Phí vận chuyển: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
+      `💵 TỔNG CỘNG THANH TOÁN: ${formatPrice(grandTotal)}`;
 
     try {
-      // 2. [LUỒNG CHẠY NGẦM THAY THẾ]
-      // Tại đây, bạn hoặc Bolt có thể cấu hình endpoint API gửi dữ liệu về Google Sheets hoặc Email.
-      // Tạm thời, hệ thống sẽ ghi nhận dữ liệu form sạch sẽ lên State để tránh làm gián đoạn việc mua hàng của khách.
-      console.log('Dữ liệu đơn hàng Gạo Trần Huy:', {
-        khachHang: form.name,
-        soDienThoai: form.phone,
-        diaChi: form.address,
-        ghiChu: form.note,
-        sanPham: productLines,
-        tongTien: grandTotal,
+      // 3. ĐIỀU LUỒNG NGẦM: Đẩy dữ liệu đơn hàng trực tiếp lên API Bot Telegram
+      // Ní hãy điền Token và Chat ID ní vừa tạo ở BotFather vào đây nhé:
+      const TELEGRAM_BOT_TOKEN = '8763178902:AAG7Gpy5GT24JZUiic1xQHRtn-F9HHV3BGQ'; 
+      const TELEGRAM_CHAT_ID = '1143273237'; 
+
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: telegramMessage,
+        }),
       });
 
-      // Giả lập một lệnh gọi API xử lý lưu đơn an toàn
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      // 3. Hoàn tất đơn hàng ngay trên Website
+      // 4. Xóa giỏ hàng và cập nhật màn hình thành công cho khách an tâm
       clearCart();
       setSubmitted(true);
     } catch (err) {
-      console.error('Lỗi lưu đơn hàng:', err);
-    } finally {
+      console.error('Lỗi khi đẩy đơn hàng về hệ thống:', err);
+    } filter {
       setSubmitting(false);
     }
   };
 
-  // MÀN HÌNH THÀNH CÔNG 100% - KHÔNG BỊ LỖI CHẶN LINK CỦA ZALO
+  // MÀN HÌNH THÀNH CÔNG: Sạch lỗi chặn chữ Zalo, mang lại trải nghiệm 5 sao cho khách
   if (submitted) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center gap-5 rounded-3xl border bg-card p-6 py-12 text-center shadow-xl border-gray-100">
@@ -97,11 +110,10 @@ export function CheckoutForm() {
             ĐẶT HÀNG THÀNH CÔNG!
           </h2>
           <p className="text-sm text-gray-700 px-4 leading-relaxed font-medium">
-            Cảm ơn bạn đã ủng hộ Gạo Trần Huy. <br />
-            Hệ thống đã ghi nhận đơn hàng của quý khách thành công. 
+            Cảm ơn bạn đã lựa chọn mua sắm tại cửa hàng Gạo Trần Huy.
           </p>
           <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl p-4 text-xs mx-4 text-left mt-3">
-            📞 <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi vào số điện thoại <span className="underline font-bold">{form.phone || 'của bạn'}</span> để xác nhận đơn hàng và xếp lịch giao gạo tận nhà ngay nhé!
+            📞 Đơn hàng của quý khách đã được hệ thống truyền đạt đến bộ phận giao vận của shop. <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi điện thoại vào số <span className="underline font-bold text-emerald-700">{form.phone || 'của bạn'}</span> để xác nhận đơn và giao gạo tận nhà ngay nhé!
           </div>
         </div>
         <div className="flex gap-3 w-full px-4 mt-2">
@@ -288,7 +300,7 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
-                {submitting ? 'Đang gửi đơn hàng...' : 'Xác nhận đơn hàng ngay'}
+                {submitting ? 'Đang gửi đơn hàng...' : 'Xác nhận đặt đơn ngay'}
               </Button>
             </form>
           )}
