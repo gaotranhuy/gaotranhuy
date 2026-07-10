@@ -64,6 +64,7 @@ export interface ContactInfo {
   facebook: string;
   tiktok: string;
   youtube: string;
+  shopee: string;
 }
 
 export interface SiteSettings {

@@ -135,7 +135,7 @@ export function CartView() {
             <Button asChild variant="outline">
               <Link href="/san-pham">
                 <ArrowLeft className="mr-1 h-4 w-4" />
-                Ti tục mua sắm
+                Tiếp tục mua sắm
               </Link>
             </Button>
             <Button
