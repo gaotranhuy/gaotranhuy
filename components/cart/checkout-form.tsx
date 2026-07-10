@@ -69,10 +69,11 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng: ${formatPrice(grandTotal)}`;
 
-window.open(
-  `https://zalo.me/${contactInfo.zalo}?text=${encodeURIComponent(orderText)}`,
-  '_blank'
-);
+    const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
+    window.open(
+      `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`,
+      '_blank'
+    );
 
     setSubmitting(false);
     setSubmitted(true);
