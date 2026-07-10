@@ -14,6 +14,7 @@ import {
   Truck,
   Store,
   ShoppingCart,
+  Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,74 +50,82 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // 1. Tạo danh sách sản phẩm gạo chi tiết
+    // 1. Gom danh sách sản phẩm thành các dòng rõ ràng
     const productLines = items
       .map((item) => {
         const i = item as any;
         const name = i.name || i.product?.name || 'Sản phẩm Gạo';
         const price = Number(i.price || i.product?.price || 0);
         const quantity = Number(i.quantity || 1);
-        return `   - ${name} x${quantity}: ${formatPrice(price * quantity)}`;
+        return `• ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
       .join('\n');
 
-    // 2. Tạo nội dung hóa đơn đơn hàng (Quay lại định dạng xuống dòng chuyên nghiệp)
+    // 2. Thiết lập nội dung đơn hàng chuyên nghiệp
     const orderText =
-      `🛒 ĐƠN HÀNG GẠO TRẦN HUY (ĐÀ NẴNG)\n\n` +
-      `👤 Khách: ${form.name}\n` +
-      `📞 SĐT: ${form.phone}\n` +
+      `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
+      `👤 Khách hàng: ${form.name}\n` +
+      `📞 Điện thoại: ${form.phone}\n` +
       `📍 Địa chỉ: ${form.address}\n` +
       (form.note ? `📝 Ghi chú: ${form.note}\n` : '') +
-      `\n📦 Sản phẩm:\n` +
+      `\n📦 Chi tiết gạo đặt:\n` +
       productLines +
-      `\n\n💰 Tạm tính: ${formatPrice(totalPrice)}\n` +
-      `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
-      `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
+      `\n\n💰 Tổng thanh toán: ${formatPrice(grandTotal)}`;
 
-    // 3. Sao chép khay nhớ tạm để dự phòng
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(orderText);
-      }
-    } catch (err) {
-      console.error("Lỗi sao chép khay nhớ tạm:", err);
-    }
+    // 3. Sử dụng link chia sẻ hệ thống 'nf' để ép Zalo tự dán chữ không bị trống ô nhập liệu
+    const zaloUrl = `https://zalo.me/nf?text=${encodeURIComponent(orderText)}&zarsrc=1303&utm_source=zalo&utm_medium=zalo&utm_campaign=zalo`;
 
-    // 4. MẸO QUA MẶT BẢO MẬT: Gói link Zalo cá nhân vào cổng chuyển hướng nội bộ (In-App Browser Link)
-    const personalZaloId = "84931555551";
-    const coreZaloUrl = `https://zalo.me/${personalZaloId}?text=${encodeURIComponent(orderText)}`;
+    // 4. Kích hoạt nhảy thẳng sang Zalo
+    window.location.href = zaloUrl;
     
-    // Ép hệ điều hành mở thông qua luồng quét nội bộ của Zalo để giữ lại 100% chữ
-    const bypassZaloUrl = `https://zalo.me/s/qr?q=${encodeURIComponent(coreZaloUrl)}`;
-
-    // 5. Điều hướng lập tức
-    window.location.href = bypassZaloUrl;
-    
+    // Xóa giỏ hàng ngầm
     clearCart();
     setSubmitted(true);
     setSubmitting(false);
   };
 
+  // MÀN HÌNH HƯỚNG DẪN 2 BƯỚC: Hỗ trợ tối đa cho khách không rành công nghệ
   if (submitted) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-2xl border bg-card py-12 text-center shadow-sm">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/15 text-success">
-          <Check className="h-10 w-10" />
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-6 rounded-3xl border bg-card p-6 py-10 text-center shadow-xl border-gray-100">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600 animate-pulse">
+          <Share2 className="h-8 w-8" />
         </div>
-        <div>
-          <h2 className="font-display text-2xl font-bold text-gray-900">
-            Đang mở Zalo...
+        
+        <div className="space-y-2">
+          <h2 className="font-display text-xl font-black text-gray-900">
+            HƯỚNG DẪN GỬI ĐƠN GẠO NHANH
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground px-6 leading-relaxed">
-            Hệ thống đã tự động điền sẵn hóa đơn gạo vào ô nhập chữ. <br />
-            Bạn <span className="text-[#0068ff] font-bold">chỉ việc bấm nút GỬI</span> (mũi tên xanh) là hoàn tất nhé!
+          <p className="text-sm text-muted-foreground px-4 leading-relaxed">
+            Ứng dụng Zalo đã mở màn hình gửi tin nhắn với đầy đủ thông tin đơn hàng của bạn.
           </p>
         </div>
-        <div className="flex gap-2 mt-4">
-          <Button asChild>
+
+        {/* Khung hướng dẫn trực quan bằng hành động */}
+        <div className="w-full text-left bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white mt-0.5">
+              1
+            </span>
+            <p className="text-sm text-gray-700">
+              Tại màn hình Zalo vừa hiện lên, nhấn vào ô **Tìm kiếm** hoặc danh sách bạn bè.
+            </p>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white mt-0.5">
+              2
+            </span>
+            <p className="text-sm text-gray-700">
+              Chọn tài khoản **Gạo Trần Huy** (hoặc số điện thoại cửa hàng) rồi bấm **Gửi** là hoàn tất, chữ đã được tự điền sẵn!
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2 w-full px-2">
+          <Button asChild className="flex-1 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700">
             <Link href="/san-pham">Tiếp tục mua sắm</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="flex-1 py-6 rounded-xl">
             <Link href="/">Về trang chủ</Link>
           </Button>
         </div>
@@ -180,7 +189,7 @@ export function CheckoutForm() {
                     Nội thành Đà Nẵng
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    Giao tận nơi, qua mặt bộ lọc tự động điền chữ Zalo
+                    Giao tận nơi, điền hóa đơn tự động qua cổng Zalo Feed
                   </div>
                 </div>
               </button>
@@ -293,7 +302,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Công nghệ kích hoạt cổng nội bộ Zalo: Đơn hàng tự động vượt bộ lọc chống spam để tự điền chữ vào ô chat của quý khách.
+                  Luồng đồng bộ hóa tin nhắn: Bảo vệ hóa đơn gạo của ní không bị app Zalo di động xóa trống chữ.
                 </p>
               </div>
 
@@ -302,7 +311,7 @@ export function CheckoutForm() {
                 size="lg"
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
-                Xác nhận đơn hàng & Gửi qua Zalo
+                {submitting ? 'Đang kết nối Zalo...' : 'Xác nhận đơn hàng & Gửi qua Zalo'}
               </Button>
             </form>
           )}
