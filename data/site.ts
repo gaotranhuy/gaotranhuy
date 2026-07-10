@@ -12,7 +12,7 @@ export const siteSettings: SiteSettings = {
 
 export const contactInfo: ContactInfo = {
   phone: '0931.55555.1',
-  zalo: '0931555551',
+  zalo: '84931555551',
   email: 'huy07kt@gmail.com',
   address: '26 Cầm Bá Thước. Phường Hoà Cường. Tp. Đà Nẵng',
   workingHours: '7:00 - 20:00 (Tất cả các ngày trong tuần)',
