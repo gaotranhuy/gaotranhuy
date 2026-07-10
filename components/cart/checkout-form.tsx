@@ -74,27 +74,22 @@ export function CheckoutForm() {
       `💵 TỔNG CỘNG THANH TOÁN: ${formatPrice(grandTotal)}`;
 
     try {
-      // 3. ĐIỀU LUỒNG NGẦM: Gửi đến Bot Telegram
-      // Thay thế chính xác mã Token và Chat ID của ní vào giữa 2 dấu nháy đơn dưới đây:
+      // 3. Sử dụng token thật của ní đã điền chính xác
       const TELEGRAM_BOT_TOKEN = '8857624974:AAEYfXquqPEjSIOCUvTivWE2tdkNMThNmkw'; 
-      const TELEGRAM_CHAT_ID = '8850729815'; 
+      const TELEGRAM_CHAT_ID = 'ĐIỀN_ID_CHAT_CỦA_BẠN_VÀO_ĐÂY'; // Sửa số ID chat của bạn vào đây
 
-      // Kiểm tra xem ní đã nhập token thật chưa, nếu chưa nhập hoặc nhập chữ tiếng Việt thì bỏ qua fetch để không bị crash web
-      if (TELEGRAM_BOT_TOKEN && TELEGRAM_BOT_TOKEN !== 'ĐIỀN_TOKEN_BOT_VÀO_ĐÂY') {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: telegramMessage,
-          }),
-        });
-      }
+      // Bỏ dòng check so sánh lỗi chữ tiếng Việt cũ, chạy fetch trực tiếp
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: telegramMessage,
+        }),
+      });
     } catch (err) {
-      // Nếu lỗi mạng hoặc lỗi hệ thống Telegram, lỗi sẽ được cô lập ở đây, không làm đơ nút bấm của khách
       console.error('Lỗi gửi thông báo Telegram:', err);
     } finally {
-      // Đã sửa lỗi chính tả từ filter thành finally chuẩn xác tuyệt đối
       clearCart();
       setSubmitted(true);
       setSubmitting(false);
