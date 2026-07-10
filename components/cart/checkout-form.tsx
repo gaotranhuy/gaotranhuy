@@ -76,7 +76,7 @@ export function CheckoutForm() {
     try {
       // 3. Sử dụng token thật của ní đã điền chính xác
       const TELEGRAM_BOT_TOKEN = '8857624974:AAEYfXquqPEjSIOCUvTivWE2tdkNMThNmkw'; 
-      const TELEGRAM_CHAT_ID = 'ĐIỀN_ID_CHAT_CỦA_BẠN_VÀO_ĐÂY'; // Sửa số ID chat của bạn vào đây
+      const TELEGRAM_CHAT_ID = '8850729815'; // Sửa số ID chat của bạn vào đây
 
       // Bỏ dòng check so sánh lỗi chữ tiếng Việt cũ, chạy fetch trực tiếp
       await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
