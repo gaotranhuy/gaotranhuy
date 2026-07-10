@@ -83,7 +83,7 @@ export function CheckoutForm() {
     }
 
     // 4. MẸO QUA MẶT BẢO MẬT: Gói link Zalo cá nhân vào cổng chuyển hướng nội bộ (In-App Browser Link)
-    const personalZaloId = "84931555513";
+    const personalZaloId = "84931555551";
     const coreZaloUrl = `https://zalo.me/${personalZaloId}?text=${encodeURIComponent(orderText)}`;
     
     // Ép hệ điều hành mở thông qua luồng quét nội bộ của Zalo để giữ lại 100% chữ
