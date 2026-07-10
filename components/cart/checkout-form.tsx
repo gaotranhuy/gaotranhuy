@@ -44,22 +44,24 @@ export function CheckoutForm() {
       : siteSettings.shippingFee;
   const grandTotal = totalPrice + shippingFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.address) return;
 
     setSubmitting(true);
 
-    // XỬ LÝ AN TOÀN TUYỆT ĐỐI: Đọc chính xác cấu trúc lồng i.product để lấy dữ liệu thật, tránh bị rỗng tin nhắn
+    // Chuẩn hóa dữ liệu sản phẩm an toàn
     const productLines = items
-      .map((i) => {
-        const name = i.product?.name || (i as any).name || 'Sản phẩm';
-        const price = Number(i.product?.price || (i as any).price || 0);
+      .map((item) => {
+        const i = item as any;
+        const name = i.product?.name || i.name || 'Sản phẩm';
+        const price = Number(i.product?.price || i.price || 0);
         const quantity = Number(i.quantity || 1);
         return `   - ${name} x${quantity}: ${formatPrice(price * quantity)}`;
       })
       .join('\n');
 
+    // Tạo chuỗi văn bản đơn hàng chi tiết
     const orderText =
       `🛒 ĐƠN HÀNG GẠO TRẦN HUY\n\n` +
       `👤 Khách: ${form.name}\n` +
@@ -72,12 +74,28 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
       `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    // Định dạng số điện thoại chuẩn quốc tế 84 (ví dụ 0931555551 thành 84931555551)
+    // 🔥 GIẢI PHÁP ĐẶC TRỊ ZALO: TỰ ĐỘNG SAO CHÉP ĐƠN HÀNG VÀO BỘ NHỚ TẠM CỦA KHÁCH
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(orderText);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = orderText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      alert("📋 Thông tin đơn hàng đã được tự động SAO CHÉP!\n\nSau khi Zalo mở lên, bạn chỉ cần bấm đè vào ô chat và chọn 'DÁN' (Paste) để gửi cho shop xác nhận nhé.");
+    } catch (err) {
+      console.log("Không thể sao chép tự động");
+    }
+
+    // Định dạng số điện thoại và mở Zalo thẳng ô chat của bạn
     const zaloPhone = contactInfo.zalo.replace(/^0/, '84');
-    const zaloUrl = `https://zalo.me/${zaloPhone}?text=${encodeURIComponent(orderText)}`;
+    const zaloUrl = `https://zalo.me/${zaloPhone}`;
 
     try {
-      // Dùng thẻ liên kết ẩn để kích hoạt chuyển hướng (Vượt bộ chặn Pop-up của Safari/Chrome trên di động)
       const link = document.createElement('a');
       link.href = zaloUrl;
       link.target = '_blank';
@@ -105,8 +123,7 @@ export function CheckoutForm() {
             Đặt hàng thành công!
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Cảm ơn bạn đã đặt hàng. Chúng tôi đã chuyển bạn đến Zalo để xác nhận
-            đơn. Gạo Trần Huy sẽ liên hệ với bạn trong thời gian sớm nhất.
+            Cảm ơn bạn đã đặt hàng. Hệ thống đã tự sao chép đơn, vui lòng nhấn **Dán** vào khung chat Zalo để gửi cho chúng tôi.
           </p>
         </div>
         <div className="flex gap-2">
@@ -211,7 +228,7 @@ export function CheckoutForm() {
             </div>
           </div>
 
-          {/* Form điền thông tin Đà Nẵng */}
+          {/* Form giao hàng Đà Nẵng */}
           {region === 'da-nang' && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="rounded-2xl border bg-card p-5">
@@ -292,8 +309,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Đơn hàng sẽ được gửi qua <strong>Zalo</strong> để shop xác nhận
-                  và giao hàng tận nơi trong nội thành Đà Nẵng.
+                  Đơn hàng sẽ được tự động sao chép. Bạn chỉ cần <strong>Dán</strong> vào ô chat Zalo sau khi hệ thống chuyển hướng.
                 </p>
               </div>
 
@@ -303,22 +319,12 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2"
               >
-                {submitting ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    Đang chuyển...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Gửi đơn hàng qua Zalo
-                  </>
-                )}
+                {submitting ? 'Đang chuyển...' : 'Xác nhận đơn & Mở Zalo'}
               </Button>
             </form>
           )}
 
-          {/* Luồng Shopee Toàn quốc */}
+          {/* Luồng Toàn quốc */}
           {region === 'nationwide' && (
             <div className="space-y-6">
               <div className="rounded-2xl border bg-card p-6 text-center">
@@ -327,19 +333,10 @@ export function CheckoutForm() {
                 </div>
                 <h2 className="text-lg font-bold">Đặt hàng qua Shopee</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Để đặt hàng giao toàn quốc, vui lòng hoàn tất thanh toán trên
-                  gian hàng Shopee của chúng tôi.
+                  Để đặt hàng giao toàn quốc, vui lòng hoàn tất thanh toán trên gian hàng Shopee của chúng tôi.
                 </p>
-                <Button
-                  asChild
-                  size="lg"
-                  className="mt-5 w-full gap-2 sm:w-auto"
-                >
-                  <a
-                    href={contactInfo.shopee}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                <Button asChild size="lg" className="mt-5 w-full gap-2 sm:w-auto">
+                  <a href={contactInfo.shopee} target="_blank" rel="noopener noreferrer">
                     <ShoppingCart className="h-5 w-5" />
                     Mua hàng trên Shopee
                   </a>
@@ -349,7 +346,7 @@ export function CheckoutForm() {
           )}
         </div>
 
-        {/* Tóm tắt đơn hàng bên phải */}
+        {/* Tóm tắt đơn hàng */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -357,11 +354,12 @@ export function CheckoutForm() {
             </h2>
             <ul className="max-h-64 space-y-3 overflow-y-auto">
               {items.map((item) => {
-                const id = item.product?.id || (item as any).id;
-                const name = item.product?.name || (item as any).name;
-                const image = item.product?.image || (item as any).image;
-                const unit = item.product?.unit || (item as any).unit;
-                const price = item.product?.price || (item as any).price || 0;
+                const i = item as any;
+                const id = i.id || i.product?.id;
+                const name = i.product?.name || i.name;
+                const image = i.product?.image || i.image;
+                const unit = i.product?.unit || i.unit;
+                const price = i.product?.price || i.price || 0;
                 
                 return (
                   <li key={id} className="flex gap-3">
