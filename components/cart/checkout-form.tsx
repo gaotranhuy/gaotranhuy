@@ -79,7 +79,7 @@ export function CheckoutForm() {
     }
 
     // 4. Gọi Deep Link Zalo cá nhân nhận đơn trực tiếp chuẩn quốc tế
-    const personalZaloId = "84931555513";
+    const personalZaloId = "84931555551";
     const zaloUrl = `https://zalo.me/${personalZaloId}?text=${encodeURIComponent(orderText)}`;
 
     // 5. Chuyển hướng ngay lập tức sang Zalo
