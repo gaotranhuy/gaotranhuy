@@ -25,15 +25,29 @@ import { siteSettings, contactInfo } from '@/data/site';
 
 type ShippingRegion = 'da-nang' | 'nationwide';
 
+// Danh sách 12 Phường và 3 Xã mới chuẩn địa giới hành chính Đà Nẵng
+const DANANG_WARDS = [
+  'Phường Hải Châu', 'Phường Hòa Cường', 'Phường Thanh Khê', 'Phường An Khê',
+  'Phường An Hải', 'Phường Sơn Trà', 'Phường Cẩm Lệ', 'Phường Hòa Vang',
+  'Phường Khuê Mỹ', 'Phường Mỹ An', 'Phường Hòa Quý', 'Phường Hòa Hiệp',
+  'Xã Hòa Bắc', 'Xã Hòa Ninh', 'Xã Hòa Nhơn'
+];
+
 export function CheckoutForm() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
+  
+  // Tách biệt ô nhập Phường (để gợi ý) và Địa chỉ chi tiết
+  const [wardInput, setWardInput] = React.useState('');
+  const [showWardSuggestions, setShowWardSuggestions] = React.useState(false);
+  
   const [form, setForm] = React.useState({
     name: '',
     phone: '',
-    address: '',
+    address: '', // Số nhà, tên đường
     note: '',
   });
+  
   const [submitting, setSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
 
@@ -42,10 +56,16 @@ export function CheckoutForm() {
       ? 0
       : siteSettings.shippingFee;
   const grandTotal = totalPrice + shippingFee;
+  const missingForFreeShip = siteSettings.freeShippingThreshold - totalPrice;
+
+  // Lọc danh sách phường dựa trên ký tự khách nhập vào ô Phường
+  const filteredWards = DANANG_WARDS.filter((w) =>
+    w.toLowerCase().includes(wardInput.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.address) return;
+    if (!form.name || !form.phone || !form.address || !wardInput) return;
 
     setSubmitting(true);
 
@@ -60,25 +80,26 @@ export function CheckoutForm() {
       })
       .join('\n');
 
+    // Nối Phường nhập tay và Số nhà/Đường thành Địa chỉ đầy đủ
+    const fullAddress = `${form.address}, ${wardInput}, TP. Đà Nẵng`;
+
     // 2. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
     const telegramMessage = 
       `🌾 CÓ ĐƠN HÀNG GẠO MỚI! 🌾\n\n` +
       `👤 Khách hàng: ${form.name}\n` +
       `📞 Số điện thoại: ${form.phone}\n` +
-      `📍 Địa chỉ giao: ${form.address}\n` +
+      `📍 Địa chỉ giao: ${fullAddress}\n` +
       (form.note ? `📝 Ghi chú: ${form.note}\n` : '') +
       `\n📦 SẢN PHẨM ĐẶT MUA:\n${productLines}\n\n` +
       `-----------------------------\n` +
       `💰 Tiền hàng: ${formatPrice(totalPrice)}\n` +
-      `🚚 Phí vận chuyển: ${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}\n` +
+      `🚚 Phí vận chuyển: ${shippingFee === 0 ? 'Miễn phí (Free Ship)' : formatPrice(shippingFee)}\n` +
       `💵 TỔNG CỘNG THANH TOÁN: ${formatPrice(grandTotal)}`;
 
     try {
-      // 3. Sử dụng token thật của ní đã điền chính xác
       const TELEGRAM_BOT_TOKEN = '8857624974:AAEYfXquqPEjSIOCUvTivWE2tdkNMThNmkw'; 
-      const TELEGRAM_CHAT_ID = '8850729815'; // Sửa số ID chat của bạn vào đây
+      const TELEGRAM_CHAT_ID = '8850729815';
 
-      // Bỏ dòng check so sánh lỗi chữ tiếng Việt cũ, chạy fetch trực tiếp
       await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -217,10 +238,30 @@ export function CheckoutForm() {
 
           {region === 'da-nang' && (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="rounded-2xl border bg-card p-5">
-                <h2 className="mb-4 text-base font-semibold">
+              <div className="rounded-2xl border bg-card p-5 space-y-4">
+                <h2 className="text-base font-semibold">
                   Thông tin giao hàng
                 </h2>
+
+                {/* Thanh thông báo tiến độ Free Ship thông minh tích hợp trong Form */}
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                  {shippingFee === 0 ? (
+                    <p className="font-semibold text-emerald-700 flex items-center gap-1.5 text-sm">
+                      🎉 Tuyệt vời! Đơn hàng của bạn đã đạt mốc và được áp dụng gói <strong>Miễn phí giao hàng</strong>.
+                    </p>
+                  ) : (
+                    <p className="font-medium">
+                      💡 Mẹo nhỏ: Mua thêm <span className="text-orange-600 font-bold">{formatPrice(missingForFreeShip)}</span> tiền gạo nữa để được kích hoạt gói <span className="font-bold text-orange-600">Miễn phí ship</span> nhé ní!
+                    </p>
+                  )}
+                  <div className="w-full bg-gray-200/80 h-2 rounded-full mt-2.5 overflow-hidden">
+                    <div 
+                      className="bg-amber-500 h-full transition-all duration-300"
+                      style={{ width: `${Math.min((totalPrice / siteSettings.freeShippingThreshold) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
                 <div className="grid gap-4">
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
@@ -239,6 +280,7 @@ export function CheckoutForm() {
                       />
                     </div>
                   </div>
+
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
                       Số điện thoại <span className="text-destructive">*</span>
@@ -257,25 +299,75 @@ export function CheckoutForm() {
                       />
                     </div>
                   </div>
-                  <div className="grid gap-2">
-                    <label className="text-sm font-medium">
-                      Địa chỉ giao hàng{' '}
-                      <span className="text-destructive">*</span>
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Textarea
+
+                  {/* Thiết kế trường Phường/Xã nhập tay kèm bảng tìm kiếm nhanh */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2 relative">
+                      <label className="text-sm font-medium">
+                        Chọn Phường / Xã <span className="text-destructive">*</span>
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          required
+                          value={wardInput}
+                          onChange={(e) => {
+                            setWardInput(e.target.value);
+                            setShowWardSuggestions(true);
+                          }}
+                          onFocus={() => setShowWardSuggestions(true)}
+                          placeholder="Gõ để tìm phường (VD: Hải Châu)..."
+                          className="pl-10"
+                        />
+                      </div>
+                      
+                      {/* Danh sách gợi ý thông minh đổ xuống */}
+                      {showWardSuggestions && wardInput && filteredWards.length > 0 && (
+                        <ul className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] max-h-48 overflow-y-auto rounded-xl border bg-white py-1.5 shadow-lg text-sm">
+                          {filteredWards.map((w) => (
+                            <li key={w}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setWardInput(w);
+                                  setShowWardSuggestions(false);
+                                }}
+                                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors font-medium text-gray-800"
+                              >
+                                {w}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <label className="text-sm font-medium">
+                        Số nhà, tên đường <span className="text-destructive">*</span>
+                      </label>
+                      <Input
                         required
                         value={form.address}
                         onChange={(e) =>
                           setForm({ ...form, address: e.target.value })
                         }
-                        placeholder="Số nhà, đường, phường, quận, TP. Đà Nẵng"
-                        className="pl-10"
-                        rows={3}
+                        placeholder="Ví dụ: 123 Nguyễn Chí Thanh"
                       />
                     </div>
                   </div>
+
+                  {/* Hiển thị chi phí ship trực quan tương tác ngay trong form */}
+                  <div className="flex items-center justify-between p-3.5 bg-gray-50 border border-gray-200/80 rounded-xl text-sm font-medium">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <Truck className="w-4 h-4 text-gray-400" />
+                      Phí giao hàng dự kiến:
+                    </span>
+                    <span className={shippingFee === 0 ? 'text-emerald-600 font-bold' : 'text-gray-900 font-bold'}>
+                      {shippingFee === 0 ? 'Miễn phí vận chuyển' : formatPrice(shippingFee)}
+                    </span>
+                  </div>
+
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
                       Ghi chú (tùy chọn)
@@ -298,7 +390,7 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
-                {submitting ? 'Đang gửi đơn hàng...' : 'Xác nhận đặt đơn ngay'}
+                {submitting ? 'Đang gửi đơn hàng...' : `Xác nhận đặt đơn ngay (${formatPrice(grandTotal)})`}
               </Button>
             </form>
           )}
@@ -324,7 +416,7 @@ export function CheckoutForm() {
           )}
         </div>
 
-        {/* Tóm tắt đơn hàng */}
+        {/* Tóm tắt đơn hàng bên phải */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -380,7 +472,7 @@ export function CheckoutForm() {
                 <span className="text-muted-foreground">Phí giao hàng</span>
                 <span className="font-medium">
                   {shippingFee === 0 ? (
-                    <span className="text-success">Miễn phí</span>
+                    <span className="text-emerald-600 font-bold">Miễn phí</span>
                   ) : (
                     formatPrice(shippingFee)
                   )}
