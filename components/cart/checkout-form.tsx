@@ -26,24 +26,23 @@ import { siteSettings } from '@/data/site';
 
 type ShippingRegion = 'da-nang' | 'nationwide';
 
-// DANH SÁCH CÁC PHƯỜNG MỚI SAU KHI SÁP NHẬP TẠI ĐÀ NẴNG
+// DANH SÁCH 12 PHƯỜNG VÀ 3 XÃ MỚI CHÍNH THỨC ĐÀ NẴNG (ĐÃ LÀM SẠCH CHỮ CHỐNG NUỐT TEXT)
 const DANANG_WARDS = [
-  'Phường Hải Châu (Quận Hải Châu - Mới)',
-  'Phường Hòa Cường (Quận Hải Châu - Mới)',
-  'Phường Thanh Khê (Quận Thanh Khê - Mới)',
-  'Phường An Khê (Quận Thanh Khê - Mới)',
-  'Phường An Hải (Quận Sơn Trà - Mới)',
-  'Phường Sơn Trà (Quận Sơn Trà - Mới)',
-  'Phường Cẩm Lệ (Quận Cẩm Lệ - Mới)',
-  'Phường Mỹ An (Quận Ngũ Hành Sơn)',
-  'Phường Khuê Mỹ (Quận Ngũ Hành Sơn)',
-  'Phường Hòa Quý (Quận Ngũ Hành Sơn)',
-  'Phường Hòa Hải (Quận Ngũ Hành Sơn)',
-  'Phường Hòa Minh (Quận Liên Chiểu)',
-  'Phường Hòa Khánh Bắc (Quận Liên Chiểu)',
-  'Phường Hòa Khánh Nam (Quận Liên Chiểu)',
-  'Phường Hòa Hiệp Bắc (Quận Liên Chiểu)',
-  'Phường Hòa Hiệp Nam (Quận Liên Chiểu)',
+  'Phường Hải Châu, Quận Hải Châu',
+  'Phường Hòa Cường, Quận Hải Châu',
+  'Phường Khuê Trung, Quận Hải Châu',
+  'Phường Thanh Khê, Quận Thanh Khê',
+  'Phường An Khê, Quận Thanh Khê',
+  'Phường An Hải, Quận Sơn Trà',
+  'Phường Sơn Trà, Quận Sơn Trà',
+  'Phường Cẩm Lệ, Quận Cẩm Lệ',
+  'Phường Liên Chiểu, Quận Liên Chiểu',
+  'Phường Ngũ Hành Sơn, Quận Ngũ Hành Sơn',
+  'Phường Hòa Vang, Quận Liên Chiểu',
+  'Phường Hòa Tiến, Quận Cẩm Lệ',
+  'Xã Hòa Châu, Huyện Hòa Vang',
+  'Xã Hòa Phước, Huyện Hòa Vang',
+  'Xã Hòa Nhơn, Huyện Hòa Vang'
 ];
 
 export function CheckoutForm() {
@@ -67,7 +66,7 @@ export function CheckoutForm() {
   
   const amountNeededForFreeShip = freeShipThreshold - totalPrice;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.ward || !form.streetAddress) return;
 
@@ -97,24 +96,11 @@ export function CheckoutForm() {
       `🚚 Phí ship: ${shippingFee === 0 ? 'Miễn phí (Đạt mốc >500k)' : formatPrice(shippingFee)}\n` +
       `✅ Tổng cộng: ${formatPrice(grandTotal)}`;
 
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(orderText);
-      } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = orderText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-      }
-    } catch (err) {
-      console.error("Lỗi khay nhớ tạm:", err);
-    }
-
+    // Gửi text trực tiếp vào link OA như phiên bản ok lúc nãy ní test
     const oaId = "3621179647129049909";
     const zaloOaUrl = `https://zalo.me/${oaId}?text=${encodeURIComponent(orderText)}`;
 
+    // Chuyển hướng tab hiện tại (Ép nhảy App và nạp chữ trực tiếp)
     window.location.href = zaloOaUrl;
     
     setTimeout(() => {
@@ -126,21 +112,19 @@ export function CheckoutForm() {
 
   if (submitted) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-2xl border bg-card py-12 text-center">
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-2xl border bg-card py-12 text-center shadow-sm">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/15 text-success">
           <Check className="h-10 w-10" />
         </div>
         <div>
-          <h2 className="font-display text-2xl font-bold">
+          <h2 className="font-display text-2xl font-bold text-success">
             Đặt hàng thành công!
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground px-6 leading-relaxed">
-            Hệ thống đang mở ứng dụng Zalo để chuyển đơn hàng của bạn. <br />
-            <span className="text-primary font-semibold block mt-2">💡 MẸO GỬI ĐƠN NHANH:</span> 
-            Nếu ô chat Zalo bị trống chữ, bạn chỉ cần <strong>Nhấn giữ vào ô nhập tin nhắn</strong> chọn <strong>Dán (Paste)</strong> để gửi ngay hóa đơn đã sao chép tự động nhé!
+          <p className="mt-2 text-sm text-muted-foreground px-4">
+            Cảm ơn bạn đã đặt hàng. Hệ thống đã mở ứng dụng Zalo và tự động điền sẵn đơn hàng vào khung chat cho Gạo Trần Huy.
           </p>
         </div>
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-2">
           <Button asChild>
             <Link href="/san-pham">Tiếp tục mua sắm</Link>
           </Button>
@@ -312,7 +296,7 @@ export function CheckoutForm() {
                     </div>
                   </div>
 
-                  {/* Chọn Phường mới từ danh sách sáp nhập hành chính */}
+                  {/* Chọn Phường theo danh sách hành chính mới làm sạch chuỗi */}
                   <div className="grid gap-2">
                     <label className="text-sm font-medium">
                       Chọn Phường mới <span className="text-destructive">*</span>
@@ -325,7 +309,7 @@ export function CheckoutForm() {
                         onChange={(e) => setForm({ ...form, ward: e.target.value })}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10"
                       >
-                        <option value="">-- Bấm để chọn Phường (Hành chính mới) --</option>
+                        <option value="">-- Bấm để chọn Phường mới --</option>
                         {DANANG_WARDS.map((ward, idx) => (
                           <option key={idx} value={ward}>
                             {ward}
@@ -369,7 +353,7 @@ export function CheckoutForm() {
               <div className="flex items-center gap-3 rounded-xl bg-accent/50 p-4 text-sm">
                 <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
                 <p className="text-muted-foreground">
-                  Hệ thống tích hợp luồng xử lý kép: Form đơn hàng được nạp tự động vào link đồng thời sao chép sẵn vào máy để đảm bảo đơn đi thành công.
+                  Hệ thống kết nối trực tiếp với Zalo OA Gạo Trần Huy: Đơn hàng tự động điền sẵn vào ô chat ngay khi kích hoạt ứng dụng.
                 </p>
               </div>
 
