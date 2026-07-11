@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
       is_featured: body.is_featured ?? false,
       is_best_seller: body.is_best_seller ?? false,
       is_new: body.is_new ?? false,
+      shopeeUrl: body.shopeeUrl || '', 
     };
 
     const { data, error } = await supabase
