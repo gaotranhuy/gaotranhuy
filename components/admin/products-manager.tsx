@@ -59,6 +59,7 @@ interface Product {
   is_best_seller: boolean;
   is_new: boolean;
   created_at: string;
+  shopeeUrl: string;
 }
 
 const CATEGORIES = [
@@ -91,6 +92,7 @@ const emptyForm = {
   is_featured: false,
   is_best_seller: false,
   is_new: false,
+  shopeeUrl: '',
 };
 
 function TableSkeleton() {
@@ -222,6 +224,7 @@ export function ProductsManager() {
       is_featured: p.is_featured,
       is_best_seller: p.is_best_seller,
       is_new: p.is_new,
+      shopeeUrl: p.shopeeUrl || '',
     });
     setDialogOpen(true);
   };
@@ -777,6 +780,18 @@ export function ProductsManager() {
               </div>
             </div>
 
+
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Đường dẫn sản phẩm Shopee (shopeeUrl)</label>
+  <Input
+    placeholder="Nhập link sản phẩm trên sàn Shopee..."
+    value={form.shopeeUrl}
+    onChange={(e) => setForm({ ...form, shopeeUrl: e.target.value })}
+  />
+</div>
+
+            
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Nguồn gốc</Label>
