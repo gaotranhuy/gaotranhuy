@@ -224,7 +224,7 @@ export function ProductsManager() {
       is_featured: p.is_featured,
       is_best_seller: p.is_best_seller,
       is_new: p.is_new,
-      shopeeUrl: p.shopeeUrl || '',
+      shopeeUrl: (p as any).shopee_url || p.shopeeUrl || '', 
     });
     setDialogOpen(true);
   };
