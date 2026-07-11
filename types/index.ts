@@ -34,7 +34,7 @@ export interface Product {
   isBestSeller: boolean;
   isNew: boolean;
   createdAt: string;
-  shopeeUrl: string;
+  shopeeUrl?: string;
 }
 
 export interface NewsArticle {
