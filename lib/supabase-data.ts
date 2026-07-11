@@ -27,6 +27,7 @@ interface ProductRow {
   is_best_seller: boolean;
   is_new: boolean;
   created_at: string;
+  shopeeUrl: string | null; // 👈 Thêm dòng này để hứng dữ liệu từ Supabase
 }
 
 interface BlogRow {
@@ -70,6 +71,7 @@ function mapProductRow(row: ProductRow): Product {
     isBestSeller: row.is_best_seller,
     isNew: row.is_new,
     createdAt: row.created_at,
+    shopeeUrl: row.shopeeUrl || '', // 👈 Thêm dòng này để map sang Object Frontend sử dụng
   };
 }
 
