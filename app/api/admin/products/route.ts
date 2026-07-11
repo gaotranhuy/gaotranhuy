@@ -13,6 +13,9 @@ function revalidateProductPages() {
   revalidatePath('/sitemap');
 }
 
+// =================================----------------------------
+// 1. LUỒNG LẤY DANH SÁCH SẢN PHẨM (GET)
+// =================================----------------------------
 export async function GET() {
   try {
     const supabase = getSupabase();
@@ -31,6 +34,9 @@ export async function GET() {
   }
 }
 
+// =================================----------------------------
+// 2. LUỒNG TẠO MỚI SẢN PHẨM (POST)
+// =================================----------------------------
 export async function POST(req: NextRequest) {
   try {
     if (!(await isAdmin())) {
@@ -98,6 +104,74 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    revalidateProductPages();
+    syncToSheet('upsert', 'product', data as Record<string, unknown>);
+
+    return NextResponse.json({ product: data });
+  } catch {
+    return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
+  }
+}
+
+// =================================----------------------------
+// 3. LUỒNG CẬP NHẬT / SỬA SẢN PHẨM CŨ (PUT) - BỔ SUNG ĐỂ SỬA LỖI MẤT LINK
+// =================================----------------------------
+export async function PUT(req: NextRequest) {
+  try {
+    if (!(await isAdmin())) {
+      return NextResponse.json(
+        { error: 'Không có quyền truy cập' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const supabase = getSupabase();
+
+    if (!body.id) {
+      return NextResponse.json({ error: 'Thiếu ID sản phẩm' }, { status: 400 });
+    }
+
+    const updateData = {
+      slug: body.slug,
+      name: body.name,
+      category_slug: body.category_slug,
+      short_description: body.short_description || '',
+      description: body.description || '',
+      origin: body.origin || '',
+      weight: body.weight || '',
+      price: parseInt(String(body.price).replace(/\D/g, ''), 10) || 0,
+      old_price: body.old_price
+        ? parseInt(String(body.old_price).replace(/\D/g, ''), 10)
+        : null,
+      unit: body.unit || '',
+      image: body.image || '',
+      gallery: body.gallery || [],
+      features: body.features || [],
+      nutrition_facts: body.nutrition_facts || [],
+      tags: body.tags || [],
+      rating: body.rating || 0,
+      review_count: body.review_count || 0,
+      sold_count: body.sold_count || 0,
+      in_stock: body.in_stock ?? true,
+      is_featured: body.is_featured ?? false,
+      is_best_seller: body.is_best_seller ?? false,
+      is_new: body.is_new ?? false,
+      shopeeUrl: body.shopeeUrl || '', // Hứng link Shopee từ form cập nhật truyền sang để ghi đè vĩnh viễn
+    };
+
+    const { data, error } = await supabase
+      .from('products')
+      .update(updateData)
+      .eq('id', body.id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Làm mới trang tĩnh Next.js và bắn webhook đồng bộ sang Google Sheet
     revalidateProductPages();
     syncToSheet('upsert', 'product', data as Record<string, unknown>);
 
