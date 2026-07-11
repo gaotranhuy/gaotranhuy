@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       is_featured: body.is_featured ?? false,
       is_best_seller: body.is_best_seller ?? false,
       is_new: body.is_new ?? false,
-      shopeeUrl: body.shopeeUrl || '', 
+      shopee_url: body.shopeeUrl || '', //  SỬA THÀNH shopee_url
     };
 
     const { data, error } = await supabase
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
 }
 
 // =================================----------------------------
-// 3. LUỒNG CẬP NHẬT / SỬA SẢN PHẨM CŨ (PUT) - BỔ SUNG ĐỂ SỬA LỖI MẤT LINK
+// 3. LUỒNG CẬP NHẬT / SỬA SẢN PHẨM CŨ (PUT)
 // =================================----------------------------
 export async function PUT(req: NextRequest) {
   try {
@@ -157,7 +157,7 @@ export async function PUT(req: NextRequest) {
       is_featured: body.is_featured ?? false,
       is_best_seller: body.is_best_seller ?? false,
       is_new: body.is_new ?? false,
-      shopeeUrl: body.shopeeUrl || '', // Hứng link Shopee từ form cập nhật truyền sang để ghi đè vĩnh viễn
+      shopee_url: body.shopeeUrl || '', //  SỬA THÀNH shopee_url
     };
 
     const { data, error } = await supabase
@@ -171,7 +171,6 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Làm mới trang tĩnh Next.js và bắn webhook đồng bộ sang Google Sheet
     revalidateProductPages();
     syncToSheet('upsert', 'product', data as Record<string, unknown>);
 
