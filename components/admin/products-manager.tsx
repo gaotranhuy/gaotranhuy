@@ -287,7 +287,7 @@ export function ProductsManager() {
         is_best_seller: form.is_best_seller,
         is_new: form.is_new,
         created_at: new Date().toISOString(),
-        shopeeUrl: form.shopeeUrl || '',
+        shopeeUrl: form.shopeeUrl,
       };
 
       startTransition(() => {
