@@ -14,6 +14,8 @@ import {
   Truck,
   Store,
   ShoppingCart,
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +34,75 @@ const DANANG_WARDS = [
   'Phường Khuê Mỹ', 'Phường Mỹ An', 'Phường Hòa Quý', 'Phường Hòa Hiệp',
   'Xã Hòa Bắc', 'Xã Hòa Ninh', 'Xã Hòa Nhơn'
 ];
+
+// Component hiển thị chi tiết hóa đơn vừa đặt gần đây
+function OrderHistory() {
+  const [orders, setOrders] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const savedOrders = localStorage.getItem('gth_order_history');
+    if (savedOrders) {
+      try {
+        setOrders(JSON.parse(savedOrders));
+      } catch (e) {
+        console.error('Lỗi đọc lịch sử đơn hàng:', e);
+      }
+    }
+  }, []);
+
+  if (orders.length === 0) return null;
+
+  return (
+    <div className="w-full mt-6 space-y-4 text-left border-t border-gray-100 pt-6">
+      <h3 className="font-bold text-gray-800 flex items-center gap-2 text-base">
+        <FileText className="h-5 w-5 text-emerald-600" />
+        Chi tiết hóa đơn vừa đặt
+      </h3>
+      <div className="space-y-4">
+        {orders.slice(0, 1).map((order: any) => (
+          <div key={order.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+            <div className="flex justify-between items-center border-b border-gray-50 pb-2">
+              <span className="text-sm font-bold text-emerald-700">Mã đơn: #{order.id}</span>
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Calendar className="h-3 w-3" /> {order.date}
+              </span>
+            </div>
+            
+            <div className="text-xs space-y-1 text-gray-600 bg-gray-50 p-2.5 rounded-xl">
+              <p className="font-semibold text-gray-800">📍 Thông tin giao hàng:</p>
+              <p>Họ tên: {order.customer.name}</p>
+              <p>SĐT: {order.customer.phone}</p>
+              <p className="line-clamp-2">Địa chỉ: {order.customer.address}</p>
+              {order.customer.note && <p className="italic text-gray-500">Lưu ý: {order.customer.note}</p>}
+            </div>
+
+            <div className="divide-y divide-gray-50 text-xs">
+              {order.items.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center py-2">
+                  <span className="text-gray-700 font-medium">
+                    {item.name} <span className="text-gray-400">x{item.quantity}</span>
+                  </span>
+                  <span className="font-semibold text-gray-900">{formatPrice(item.price * item.quantity)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-gray-50 pt-2 space-y-1 text-xs">
+              <div className="flex justify-between text-gray-400">
+                <span>Phí vận chuyển</span>
+                <span>{order.shippingFee === 0 ? 'Miễn phí' : formatPrice(order.shippingFee)}</span>
+              </div>
+              <div className="flex justify-between text-sm font-bold text-gray-900 pt-1">
+                <span>Tổng tiền thanh toán</span>
+                <span className="text-emerald-600">{formatPrice(order.grandTotal)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function CheckoutForm() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
@@ -69,7 +140,42 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // 1. Gom thông tin sản phẩm đơn hàng dạng danh sách sạch sẽ
+    // Nối Phường nhập tay và Số nhà/Đường thành Địa chỉ đầy đủ
+    const fullAddress = `${form.address}, ${wardInput}, TP. Đà Nẵng`;
+
+    // 1. Lưu đơn hàng vào localStorage trước khi xóa giỏ hàng
+    const newOrder = {
+      id: Math.floor(100000 + Math.random() * 900000).toString(),
+      date: new Date().toLocaleString('vi-VN'),
+      customer: {
+        name: form.name,
+        phone: form.phone,
+        address: fullAddress,
+        note: form.note
+      },
+      items: items.map((item) => {
+        const i = item as any;
+        return {
+          id: i.id || i.product?.id || Math.random().toString(),
+          name: i.name || i.product?.name || 'Sản phẩm Gạo',
+          price: Number(i.price || i.product?.price || 0),
+          quantity: Number(i.quantity || 1)
+        };
+      }),
+      shippingFee: shippingFee,
+      grandTotal: grandTotal
+    };
+
+    try {
+      const existingHistory = localStorage.getItem('gth_order_history');
+      const historyArray = existingHistory ? JSON.parse(existingHistory) : [];
+      historyArray.unshift(newOrder);
+      localStorage.setItem('gth_order_history', JSON.stringify(historyArray.slice(0, 10)));
+    } catch (e) {
+      console.error('Lỗi lưu lịch sử đơn hàng:', e);
+    }
+
+    // 2. Gom thông tin sản phẩm đơn hàng dạng danh sách sạch sẽ
     const productLines = items
       .map((item) => {
         const i = item as any;
@@ -80,10 +186,7 @@ export function CheckoutForm() {
       })
       .join('\n');
 
-    // Nối Phường nhập tay và Số nhà/Đường thành Địa chỉ đầy đủ
-    const fullAddress = `${form.address}, ${wardInput}, TP. Đà Nẵng`;
-
-    // 2. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
+    // 3. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
     const telegramMessage = 
       `🌾 CÓ ĐƠN HÀNG GẠO MỚI! 🌾\n\n` +
       `👤 Khách hàng: ${form.name}\n` +
@@ -135,6 +238,10 @@ export function CheckoutForm() {
             📞 Đơn hàng của quý khách đã được hệ thống truyền đạt đến bộ phận xử lý của shop. <strong>Cửa hàng Gạo Trần Huy</strong> sẽ trực tiếp gọi điện thoại vào số <span className="underline font-bold text-emerald-700">{form.phone || 'của bạn'}</span> để xác nhận đơn và xếp lịch giao gạo tận nhà ngay nhé!
           </div>
         </div>
+
+        {/* HIỂN THỊ CẤU TRÚC HÓA ĐƠN VỪA ĐẶT ĐỂ KHÁCH XEM LẠI */}
+        <OrderHistory />
+
         <div className="flex gap-3 w-full px-4 mt-2">
           <Button asChild className="flex-1 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700">
             <Link href="/san-pham">Tiếp tục mua gạo</Link>
