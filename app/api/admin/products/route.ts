@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
       features: body.features || [],
       nutrition_facts: body.nutrition_facts || [],
       tags: body.tags || [],
+      shopee_url: body.shopee_url || null,
       rating: body.rating || 0,
       review_count: body.review_count || 0,
       sold_count: body.sold_count || 0,

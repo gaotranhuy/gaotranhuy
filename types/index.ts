@@ -26,6 +26,7 @@ export interface Product {
   features: string[];
   nutritionFacts?: { label: string; value: string }[];
   tags: string[];
+  shopeeUrl?: string;
   rating: number;
   reviewCount: number;
   soldCount: number;
