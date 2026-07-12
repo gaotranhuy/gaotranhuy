@@ -7,69 +7,104 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 
 interface ImageUploadProps {
-  value: string;
-  onChange: (url: string) => void;
+  value: string | string[]; // Chấp nhận string (ảnh đơn) hoặc mảng string[] (album)
+  onChange: (url: string | string[]) => void; // Callback trả về ảnh đơn hoặc mảng ảnh tùy trường hợp
   label?: string;
+  multiple?: boolean; // Thuộc tính kích hoạt chế độ chọn nhiều ảnh
 }
 
-export function ImageUpload({ value, onChange, label = 'Hình ảnh' }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple = false }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error('Vui lòng chọn file ảnh');
-      return;
+  // Hàm xử lý tải danh sách các files được chọn lên Cloudinary
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
+    const validFiles: File[] = [];
+    
+    // 1. Lọc và kiểm tra định dạng + kích thước của từng file ảnh
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) {
+        toast.error(`File "${file.name}" không phải là ảnh hợp lệ`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File "${file.name}" quá lớn (tối đa 10MB)`);
+        continue;
+      }
+      validFiles.push(file);
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File quá lớn (tối đa 10MB)');
-      return;
-    }
+    if (validFiles.length === 0) return;
 
     setUploading(true);
-    toast.loading('Đang tải ảnh lên Cloudinary...', { id: 'upload' });
+    const toastId = 'upload-cloudinary';
+    toast.loading(`Đang tải ${validFiles.length} ảnh lên Cloudinary...`, { id: toastId });
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      // 2. Chạy tải lên đồng thời (Promise.all) giúp tăng tốc độ tải nhiều ảnh cùng lúc
+      const uploadPromises = validFiles.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const res = await fetch('/api/upload-cloudinary', {
-        method: 'POST',
-        body: formData,
+        const res = await fetch('/api/upload-cloudinary', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `Tải ảnh "${file.name}" thất bại`);
+        return data.url as string;
       });
 
-      const data = await res.json();
+      const uploadedUrls = await Promise.all(uploadPromises);
 
-      if (!res.ok) {
-        toast.error(data.error || 'Tải ảnh thất bại', { id: 'upload' });
-        return;
+      // 3. Trả kết quả về cho Form cha dựa trên thuộc tính single/multiple
+      if (multiple) {
+        // Nếu dùng cho Album: gộp danh sách ảnh cũ (nếu có) với danh sách ảnh mới tải lên
+        const currentGallery = Array.isArray(value) ? value : [];
+        const uniqueUrls = [...currentGallery];
+        
+        uploadedUrls.forEach(url => {
+          if (!uniqueUrls.includes(url)) uniqueUrls.push(url);
+        });
+        
+        onChange(uniqueUrls);
+      } else {
+        // Nếu dùng cho Ảnh đại diện chính: chỉ lấy ảnh đầu tiên
+        onChange(uploadedUrls[0]);
       }
 
-      onChange(data.url);
-      toast.success('Tải ảnh thành công', { id: 'upload' });
-    } catch {
-      toast.error('Lỗi kết nối', { id: 'upload' });
+      toast.success('Tải ảnh thành công', { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message || 'Lỗi kết nối khi tải ảnh', { id: toastId });
     } finally {
       setUploading(false);
     }
-  }, [onChange]);
+  }, [onChange, multiple, value]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragOver(false);
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        // Nếu không bật multiple mà cố kéo thả nhiều file, chỉ lấy file đầu tiên
+        const filesToUpload = multiple ? Array.from(e.dataTransfer.files) : [e.dataTransfer.files[0]];
+        handleFiles(filesToUpload);
+      }
     },
-    [handleFile]
+    [handleFiles, multiple]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    if (e.target.files && e.target.files.length > 0) {
+      handleFiles(Array.from(e.target.files));
+    }
   };
+
+  // Check xem có dữ liệu preview hiển thị hay không (chỉ hiển thị preview ảnh đơn, album sẽ render ở form cha)
+  const isSinglePreview = !multiple && typeof value === 'string' && value;
 
   return (
     <div className="space-y-2">
@@ -94,14 +129,15 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh' }: ImageUpl
           ref={inputRef}
           type="file"
           accept="image/*"
+          multiple={multiple} // Kích hoạt chọn nhiều file từ hệ điều hành cùng lúc khi bật multiple
           onChange={handleInputChange}
           className="hidden"
         />
 
-        {value ? (
+        {isSinglePreview ? (
           <div className="relative w-full">
             <img
-              src={value}
+              src={value as string}
               alt="Preview"
               className="mx-auto max-h-[140px] rounded-lg object-contain"
               onError={(e) => {
@@ -123,7 +159,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh' }: ImageUpl
         ) : uploading ? (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="text-sm">Đang tải...</span>
+            <span className="text-sm font-medium">Đang xử lý dữ liệu ảnh...</span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -134,14 +170,16 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh' }: ImageUpl
                 <ImageIcon className="h-6 w-6" />
               )}
             </div>
-            <span className="text-sm font-medium">
-              Kéo thả ảnh hoặc click để chọn
+            <span className="text-sm font-medium text-center px-2">
+              {multiple ? 'Kéo thả các ảnh hoặc click để chọn nhiều ảnh cho Album' : 'Kéo thả ảnh hoặc click để chọn'}
             </span>
-            <span className="text-xs">PNG, JPG, WebP (tối đa 10MB)</span>
+            <span className="text-xs">PNG, JPG, WebP (Tối đa 10MB/ảnh)</span>
           </div>
         )}
       </div>
-      {value && (
+      
+      {/* Ô nhập URL thủ công chỉ hiển thị khi upload ảnh đơn */}
+      {!multiple && typeof value === 'string' && value && (
         <Input
           type="text"
           value={value}
