@@ -51,6 +51,7 @@ interface Product {
   features: string[];
   nutrition_facts: { label: string; value: string }[];
   tags: string[];
+  shopee_url: string | null;
   rating: number;
   review_count: number;
   sold_count: number;
@@ -87,6 +88,10 @@ const emptyForm = {
   gallery: [] as string[],
   features: '',
   tags: '',
+  shopee_url: '',
+  rating: '',
+  review_count: '',
+  sold_count: '',
   in_stock: true,
   is_featured: false,
   is_best_seller: false,
@@ -218,6 +223,10 @@ export function ProductsManager() {
       gallery: p.gallery || [],
       features: (p.features || []).join(', '),
       tags: (p.tags || []).join(', '),
+      shopee_url: p.shopee_url || '',
+      rating: p.rating ? String(p.rating) : '',
+      review_count: p.review_count ? String(p.review_count) : '',
+      sold_count: p.sold_count ? String(p.sold_count) : '',
       in_stock: p.in_stock,
       is_featured: p.is_featured,
       is_best_seller: p.is_best_seller,
@@ -249,6 +258,10 @@ export function ProductsManager() {
         .split(/[,;]/)
         .map((s) => s.trim())
         .filter(Boolean),
+      shopee_url: form.shopee_url || null,
+      rating: form.rating ? parseFloat(form.rating) || 0 : 0,
+      review_count: form.review_count ? parseInt(form.review_count, 10) || 0 : 0,
+      sold_count: form.sold_count ? parseInt(form.sold_count, 10) || 0 : 0,
     };
 
     try {
@@ -276,9 +289,10 @@ export function ProductsManager() {
         features: payload.features,
         nutrition_facts: [],
         tags: payload.tags,
-        rating: 0,
-        review_count: 0,
-        sold_count: 0,
+        shopee_url: form.shopee_url || null,
+        rating: form.rating ? parseFloat(form.rating) || 0 : 0,
+        review_count: form.review_count ? parseInt(form.review_count, 10) || 0 : 0,
+        sold_count: form.sold_count ? parseInt(form.sold_count, 10) || 0 : 0,
         in_stock: form.in_stock,
         is_featured: form.is_featured,
         is_best_seller: form.is_best_seller,
@@ -874,17 +888,84 @@ export function ProductsManager() {
 
               <div className="mt-2">
                 <ImageUpload
-                  value={form.gallery} // Truyền mảng album hiện tại vào component để đồng bộ
+                  value={form.gallery}
                   onChange={(urls) => {
-                    // Cập nhật lại danh sách album khi component ImageUpload trả về mảng URL mới
                     if (Array.isArray(urls)) {
                       setForm((prev) => ({ ...prev, gallery: urls }));
                     } else if (typeof urls === 'string' && urls) {
                       handleAddGalleryImage(urls);
                     }
                   }}
-                  multiple={true} // Bật tính năng cho phép giữ Ctrl/Cmd chọn nhiều ảnh
+                  multiple={true}
                 />
+              </div>
+            </div>
+
+            {/* Trust Metrics & Shopee Link */}
+            <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">
+                Chỉ số uy tín & Liên kết Shopee
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Rating (vd: 4.8)
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={form.rating}
+                    onChange={(e) =>
+                      setForm({ ...form, rating: e.target.value })
+                    }
+                    placeholder="4.8"
+                    className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Số lượt đánh giá
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={form.review_count}
+                    onChange={(e) =>
+                      setForm({ ...form, review_count: e.target.value })
+                    }
+                    placeholder="120"
+                    className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Số đã bán
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={form.sold_count}
+                    onChange={(e) =>
+                      setForm({ ...form, sold_count: e.target.value })
+                    }
+                    placeholder="1500"
+                    className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Link Shopee sản phẩm
+                  </label>
+                  <input
+                    type="text"
+                    value={form.shopee_url}
+                    onChange={(e) =>
+                      setForm({ ...form, shopee_url: e.target.value })
+                    }
+                    placeholder="https://shopee.vn/..."
+                    className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                  />
+                </div>
               </div>
             </div>
 
