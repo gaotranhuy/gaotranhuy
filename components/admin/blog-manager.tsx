@@ -457,11 +457,13 @@ export function BlogManager() {
               />
             </div>
 
-            <ImageUpload
-              value={form.image}
-              onChange={(url) => setForm({ ...form, image: url })}
-              label="Ảnh bìa"
-            />
+            {/* ĐOẠN CODE MỚI ĐÃ SỬA LỖI ĐỊNH KIỂU */}
+<ImageUpload
+  value={form.image}
+  onChange={(url) => setForm({ ...form, image: url as string })} // <--- Thêm chữ "as string" ở đây ní nhé
+  label="Ảnh bìa"
+/>
+
 
             <div className="space-y-2">
               <Label>Nội dung</Label>
