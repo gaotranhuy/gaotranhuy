@@ -833,17 +833,18 @@ export function ProductsManager() {
               </Label>
               <ImageUpload
                 value={form.image}
-                onChange={(url) => setForm({ ...form, image: url })}
+                onChange={(url) => setForm({ ...form, image: url as string })}
               />
             </div>
 
+            {/* Khối Album ảnh chi tiết (Gallery) hỗ trợ upload nhiều ảnh cùng lúc */}
             <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4">
               <div>
                 <Label className="font-semibold text-foreground">
                   Album ảnh chi tiết (Gallery)
                 </Label>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Tải lên các ảnh chi tiết hiển thị trong trang sản phẩm
+                  Ní có thể chọn tải lên nhiều ảnh cùng lúc để hiển thị trong trang chi tiết sản phẩm
                 </p>
               </div>
 
@@ -873,8 +874,16 @@ export function ProductsManager() {
 
               <div className="mt-2">
                 <ImageUpload
-                  value=""
-                  onChange={(url) => handleAddGalleryImage(url)}
+                  value={form.gallery} // Truyền mảng album hiện tại vào component để đồng bộ
+                  onChange={(urls) => {
+                    // Cập nhật lại danh sách album khi component ImageUpload trả về mảng URL mới
+                    if (Array.isArray(urls)) {
+                      setForm((prev) => ({ ...prev, gallery: urls }));
+                    } else if (typeof urls === 'string' && urls) {
+                      handleAddGalleryImage(urls);
+                    }
+                  }}
+                  multiple={true} // Bật tính năng cho phép giữ Ctrl/Cmd chọn nhiều ảnh
                 />
               </div>
             </div>
