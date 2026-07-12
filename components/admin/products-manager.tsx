@@ -271,7 +271,7 @@ export function ProductsManager() {
       const method = editingId ? 'PUT' : 'POST';
 
       const optimisticProduct: Product = {
-        id: editingId || 'temp',
+        id: editingId || crypto.randomUUID(), 
         slug: form.slug,
         name: form.name,
         category_slug: form.category_slug,
