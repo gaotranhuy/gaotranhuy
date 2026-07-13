@@ -14,9 +14,9 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
-  MessageCircle,
   ChevronLeft,
   ChevronRight,
+  CheckCircle2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,34 +25,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import { getCategoryBySlug } from '@/lib/products';
-import { contactInfo } from '@/data/site';
 import type { Product } from '@/types';
 
 export function ProductDetail({ product }: { product: Product }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = React.useState(1);
   const [activeImage, setActiveImage] = React.useState(0);
+  const [addedFeedback, setAddedFeedback] = React.useState(false);
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
   
-  /* SỬA TẠI ĐÂY: SỬA LẠI LOGIC GỘP MẢNG AN TOÀN TUYỆT ĐỐI
-    - Tạo mảng gallery chứa ảnh đại diện chính (product.image) luôn ở vị trí đầu tiên [0].
-    - Nếu có album ảnh phụ (product.gallery), ta trải các ảnh phụ ra đứng ngay phía sau.
-    - Dùng Set để tự động loại bỏ mọi ảnh trùng lặp kể cả khi lệch ký tự ẩn.
-  */
   const rawGallery = product.gallery?.length 
     ? [product.image, ...product.gallery] 
     : [product.image];
     
-  // Loại bỏ các phần tử rỗng hoặc trùng lặp hoàn toàn
   const gallery = Array.from(new Set(rawGallery.filter(Boolean)));
 
-  // Khai báo biến tạm dùng để lưu tọa độ điểm chạm ngón tay khi vuốt
   const touchStartX = React.useRef<number>(0);
   const touchEndX = React.useRef<number>(0);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
+    setAddedFeedback(true);
+    setTimeout(() => setAddedFeedback(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    addItem(product, quantity);
+    window.location.href = '/gio-hang';
   };
 
   const handlePrevImage = () => {
@@ -87,21 +87,11 @@ export function ProductDetail({ product }: { product: Product }) {
     touchEndX.current = 0;
   };
 
-  const zaloOrderUrl = `https://zalo.me/${contactInfo.zalo}?message=${encodeURIComponent(
-    `Tôi muốn đặt: ${product.name} - SL: ${quantity} - ${formatPrice(
-      product.price * quantity
-    )}`
-  )}`;
-
-  // Đường dẫn đến shop gaotranhuy trên Shopee
-  const shopeeShopUrl = `https://shopee.vn/gaotranhuy`;
-
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
       
       {/* ================= KHU VỰC GALLERY ================= */}
       <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        {/* Khung ảnh bự ở trên */}
         <div 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -151,7 +141,6 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Hàng ảnh nhỏ ở dưới */}
         {gallery.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto py-1 w-full max-w-full scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {gallery.map((img, i) => (
@@ -294,30 +283,33 @@ export function ProductDetail({ product }: { product: Product }) {
               size="lg"
               onClick={handleAddToCart}
               disabled={!product.inStock}
-              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-transform sm:col-span-2"
+              className={`w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-all duration-300 sm:col-span-1 ${
+                addedFeedback
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : ''
+              }`}
             >
-              <ShoppingBag className="h-4 w-4 mr-1.5" />
-              {product.inStock ? 'Thêm vào giỏ hàng' : 'Hết hàng tạm thời'}
-            </Button>
-            
-            {/* Nút đặt hàng qua Zalo */}
-            <Button size="lg" variant="outline" asChild className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide border-primary text-primary hover:bg-primary/5 active:scale-98 transition-transform">
-              <a href={zaloOrderUrl} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="h-4 w-4 mr-1.5 fill-current" />
-                Đặt Zalo Giao Nhanh Đà Nẵng
-              </a>
+              {addedFeedback ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-1.5 animate-in zoom-in-50 duration-200" />
+                  Đã thêm vào giỏ!
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className={`h-4 w-4 mr-1.5 transition-transform ${addedFeedback ? 'scale-150' : ''}`} />
+                  {product.inStock ? 'Thêm vào giỏ hàng' : 'Hết hàng tạm thời'}
+                </>
+              )}
             </Button>
 
-            {/* Nút Đặt hàng qua Shopee (Màu cam đặc trưng, hover mượt, căn chỉnh theo layout) */}
-            <Button 
-              size="lg" 
-              asChild 
-              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide bg-[#EE4D2D] text-white hover:bg-[#ff5733] shadow-md active:scale-98 transition-transform border-none"
+            <Button
+              size="lg"
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 shadow-md active:scale-98 transition-transform sm:col-span-1"
             >
-              <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer">
-                <ShoppingBag className="h-4 w-4 mr-1.5 fill-current" />
-                Đặt Shopee Giao Toàn Quốc
-              </a>
+              <ShoppingBag className="h-4 w-4 mr-1.5" />
+              Mua hàng ngay
             </Button>
           </div>
         </div>

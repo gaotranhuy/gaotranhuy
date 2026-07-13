@@ -19,6 +19,7 @@ interface ProductRow {
   features: string[] | null;
   nutrition_facts: { label: string; value: string }[] | null;
   tags: string[] | null;
+  shopee_url: string | null;
   rating: number;
   review_count: number;
   sold_count: number;
@@ -62,6 +63,7 @@ function mapProductRow(row: ProductRow): Product {
     features: row.features || [],
     nutritionFacts: row.nutrition_facts || [],
     tags: row.tags || [],
+    shopeeUrl: row.shopee_url || undefined,
     rating: Number(row.rating) || 0,
     reviewCount: row.review_count || 0,
     soldCount: row.sold_count || 0,

@@ -15,12 +15,22 @@ import {
   Store,
   ShoppingCart,
   Calendar,
-  FileText
+  FileText,
+  ExternalLink,
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice } from '@/lib/format';
 import { siteSettings, contactInfo } from '@/data/site';
@@ -107,6 +117,7 @@ function OrderHistory() {
 export function CheckoutForm() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
+  const [shopeeModalOpen, setShopeeModalOpen] = React.useState(false);
   
   // Tách biệt ô nhập Phường (để gợi ý) và Địa chỉ chi tiết
   const [wardInput, setWardInput] = React.useState('');
@@ -499,24 +510,37 @@ export function CheckoutForm() {
               >
                 {submitting ? 'Đang gửi đơn hàng...' : `Xác nhận đặt đơn ngay (${formatPrice(grandTotal)})`}
               </Button>
+
+              <Button
+                type="button"
+                size="lg"
+                onClick={() => setShopeeModalOpen(true)}
+                className="w-full gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none shadow-md"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                Ship Toàn Quốc Qua Shopee
+              </Button>
             </form>
           )}
 
           {region === 'nationwide' && (
             <div className="space-y-6">
               <div className="rounded-2xl border bg-card p-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                  <ShoppingCart className="h-8 w-8 text-primary" />
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#EE4D2D]/10">
+                  <ShoppingBag className="h-8 w-8 text-[#EE4D2D]" />
                 </div>
                 <h2 className="text-lg font-bold">Đặt hàng qua Shopee</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Để đặt hàng giao toàn quốc, vui lòng hoàn tất thanh toán trên gian hàng Shopee của chúng tôi.
+                  Để đặt hàng giao toàn quốc, vui lòng nhấn nút bên dưới để mở trang Shopee cho từng sản phẩm trong giỏ hàng.
                 </p>
-                <Button asChild size="lg" className="mt-5 w-full gap-2 sm:w-auto">
-                  <a href={contactInfo.shopee} target="_blank" rel="noopener noreferrer">
-                    <ShoppingCart className="h-5 w-5" />
-                    Mua hàng trên Shopee
-                  </a>
+                <Button
+                  type="button"
+                  size="lg"
+                  onClick={() => setShopeeModalOpen(true)}
+                  className="mt-5 w-full gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none shadow-md sm:w-auto"
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  Ship Toàn Quốc Qua Shopee
                 </Button>
               </div>
             </div>
@@ -596,6 +620,106 @@ export function CheckoutForm() {
           </div>
         </aside>
       </div>
+
+      {/* Modal Shopee - Hiển thị danh sách sản phẩm trong giỏ hàng với nút mở trang Shopee cho từng sản phẩm */}
+      <Dialog open={shopeeModalOpen} onOpenChange={setShopeeModalOpen}>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg font-bold">
+              <ShoppingBag className="h-5 w-5 text-[#EE4D2D]" />
+              Đặt hàng qua Shopee
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Nhấn nút "Mở trang Shopee" bên cạnh từng sản phẩm để được dẫn thẳng đến trang mua hàng tương ứng trên Shopee.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {/* Banner hướng dẫn */}
+            <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
+              <p className="leading-relaxed">
+                Mở từng link Shopee và thêm sản phẩm vào giỏ hàng Shopee của bạn. Sau khi đã thêm hết các sản phẩm mong muốn, bạn tiến hành thanh toán trên Shopee để được giao hàng toàn quốc.
+              </p>
+            </div>
+
+            {items.map((item) => {
+              const product = item.product;
+              const shopeeUrl = product.shopeeUrl || contactInfo.shopee;
+
+              return (
+                <div
+                  key={product.id}
+                  className="flex gap-3 rounded-xl border bg-card p-3"
+                >
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    {product.image && (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    )}
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#EE4D2D] px-1 text-[11px] font-bold text-white">
+                      {item.quantity}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    <span className="line-clamp-2 text-sm font-semibold text-foreground">
+                      {product.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      SL: {item.quantity} · {formatPrice(product.price * item.quantity)}
+                    </span>
+
+                    {product.shopeeUrl ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          window.open(product.shopeeUrl, '_blank');
+                        }}
+                        className="w-fit gap-1.5 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none text-xs"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Mở trang Shopee
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">
+                        Sản phẩm chưa có link Shopee
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button
+              type="button"
+              asChild
+              className="w-full gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none"
+            >
+              <a href={contactInfo.shopee} target="_blank" rel="noopener noreferrer">
+                <ShoppingBag className="h-4 w-4" />
+                Mở gian hàng Shopee chính
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShopeeModalOpen(false)}
+              className="w-full"
+            >
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
