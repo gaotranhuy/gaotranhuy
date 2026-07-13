@@ -43,24 +43,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const supabase = getSupabase();
 
-    const { data: existing } = await supabase
-      .from('products')
-      .select('id')
-      .order('id', { ascending: false })
-      .limit(1);
-
-    let nextNum = 1;
-    if (existing && existing.length > 0) {
-      const lastId = existing[0].id;
-      const match = lastId.match(/^p(\d+)$/);
-      if (match) {
-        nextNum = parseInt(match[1], 10) + 1;
-      }
-    }
-    const newId = `p${String(nextNum).padStart(3, '0')}`;
-
+    // ✅ ĐÃ SỬA: Xóa bỏ hoàn toàn đoạn tính toán mã 'p001' cũ gây lỗi UUID
     const insertData = {
-      id: newId,
+      // KHÔNG truyền id ở đây để Supabase tự sinh chuỗi UUID ngẫu nhiên hợp lệ
       slug: body.slug,
       name: body.name,
       category_slug: body.category_slug,
