@@ -264,6 +264,10 @@ export function ProductsManager() {
       sold_count: form.sold_count ? parseInt(form.sold_count, 10) || 0 : 0,
     };
 
+    // 2. 🔥 THÊM CÂU LỆNH NÀY VÀO ĐỂ BẮT BUỘC XÓA BỎ ID KHI TẠO MỚI
+if (!editingId) {
+  delete (payload as any).id; // Xóa sạch dấu vết ID 'p001' ở frontend nếu là thêm mới sản phẩm
+}
     try {
       const url = editingId
         ? `/api/admin/products/${editingId}`
