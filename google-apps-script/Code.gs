@@ -76,21 +76,23 @@ function upsertProduct(p) {
     p.id || '',
     p.name || '',
     p.slug || '',
-    p.category || '',
-    p.categorySlug || '',
+    p.category_slug || p.category || '',
+    p.category_slug || p.categorySlug || '',
     p.price || 0,
-    p.oldPrice || '',
+    p.old_price || p.oldPrice || '',
     p.unit || '',
     p.origin || '',
-    p.shortDescription || '',
+    p.short_description || p.shortDescription || '',
     p.description || '',
     p.image || '',
     p.rating || 0,
-    p.sold || 0,
-    p.inStock === true ? 'true' : 'false',
-    p.isFeatured === true ? 'true' : 'false',
-    p.isBestSeller === true ? 'true' : 'false',
+    p.sold_count || p.sold || 0,
+    p.in_stock === true || p.inStock === true ? 'true' : 'false',
+    p.is_featured === true || p.isFeatured === true ? 'true' : 'false',
+    p.is_best_seller === true || p.isBestSeller === true ? 'true' : 'false',
     (p.tags || []).join(', '),
+    p.shopee_url || '',
+    p.review_count || p.reviewCount || 0,
   ];
 
   if (rowIndex === -1) {
@@ -190,21 +192,23 @@ function syncAll(products, blog) {
         p.id || '',
         p.name || '',
         p.slug || '',
-        p.category || '',
-        p.categorySlug || '',
+        p.category_slug || p.category || '',
+        p.category_slug || p.categorySlug || '',
         p.price || 0,
-        p.oldPrice || '',
+        p.old_price || p.oldPrice || '',
         p.unit || '',
         p.origin || '',
-        p.shortDescription || '',
+        p.short_description || p.shortDescription || '',
         p.description || '',
         p.image || '',
         p.rating || 0,
-        p.sold || 0,
-        p.inStock === true ? 'true' : 'false',
-        p.isFeatured === true ? 'true' : 'false',
-        p.isBestSeller === true ? 'true' : 'false',
+        p.sold_count || p.sold || 0,
+        p.in_stock === true || p.inStock === true ? 'true' : 'false',
+        p.is_featured === true || p.isFeatured === true ? 'true' : 'false',
+        p.is_best_seller === true || p.isBestSeller === true ? 'true' : 'false',
         (p.tags || []).join(', '),
+        p.shopee_url || '',
+        p.review_count || p.reviewCount || 0,
       ];
     });
 
@@ -250,7 +254,8 @@ function ensureProductHeaders(sheet) {
     sheet.appendRow([
       'id', 'name', 'slug', 'category', 'categorySlug', 'price', 'oldPrice',
       'unit', 'origin', 'shortDescription', 'description', 'image',
-      'rating', 'sold', 'inStock', 'isFeatured', 'isBestSeller', 'tags'
+      'rating', 'sold', 'inStock', 'isFeatured', 'isBestSeller', 'tags',
+      'shopee_url', 'review_count'
     ]);
   }
 }
