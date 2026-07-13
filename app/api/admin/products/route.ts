@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       features: body.features || [],
       nutrition_facts: body.nutrition_facts || [],
       tags: body.tags || [],
-      shopeeUrl: body.shopeeUrl || null,
+      
       rating: body.rating || 0,
       review_count: body.review_count || 0,
       sold_count: body.sold_count || 0,
@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
       is_featured: body.is_featured ?? false,
       is_best_seller: body.is_best_seller ?? false,
       is_new: body.is_new ?? false,
+      shopeeUrl: body.shopeeUrl || null,
     };
 
     const { data, error } = await supabase
