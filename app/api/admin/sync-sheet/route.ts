@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
               is_featured: parsed.isFeatured === 'true' || parsed.isFeatured === '1',
               is_best_seller: parsed.isBestSeller === 'true' || parsed.isBestSeller === '1',
               is_new: false,
+              shopeeUrl: parsed.shopeeUrl || parsed.shopee_url || '', 
             };
 
             const { error } = await supabase
