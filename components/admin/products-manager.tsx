@@ -10,6 +10,7 @@ import {
   X,
   RefreshCw,
   Package,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -160,6 +161,7 @@ export function ProductsManager() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [, startTransition] = useTransition();
 
   const fetchProducts = useCallback(async () => {
@@ -406,6 +408,31 @@ export function ProductsManager() {
     }
   };
 
+  const handleImportFromSheet = async () => {
+    setImporting(true);
+    const toastId = 'import-sheet';
+    toast.loading('Đang import từ Google Sheets...', { id: toastId });
+
+    try {
+      const res = await fetch('/api/admin/sync-from-sheet', {
+        method: 'POST',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || 'Import thất bại', { id: toastId });
+        return;
+      }
+
+      toast.success(`Import thành công: ${data.count} sản phẩm`, { id: toastId });
+      await fetchProducts();
+    } catch {
+      toast.error('Lỗi kết nối', { id: toastId });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleAddGalleryImage = (url: string) => {
     if (url && !form.gallery.includes(url)) {
       setForm((prev) => ({ ...prev, gallery: [...prev.gallery, url] }));
@@ -446,6 +473,20 @@ export function ProductsManager() {
             )}
             <span className="hidden sm:inline">Đồng bộ Google Sheet</span>
             <span className="sm:hidden">Sheet</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleImportFromSheet}
+            disabled={importing}
+            className="gap-2"
+          >
+            {importing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            <span className="hidden sm:inline">Import từ Google Sheets</span>
+            <span className="sm:hidden">Import</span>
           </Button>
           <Button onClick={openAdd} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -851,7 +892,6 @@ export function ProductsManager() {
               />
             </div>
 
-            {/* Khối Album ảnh chi tiết (Gallery) hỗ trợ upload nhiều ảnh cùng lúc */}
             <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4">
               <div>
                 <Label className="font-semibold text-foreground">
@@ -901,7 +941,6 @@ export function ProductsManager() {
               </div>
             </div>
 
-            {/* Trust Metrics & Shopee Link */}
             <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">
                 Chỉ số uy tín & Liên kết Shopee
