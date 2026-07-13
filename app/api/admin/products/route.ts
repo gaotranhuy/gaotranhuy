@@ -1,4 +1,4 @@
-Import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/admin-auth';
 import { getSupabase } from '@/lib/supabase-server';
