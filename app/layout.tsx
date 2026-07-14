@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
 import { CartProvider } from '@/lib/cart-context';
 import { SiteHeader } from '@/components/layout/site-header';
@@ -87,13 +87,15 @@ export const metadata: Metadata = {
   category: 'food',
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#d68a2e' },
     { media: '(prefers-color-scheme: dark)', color: '#1a1410' },
   ],
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

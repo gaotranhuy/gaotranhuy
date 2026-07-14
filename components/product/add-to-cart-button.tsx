@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ShoppingBag, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/lib/cart-context';
+import { toast } from 'sonner';
 import type { Product } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -33,7 +34,8 @@ export function AddToCartButton({
     e.preventDefault();
     e.stopPropagation();
     if (!product.inStock) return;
-    addItem(product, quantity);
+    addItem(product, quantity, { silent: true });
+    toast.success('Đã thêm vào giỏ hàng');
     if (showSuccess) {
       setAdded(true);
       setTimeout(() => setAdded(false), 1500);
@@ -50,7 +52,7 @@ export function AddToCartButton({
       disabled={!product.inStock}
       className={cn(
         'transition-all duration-300',
-        added && 'bg-success text-success-foreground hover:bg-success/90 border-none', 
+        added && 'bg-success text-success-foreground hover:bg-success/90 border-none',
         className
       )}
       title={!product.inStock ? 'Tạm hết hàng' : label}
@@ -58,7 +60,6 @@ export function AddToCartButton({
       {added ? (
         <>
           <Check className="h-4 w-4 shrink-0 animate-scale-in" />
-          {/* Nếu là size icon thì ẩn chữ đi để không vỡ nút vuông */}
           <span className={cn(isIcon ? 'sr-only' : 'ml-1.5')}>Đã thêm</span>
         </>
       ) : (

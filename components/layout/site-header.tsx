@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Menu,
-  ShoppingBag,
+  ShoppingCart,
   Search,
   Phone,
   ChevronDown,
-  X,
   Wheat,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,7 @@ const navLinks = [
   { href: '/tin-tuc', label: 'Tin tức' },
   { href: '/gioi-thieu', label: 'Giới thiệu' },
   { href: '/lien-he', label: 'Liên hệ' },
+  { href: '/admin/login', label: 'Admin' },
 ];
 
 export function SiteHeader() {
@@ -88,20 +89,17 @@ export function SiteHeader() {
         )}
       >
         <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-20">
-          {/* Logo (Bản Desktop) */}
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            {/* Đã tăng kích thước lên h-16 w-16 (hoặc đổi thành h-20 w-20 nếu muốn bự kịch khung máy tính) */}
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
-              <img 
-                src="/logo-brand.png" 
-                alt="Gạo Trần Huy Logo" 
+              <img
+                src="/logo-brand.png"
+                alt="Gạo Trần Huy Logo"
                 className="h-full w-full object-contain"
               />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-                
-              </span>
+              <span className="font-display text-lg font-extrabold tracking-tight text-foreground" />
               <span className="text-[11px] font-medium text-muted-foreground">
                 {siteSettings.tagline}
               </span>
@@ -170,24 +168,21 @@ export function SiteHeader() {
               <Search className="h-5 w-5" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={openCart}
-              aria-label="Giỏ hàng"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
-                  {totalItems}
-                </span>
-              )}
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="hidden md:flex"
-            >
+  variant="ghost"
+  size="icon"
+  className="relative"
+  onClick={openCart}
+  aria-label="Giỏ hàng"
+>
+  <ShoppingCart className="h-6 w-6 stroke-[2.4]" />
+
+  {totalItems > 0 && (
+    <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow">
+      {totalItems}
+    </span>
+  )}
+</Button>
+            <Button asChild size="sm" className="hidden md:flex">
               <a
                 href={`https://zalo.me/${contactInfo.zalo}`}
                 target="_blank"
@@ -211,13 +206,11 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[340px]">
                 <SheetHeader>
-                  {/* Logo (Bản Mobile ẩn trong menu rút gọn) */}
                   <SheetTitle className="flex items-center gap-2">
-                    {/* Đã tăng kích thước logo bản mobile lên h-12 w-12 */}
                     <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
-                      <img 
-                        src="/logo-brand.png" 
-                        alt="Gạo Trần Huy Logo" 
+                      <img
+                        src="/logo-brand.png"
+                        alt="Gạo Trần Huy Logo"
                         className="h-full w-full object-contain"
                       />
                     </div>
@@ -230,12 +223,15 @@ export function SiteHeader() {
                       key={link.href}
                       href={link.href}
                       className={cn(
-                        'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                         isActive(link.href)
                           ? 'bg-primary/10 text-primary'
                           : 'text-foreground hover:bg-accent'
                       )}
                     >
+                      {link.href === '/admin' && (
+                        <Shield className="h-4 w-4" />
+                      )}
                       {link.label}
                     </Link>
                   ))}
@@ -249,8 +245,9 @@ export function SiteHeader() {
                       <Link
                         key={cat.slug}
                         href={`/danh-muc/${cat.slug}`}
-                        className="rounded-lg px-4 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+                        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm text-foreground/80 transition-colors hover:bg-accent"
                       >
+                        <Wheat className="h-4 w-4 text-primary" />
                         {cat.name}
                       </Link>
                     ))}
@@ -259,7 +256,7 @@ export function SiteHeader() {
                 <div className="mt-6 border-t pt-4">
                   <a
                     href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-primary"
                   >
                     <Phone className="h-4 w-4" />
                     {contactInfo.phone}
@@ -272,42 +269,21 @@ export function SiteHeader() {
 
         {/* Search bar */}
         {searchOpen && (
-          <div className="border-t bg-background animate-fade-in">
-            <div className="container-page py-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (searchQuery.trim()) {
-                    window.location.href = `/san-pham?q=${encodeURIComponent(
-                      searchQuery.trim()
-                    )}`;
+          <div className="border-t bg-background/95 backdrop-blur">
+            <div className="container-page py-3">
+              <input
+                type="text"
+                autoFocus
+                placeholder="Tìm sản phẩm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    window.location.href = `/san-pham?q=${encodeURIComponent(searchQuery.trim())}`;
                   }
                 }}
-                className="flex gap-2"
-              >
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    autoFocus
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Tìm gạo, nước mắm, dầu lạc..."
-                    className="h-11 w-full rounded-lg border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <Button type="submit" size="lg">
-                  Tìm kiếm
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSearchOpen(false)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </form>
+                className="w-full rounded-lg border bg-background px-4 py-2.5 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
           </div>
         )}

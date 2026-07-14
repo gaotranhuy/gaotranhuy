@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { contactInfo, siteSettings } from '@/data/site';
 import { getAllCategories } from '@/lib/products';
-
+import Image from 'next/image';
 const features = [
   {
     icon: Truck,
@@ -85,26 +85,39 @@ export function SiteFooter() {
           <p className="mt-4 text-sm leading-relaxed text-background/70">
             {siteSettings.description}
           </p>
-          <div className="mt-5 flex gap-2">
-            <a
-              href={contactInfo.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 transition-colors hover:bg-primary hover:text-primary-foreground"
-              aria-label="Facebook"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href={`https://zalo.me/${contactInfo.zalo}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/10 transition-colors hover:bg-primary hover:text-primary-foreground"
-              aria-label="Zalo"
-            >
-              <Send className="h-4 w-4" />
-            </a>
-          </div>
+    <div className="mt-5 flex gap-2">
+  <a
+    href={contactInfo.facebook}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Facebook"
+    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/10 transition-all hover:bg-background/20 hover:scale-105"
+  >
+    <Image
+      src="/icons/facebook.svg"
+      alt="Facebook"
+      width={22}
+      height={22}
+      className="object-contain"
+    />
+  </a>
+
+  <a
+    href={`https://zalo.me/${contactInfo.zalo}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Zalo"
+    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/10 transition-all hover:bg-background/20 hover:scale-105"
+  >
+    <Image
+      src="/icons/zalo.svg"
+      alt="Zalo"
+      width={22}
+      height={22}
+      className="object-contain"
+    />
+  </a>
+</div>
         </div>
 
         {/* Categories */}
