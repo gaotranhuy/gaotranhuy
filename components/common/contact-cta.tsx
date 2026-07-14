@@ -22,39 +22,39 @@ export function ContactCTA() {
             </div>
           </a>
 
-          {/* Nút GrabMart */}
-          <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border border-[#00B14F]/30 bg-card p-5 transition-all hover:border-[#00B14F] hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 text-[#00B14F] transition-all group-hover:scale-105 group-hover:bg-[#00B14F]/20">
+          {/* Nút GrabMart - Đồng bộ hover hoàn chỉnh */}
+          <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#00B14F] hover:shadow-md">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 transition-all group-hover:bg-[#00B14F]">
               <Image 
                 src="/icons/grabmart.svg" 
                 alt="GrabMart" 
                 width={24} 
                 height={24} 
-                className="object-contain"
+                className="object-contain transition-all duration-300 group-hover:brightness-0 group-hover:invert"
               />
             </div>
             <div>
               <div className="text-xs text-muted-foreground">GrabMart</div>
-              <div className="text-base font-semibold text-[#00B14F]">
+              <div className="text-base font-semibold transition-colors group-hover:text-[#00B14F]">
                 Đặt GrabMart giao nhanh Đà Nẵng
               </div>
             </div>
           </a>
 
-          {/* Nút Shopee */}
-          <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border border-[#EE4D2D]/30 bg-card p-5 transition-all hover:border-[#EE4D2D] hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EE4D2D]/10 text-[#EE4D2D] transition-all group-hover:scale-105 group-hover:bg-[#EE4D2D]/20">
+          {/* Nút Shopee - Đồng bộ hover hoàn chỉnh */}
+          <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#EE4D2D] hover:shadow-md">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EE4D2D]/10 transition-all group-hover:bg-[#EE4D2D]">
               <Image 
                 src="/icons/shopee.svg" 
                 alt="Shopee" 
                 width={24} 
                 height={24} 
-                className="object-contain"
+                className="object-contain transition-all duration-300 group-hover:brightness-0 group-hover:invert"
               />
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Shopee</div>
-              <div className="text-base font-semibold text-[#EE4D2D]">
+              <div className="text-base font-semibold transition-colors group-hover:text-[#EE4D2D]">
                 Đặt Shopee giao hàng toàn quốc
               </div>
             </div>
