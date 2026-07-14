@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
 import {
   Star,
   MapPin,
@@ -15,6 +16,8 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   CheckCircle2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +35,8 @@ export function ProductDetail({ product }: { product: Product }) {
   const [quantity, setQuantity] = React.useState(1);
   const [activeImage, setActiveImage] = React.useState(0);
   const [addedFeedback, setAddedFeedback] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
 
@@ -125,15 +130,15 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Thumbnails - responsive: scrollable on mobile, wrap on desktop */}
+        {/* Thumbnails - slide dạng scroll ngang không xuống hàng */}
         {gallery.length > 1 && (
-          <div className="flex flex-wrap gap-2 py-1">
+          <div className="flex w-full overflow-x-auto gap-2 py-1 scrollbar-none snap-x snap-mandatory">
             {gallery.map((img, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setActiveImage(i)}
-                className={`relative aspect-square h-14 w-14 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-card transition-all duration-300 ${
+                className={`relative aspect-square h-14 w-14 sm:h-20 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-card transition-all duration-300 ${
                   activeImage === i
                     ? 'border-primary scale-95 shadow-sm opacity-100'
                     : 'border-border/60 opacity-60 hover:border-primary/40 hover:opacity-90'
@@ -322,8 +327,42 @@ export function ProductDetail({ product }: { product: Product }) {
           </TabsList>
 
           <TabsContent value="description" className="mt-4">
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              {product.description || product.shortDescription}
+            <div className="relative">
+              <div 
+                className={`prose prose-sm dark:prose-invert max-w-none text-muted-foreground transition-all duration-300 overflow-hidden ${
+                  !isExpanded ? 'max-h-[300px] pb-12' : 'max-h-none pb-4'
+                }`}
+              >
+                <ReactMarkdown className="space-y-3 leading-relaxed">
+                  {product.description || product.shortDescription}
+                </ReactMarkdown>
+
+                {/* Gradient che mờ phần dưới khi chưa mở rộng */}
+                {!isExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
+                )}
+              </div>
+
+              {/* Nút Xem thêm / Thu gọn */}
+              <div className="mt-2 flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="gap-1.5 rounded-full text-xs font-semibold px-4 shadow-sm hover:bg-muted"
+                >
+                  {isExpanded ? (
+                    <>
+                      Thu gọn mô tả <ChevronUp className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      Xem thêm mô tả <ChevronDown className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
