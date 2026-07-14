@@ -66,6 +66,7 @@ export interface ContactInfo {
   tiktok: string;
   youtube: string;
   shopee: string;
+  grabMart: string;
 }
 
 export interface SiteSettings {
@@ -75,4 +76,12 @@ export interface SiteSettings {
   logoText: string;
   freeShippingThreshold: number;
   shippingFee: number;
+}
+
+export interface BusinessInfo {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  taxCode: string;
 }
