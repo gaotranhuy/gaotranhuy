@@ -1,4 +1,4 @@
-import type { SiteSettings, ContactInfo } from '@/types';
+import type { SiteSettings, ContactInfo, BusinessInfo } from '@/types';
 
 export const siteSettings: SiteSettings = {
   name: 'Gạo Trần Huy',
@@ -22,4 +22,13 @@ export const contactInfo: ContactInfo = {
   tiktok: 'https://www.tiktok.com/@huy07kt?_r=1&_t=ZS-97gnmLX82kv',
   youtube: 'https://youtube.com/@gaotranhuy',
   shopee: 'https://shopee.vn/gaotranhuy',
+  grabMart: 'https://r.grab.com/o/BFr2qEfa',
+};
+
+export const businessInfo: BusinessInfo = {
+  name: 'Hộ Kinh Doanh Gạo Trần Huy',
+  address: '26 Cầm Bá Thước, Phường Hoà Cường, TP. Đà Nẵng',
+  phone: '0931.55555.1',
+  email: 'huy07kt@gmail.com',
+  taxCode: '',
 };

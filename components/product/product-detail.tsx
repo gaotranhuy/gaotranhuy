@@ -125,8 +125,9 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
+        {/* Thumbnails - responsive: scrollable on mobile, wrap on desktop */}
         {gallery.length > 1 && (
-          <div className="flex items-center gap-2 overflow-x-auto py-1 w-full max-w-full scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex flex-wrap gap-2 py-1">
             {gallery.map((img, i) => (
               <button
                 key={i}
