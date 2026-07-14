@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Menu,
-  ShoppingBag,
+  ShoppingCart,
   Search,
   Phone,
   ChevronDown,
@@ -168,18 +168,20 @@ export function SiteHeader() {
               <Search className="h-5 w-5" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={openCart}
-              aria-label="Giỏ hàng"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
-                  {totalItems}               span>
-              )}
-            </Button>
+  variant="ghost"
+  size="icon"
+  className="relative"
+  onClick={openCart}
+  aria-label="Giỏ hàng"
+>
+  <ShoppingCart className="h-5 w-5 stroke-[2.2]" />
+
+  {totalItems > 0 && (
+    <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow">
+      {totalItems}
+    </span>
+  )}
+</Button>
             <Button asChild size="sm" className="hidden md:flex">
               <a
                 href={`https://zalo.me/${contactInfo.zalo}`}
