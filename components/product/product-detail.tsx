@@ -252,7 +252,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1 w-full">
             <Button
-n              size="lg"
+              size="lg"
               onClick={handleAddToCart}
               disabled={!product.inStock}
               className={`w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-all duration-300 sm:col-span-1 ${

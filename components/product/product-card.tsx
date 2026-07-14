@@ -102,7 +102,7 @@ function ProductCardComponent({ product }: { product: Product }) {
 
           <div className="shrink-0">
             <AddToCartButton
-n              product={product}
+              product={product}
               size="icon"
               className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/10 active:scale-95 transition-transform"
             />
