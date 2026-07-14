@@ -6,6 +6,7 @@ import { fetchAllNews } from '@/lib/supabase-data';
 const SITE_URL = 'https://gaotranhuy.vn';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // 1. Khai báo danh sách các trang tĩnh
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${SITE_URL}/san-pham`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/dat-hang`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
   ];
 
+  // 2. Lấy dữ liệu danh mục đồng bộ (giữ nguyên không dùng await như thiết kế của bạn)
   const categories = getAllCategories();
   const categoryPages: MetadataRoute.Sitemap = categories.map((c) => ({
     url: `${SITE_URL}/danh-muc/${c.slug}`,
@@ -24,18 +26,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const products = await fetchAllProducts();
+  // 3. TỐI ƯU: Gọi song song cả Products và News cùng lúc bằng Promise.all để giảm thời gian phản hồi
+  const [products, news] = await Promise.all([
+    fetchAllProducts(),
+    fetchAllNews(),
+  ]);
+
+  // 4. Map dữ liệu sản phẩm
   const productPages: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${SITE_URL}/san-pham/${p.slug}`,
-    lastModified: new Date(p.createdAt),
+    lastModified: p.createdAt ? new Date(p.createdAt) : new Date(), // Phòng tránh lỗi Invalid Date nếu DB mất dữ liệu
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
-  const news = await fetchAllNews();
+  // 5. Map dữ liệu tin tức
   const newsPages: MetadataRoute.Sitemap = news.map((a) => ({
     url: `${SITE_URL}/tin-tuc/${a.slug}`,
-    lastModified: new Date(a.publishedAt),
+    lastModified: a.publishedAt ? new Date(a.publishedAt) : new Date(), // Phòng tránh lỗi Invalid Date nếu DB mất dữ liệu
     changeFrequency: 'monthly',
     priority: 0.6,
   }));
