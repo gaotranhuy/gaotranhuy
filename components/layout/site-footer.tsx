@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { contactInfo, siteSettings } from '@/data/site';
 import { getAllCategories } from '@/lib/products';
-
+import Image from 'next/image';
 const features = [
   {
     icon: Truck,
