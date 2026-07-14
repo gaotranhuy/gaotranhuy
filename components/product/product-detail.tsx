@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
 import {
   Star,
   MapPin,
@@ -15,6 +16,8 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   CheckCircle2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +35,8 @@ export function ProductDetail({ product }: { product: Product }) {
   const [quantity, setQuantity] = React.useState(1);
   const [activeImage, setActiveImage] = React.useState(0);
   const [addedFeedback, setAddedFeedback] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
 
@@ -87,7 +92,7 @@ export function ProductDetail({ product }: { product: Product }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
       {/* Gallery Section */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 min-w-0">
         <div
           className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-muted/40"
           onTouchStart={handleTouchStart}
@@ -125,30 +130,45 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Thumbnails - responsive: scrollable on mobile, wrap on desktop */}
+        {/* Thumbnails - Slide ngang chuẩn responsive không bị bể khung hình */}
         {gallery.length > 1 && (
-          <div className="flex flex-wrap gap-2 py-1">
-            {gallery.map((img, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setActiveImage(i)}
-                className={`relative aspect-square h-14 w-14 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-card transition-all duration-300 ${
-                  activeImage === i
-                    ? 'border-primary scale-95 shadow-sm opacity-100'
-                    : 'border-border/60 opacity-60 hover:border-primary/40 hover:opacity-90'
-                }`}
-              >
-                <Image
-                  src={img}
-                  alt={`${product.name} hình ${i + 1}`}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 640px) 56px, 80px"
-                  className="object-cover"
-                />
-              </button>
-            ))}
+          <div 
+            className="flex w-full overflow-x-auto gap-2 py-1 snap-x snap-mandatory scroll-smooth"
+            style={{
+              scrollbarWidth: 'none', /* Firefox */
+              msOverflowStyle: 'none', /* IE and Edge */
+            }}
+          >
+            {/* CSS inline ẩn thanh cuộn thô trên các trình duyệt Webkit */}
+            <style jsx global>{`
+              .scrollbar-none::-webkit-scrollbar {
+                display: none !important;
+              }
+            `}</style>
+            
+            <div className="flex gap-2 scrollbar-none">
+              {gallery.map((img, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  className={`relative aspect-square h-14 w-14 sm:h-20 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-card transition-all duration-300 ${
+                    activeImage === i
+                      ? 'border-primary scale-95 shadow-sm opacity-100'
+                      : 'border-border/60 opacity-60 hover:border-primary/40 hover:opacity-90'
+                  }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${product.name} hình ${i + 1}`}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 640px) 56px, 80px"
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -322,8 +342,42 @@ export function ProductDetail({ product }: { product: Product }) {
           </TabsList>
 
           <TabsContent value="description" className="mt-4">
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-              {product.description || product.shortDescription}
+            <div className="relative">
+              <div 
+                className={`prose prose-sm dark:prose-invert max-w-none text-muted-foreground transition-all duration-300 overflow-hidden ${
+                  !isExpanded ? 'max-h-[220px] pb-10' : 'max-h-none pb-4'
+                }`}
+              >
+                <ReactMarkdown className="space-y-3 leading-relaxed">
+                  {product.description || product.shortDescription}
+                </ReactMarkdown>
+
+                {/* Sửa phần Gradient: Thu nhỏ vùng mờ để không làm mờ nút "Xem thêm" */}
+                {!isExpanded && (
+                  <div className="absolute bottom-10 left-0 right-0 h-16 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
+                )}
+              </div>
+
+              {/* Nút Xem thêm / Thu gọn - Thêm z-10 nổi bật trên lớp mờ */}
+              <div className="relative z-10 mt-2 flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="gap-1.5 rounded-full text-xs font-bold px-5 py-2 shadow-md bg-background text-foreground border-border hover:bg-muted hover:text-primary transition-all duration-200"
+                >
+                  {isExpanded ? (
+                    <>
+                      Thu gọn mô tả <ChevronUp className="h-3.5 w-3.5 text-primary" />
+                    </>
+                  ) : (
+                    <>
+                      Xem thêm mô tả <ChevronDown className="h-3.5 w-3.5 text-primary" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
