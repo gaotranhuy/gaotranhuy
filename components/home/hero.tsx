@@ -55,13 +55,27 @@ export function Hero({ totalProducts }: HeroProps) {
             </Button>
             
             <Button asChild size="lg" variant="outline" className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
-              <a href={grabMartUrl} target="_blank" rel="noopener noreferrer">
+              <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <Image 
+                  src="/icons/grabmart.svg" 
+                  alt="GrabMart" 
+                  width={20} 
+                  height={20} 
+                  className="object-contain"
+                />
                 Đặt hàng qua GrabMart
               </a>
             </Button>
 
             <Button asChild size="lg" variant="outline" className="text-base h-12 rounded-xl font-normal border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
-              <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer">
+              <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <Image 
+                  src="/icons/shopee.svg" 
+                  alt="Shopee" 
+                  width={20} 
+                  height={20} 
+                  className="object-contain"
+                />
                 Đặt hàng qua Shopee
               </a>
             </Button>
