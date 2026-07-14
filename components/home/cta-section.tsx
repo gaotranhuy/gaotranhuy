@@ -1,5 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { Phone, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Phone, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo } from '@/data/site';
 
@@ -32,14 +33,26 @@ export function CTASection() {
                 </a>
               </Button>
               <Button asChild size="lg" className="bg-[#00B14F] text-white hover:bg-[#009a44] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
-                <a href={grabMartUrl} target="_blank" rel="noopener noreferrer">
-                  <ShoppingBag className="h-5 w-5 mr-1.5" />
+                <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <Image 
+                    src="/icons/grabmart.svg" 
+                    alt="GrabMart" 
+                    width={20} 
+                    height={20} 
+                    className="object-contain"
+                  />
                   Mua tại GrabMart
                 </a>
               </Button>
               <Button asChild size="lg" className="bg-[#EE4D2D] text-white hover:bg-[#ff5733] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
-                <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer">
-                  <ShoppingBag className="h-5 w-5 mr-1.5" />
+                <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <Image 
+                    src="/icons/shopee.svg" 
+                    alt="Shopee" 
+                    width={20} 
+                    height={20} 
+                    className="object-contain"
+                  />
                   Mua tại Shopee
                 </a>
               </Button>
