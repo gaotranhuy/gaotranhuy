@@ -177,7 +177,7 @@ export function SiteHeader() {
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
-                  {totalItems}\n                </span>
+                  {totalItems}               span>
               )}
             </Button>
             <Button asChild size="sm" className="hidden md:flex">
