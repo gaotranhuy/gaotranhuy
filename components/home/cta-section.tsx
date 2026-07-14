@@ -8,7 +8,6 @@ export function CTASection() {
   const shopeeShopUrl = contactInfo.shopee;
   const grabMartUrl = contactInfo.grabMart;
 
-  
   return (
     <section className="py-16 sm:py-20">
       <div className="container-page">
