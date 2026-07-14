@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
   Star,
   MapPin,
-  Package,
   Check,
   Minus,
   Plus,
@@ -25,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import { getCategoryBySlug } from '@/lib/products';
+import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 export function ProductDetail({ product }: { product: Product }) {
@@ -34,24 +34,25 @@ export function ProductDetail({ product }: { product: Product }) {
   const [addedFeedback, setAddedFeedback] = React.useState(false);
   const category = getCategoryBySlug(product.categorySlug);
   const discount = calculateDiscount(product.price, product.oldPrice);
-  
-  const rawGallery = product.gallery?.length 
-    ? [product.image, ...product.gallery] 
+
+  const rawGallery = product.gallery?.length
+    ? [product.image, ...product.gallery]
     : [product.image];
-    
+
   const gallery = Array.from(new Set(rawGallery.filter(Boolean)));
 
   const touchStartX = React.useRef<number>(0);
   const touchEndX = React.useRef<number>(0);
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    addItem(product, quantity, { silent: true });
+    toast.success('Đã thêm vào giỏ hàng');
     setAddedFeedback(true);
     setTimeout(() => setAddedFeedback(false), 2000);
   };
 
   const handleBuyNow = () => {
-    addItem(product, quantity);
+    addItem(product, quantity, { silent: true });
     window.location.href = '/gio-hang';
   };
 
@@ -64,23 +65,19 @@ export function ProductDetail({ product }: { product: Product }) {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartX.current = e.touches[0].clientX;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const distance = touchStartX.current - touchEndX.current;
-    const isSwipeThreshold = Math.abs(distance) > 50;
-
-    if (isSwipeThreshold) {
-      if (distance > 0) {
-        handleNextImage();
-      } else {
-        handlePrevImage();
+    if (touchStartX.current && touchEndX.current) {
+      const diff = touchStartX.current - touchEndX.current;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) handleNextImage();
+        else handlePrevImage();
       }
     }
     touchStartX.current = 0;
@@ -88,43 +85,30 @@ export function ProductDetail({ product }: { product: Product }) {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 w-full max-w-full overflow-x-hidden px-4 sm:px-0 box-border">
-      
-      {/* ================= KHU VỰC GALLERY ================= */}
-      <div className="flex flex-col gap-3 w-full min-w-0 overflow-hidden">
-        <div 
+    <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
+      {/* Gallery Section */}
+      <div className="flex flex-col gap-3">
+        <div
+          className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-muted/40"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-sm cursor-grab active:cursor-grabbing select-none"
         >
-          {gallery[activeImage] ? (
-            <Image
-              src={gallery[activeImage]}
-              alt={product.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover transition-all duration-500 pointer-events-none"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-              Không có hình ảnh
-            </div>
-          )}
-          
-          {discount && (
-            <Badge className="absolute left-4 top-4 bg-rose-500 text-white font-semibold shadow-sm border-none z-10">
-              Tiết kiệm {discount}%
-            </Badge>
-          )}
+          <Image
+            src={gallery[activeImage]}
+            alt={product.name}
+            fill
+            priority={activeImage === 0}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
 
           {gallery.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
+                className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 backdrop-blur shadow-md transition-transform hover:scale-110 active:scale-95"
                 aria-label="Ảnh trước"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -132,8 +116,8 @@ export function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-md backdrop-blur-sm transition-all hover:bg-background active:scale-95 sm:opacity-0 sm:group-hover:opacity-100 z-10"
-                aria-label="Ảnh tiếp theo"
+                className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 backdrop-blur shadow-md transition-transform hover:scale-110 active:scale-95"
+                aria-label="Ảnh sau"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -158,6 +142,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   src={img}
                   alt={`${product.name} hình ${i + 1}`}
                   fill
+                  loading="lazy"
                   sizes="(max-width: 640px) 56px, 80px"
                   className="object-cover"
                 />
@@ -167,7 +152,7 @@ export function ProductDetail({ product }: { product: Product }) {
         )}
       </div>
 
-      {/* ================= KHU VỰC THÔNG TIN SẢN PHẨM ================= */}
+      {/* Info Section */}
       <div className="flex flex-col w-full min-w-0 overflow-hidden">
         {category && (
           <Link
@@ -187,100 +172,87 @@ export function ProductDetail({ product }: { product: Product }) {
         </p>
 
         {/* Rating + sold */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-muted pb-4">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <div className="flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.floor(product.rating)
-                      ? 'fill-warning text-warning'
-                      : 'fill-muted text-muted'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-sm font-bold">{product.rating}</span>
-            <span className="text-sm text-muted-foreground">
-              ({formatNumber(product.reviewCount)} đánh giá)
-            </span>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 rounded bg-amber-500/10 px-2 py-1 text-sm font-bold text-amber-600 dark:text-amber-400">
+            <Star className="h-4 w-4 fill-current" />
+            <span>{product.rating.toFixed(1)}</span>
           </div>
-          <Separator orientation="vertical" className="h-4 hidden sm:block" />
           <span className="text-sm text-muted-foreground">
-            Đã bán {formatNumber(product.soldCount)} sản phẩm
+            ({formatNumber(product.reviewCount)} đánh giá)
+          </span>
+          <Separator orientation="vertical" className="h-4" />
+          <span className="text-sm text-muted-foreground">
+            Đã bán {formatNumber(product.soldCount)}
           </span>
         </div>
 
         {/* Price */}
-        <div className="mt-5 flex flex-wrap items-baseline gap-2 rounded-2xl bg-accent/20 px-4 py-3.5 sm:px-5 sm:py-4">
-          <span className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
+        <div className="mt-5 flex flex-wrap items-baseline gap-3">
+          <span className="text-3xl font-bold text-primary sm:text-4xl">
             {formatPrice(product.price)}
           </span>
+          <span className="text-sm font-medium text-muted-foreground">
+            /{product.unit}
+          </span>
           {product.oldPrice && (
-            <span className="text-sm sm:text-base text-muted-foreground line-through tracking-tight">
+            <span className="text-base text-muted-foreground/60 line-through">
               {formatPrice(product.oldPrice)}
             </span>
           )}
-          <span className="text-sm font-medium text-muted-foreground ml-1">
-            / {product.unit}
-          </span>
+          {discount && (
+            <Badge className="bg-rose-500 text-white">-{discount}%</Badge>
+          )}
         </div>
 
-        {/* Quick info */}
-        <div className="mt-5 grid grid-cols-2 gap-3 w-full">
-          <div className="flex items-center gap-2 rounded-xl border border-border/60 p-2.5 sm:p-3 bg-card min-w-0">
-            <MapPin className="h-4 w-4 text-primary shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] sm:text-[11px] text-muted-foreground">Xuất xứ</div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">{product.origin}</div>
+        {/* Origin & weight */}
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
+          {product.origin && (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-4 w-4" />
+              {product.origin}
             </div>
-          </div>
-          <div className="flex items-center gap-2 rounded-xl border border-border/60 p-2.5 sm:p-3 bg-card min-w-0">
-            <Package className="h-4 w-4 text-primary shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] sm:text-[11px] text-muted-foreground">Quy cách</div>
-              <div className="text-xs sm:text-sm font-semibold text-foreground truncate">{product.weight}</div>
+          )}
+          {product.weight && (
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4" />
+              {product.weight}
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Quantity + actions */}
-        <div className="mt-6 flex flex-col gap-4 border-t pt-5 w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground shrink-0">Số lượng:</span>
-              <div className="flex items-center rounded-xl border border-border/80 bg-background overflow-hidden h-10 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-primary active:scale-95"
-                  aria-label="Giảm số lượng"
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <span className="w-10 text-center text-sm font-bold text-foreground">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-primary active:scale-95"
-                  aria-label="Tăng số lượng"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Thành tiền: <span className="text-lg font-bold text-foreground ml-1">{formatPrice(product.price * quantity)}</span>
+        <Separator className="my-5" />
+
+        {/* Quantity + Add to cart */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-foreground">Số lượng:</span>
+            <div className="flex items-center gap-1 rounded-lg border">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-primary disabled:opacity-50"
+                disabled={quantity <= 1}
+                aria-label="Giảm số lượng"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-12 text-center text-base font-semibold">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-primary"
+                aria-label="Tăng số lượng"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
-          {/* Grid chứa các nút CTA */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1 w-full">
             <Button
-              size="lg"
+n              size="lg"
               onClick={handleAddToCart}
               disabled={!product.inStock}
               className={`w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-all duration-300 sm:col-span-1 ${
@@ -320,61 +292,70 @@ export function ProductDetail({ product }: { product: Product }) {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Truck className="h-4 w-4" />
             </div>
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Giao nhanh tận nhà</span>
+            <span className="text-xs text-muted-foreground">Giao hàng nhanh</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ShieldCheck className="h-4 w-4" />
             </div>
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Nguồn gốc sạch 100%</span>
+            <span className="text-xs text-muted-foreground">Chính hãng 100%</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <RotateCcw className="h-4 w-4" />
             </div>
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground/80 leading-tight">Đổi trả uy tín 24h</span>
+            <span className="text-xs text-muted-foreground">Đổi trả dễ dàng</span>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="lg:col-span-2 mt-4 w-full overflow-hidden">
+      {/* Tabs section - full width */}
+      <div className="lg:col-span-2 mt-6">
         <Tabs defaultValue="description" className="w-full">
-          <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 h-auto gap-6 overflow-x-auto scrollbar-none flex whitespace-nowrap">
-            <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Mô tả sản phẩm</TabsTrigger>
-            <TabsTrigger value="features" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Đặc điểm nổi bật</TabsTrigger>
-            {product.nutritionFacts && (
-              <TabsTrigger value="nutrition" className="rounded-none border-b-2 border-transparent bg-transparent px-1 pb-3 pt-0 text-sm font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent shadow-none">Thành phần dinh dưỡng</TabsTrigger>
+          <TabsList className="w-full justify-start">
+            <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
+            <TabsTrigger value="features">Đặc điểm</TabsTrigger>
+            {product.nutritionFacts && product.nutritionFacts.length > 0 && (
+              <TabsTrigger value="nutrition">Dinh dưỡng</TabsTrigger>
             )}
           </TabsList>
-          <TabsContent value="description" className="prose prose-sm max-w-none pt-5 outline-none w-full">
-            <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80 break-words">
-              {product.description}
-            </p>
+
+          <TabsContent value="description" className="mt-4">
+            <div className="prose prose-sm max-w-none text-muted-foreground">
+              {product.description || product.shortDescription}
+            </div>
           </TabsContent>
-          <TabsContent value="features" className="pt-5 outline-none w-full">
-            <ul className="grid gap-2.5 sm:grid-cols-2 w-full">
-              {product.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm min-w-0">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                  <span className="text-foreground/80 break-words flex-1">{feature}</span>
-                </li>
-              ))}
-            </ul>
+
+          <TabsContent value="features" className="mt-4">
+            {product.features.length > 0 ? (
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {product.features.map((feature, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">Chưa có thông tin</p>
+            )}
           </TabsContent>
-          {product.nutritionFacts && (
-            <TabsContent value="nutrition" className="pt-5 outline-none w-full">
-              <div className="rounded-xl border overflow-hidden max-w-full sm:max-w-md bg-card">
+
+          {product.nutritionFacts && product.nutritionFacts.length > 0 && (
+            <TabsContent value="nutrition" className="mt-4">
+              <div className="overflow-hidden rounded-xl border">
                 <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-2.5 text-left font-semibold">Thành phần</th>
+                      <th className="px-4 py-2.5 text-right font-semibold">Giá trị</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {product.nutritionFacts.map((fact, i) => (
-                      <tr key={i} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                        <td className="py-2.5 px-4 font-medium text-muted-foreground truncate max-w-[150px]">
-                          {fact.label}
-                        </td>
-                        <td className="py-2.5 px-4 text-right font-bold text-foreground whitespace-nowrap">
-                          {fact.value}
-                        </td>
+                      <tr key={i} className="border-t">
+                        <td className="px-4 py-2.5 text-muted-foreground">{fact.label}</td>
+                        <td className="px-4 py-2.5 text-right font-medium">{fact.value}</td>
                       </tr>
                     ))}
                   </tbody>

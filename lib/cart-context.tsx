@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 import type { CartItem, Product } from '@/types';
+import { toast } from 'sonner';
 
 interface CartContextValue {
   items: CartItem[];
   isOpen: boolean;
   totalItems: number;
   totalPrice: number;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (product: Product, quantity?: number, options?: { silent?: boolean }) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -47,20 +48,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, hydrated]);
 
-  const addItem = React.useCallback((product: Product, quantity = 1) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.product.id === product.id
-            ? { ...i, quantity: i.quantity + quantity }
-            : i
-        );
+  const addItem = React.useCallback(
+    (product: Product, quantity = 1, options?: { silent?: boolean }) => {
+      setItems((prev) => {
+        const existing = prev.find((i) => i.product.id === product.id);
+        if (existing) {
+          return prev.map((i) =>
+            i.product.id === product.id
+              ? { ...i, quantity: i.quantity + quantity }
+              : i
+          );
+        }
+        return [...prev, { product, quantity }];
+      });
+      if (!options?.silent) {
+        setIsOpen(true);
       }
-      return [...prev, { product, quantity }];
-    });
-    setIsOpen(true);
-  }, []);
+    },
+    []
+  );
 
   const removeItem = React.useCallback((productId: string) => {
     setItems((prev) => prev.filter((i) => i.product.id !== productId));

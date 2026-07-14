@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { isAdmin } from '@/lib/admin-auth';
 import Link from 'next/link';
 import { Package, FileText, LogOut, Home } from 'lucide-react';
@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   title: 'Quản trị - Gạo Trần Huy',
   description: 'Hệ thống quản trị nội dung',
   robots: { index: false, follow: false },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function AdminLayout({
