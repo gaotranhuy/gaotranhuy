@@ -22,15 +22,15 @@ export function ContactCTA() {
             </div>
           </a>
 
-          {/* Nút GrabMart - Đồng bộ hover hoàn chỉnh */}
+          {/* Nút GrabMart - Giữ logo chuẩn, hover nhẹ nhàng như nút Phone */}
           <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#00B14F] hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 transition-all group-hover:bg-[#00B14F]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 transition-all group-hover:bg-[#00B14F]/20">
               <Image 
                 src="/icons/grabmart.svg" 
                 alt="GrabMart" 
                 width={24} 
                 height={24} 
-                className="object-contain transition-all duration-300 group-hover:brightness-0 group-hover:invert"
+                className="object-contain transition-transform duration-300 group-hover:scale-110"
               />
             </div>
             <div>
@@ -41,7 +41,7 @@ export function ContactCTA() {
             </div>
           </a>
 
-          {/* Nút Shopee - Đồng bộ hover hoàn chỉnh */}
+          {/* Nút Shopee - Hover hóa trắng hoàn hảo */}
           <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#EE4D2D] hover:shadow-md">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EE4D2D]/10 transition-all group-hover:bg-[#EE4D2D]">
               <Image 
