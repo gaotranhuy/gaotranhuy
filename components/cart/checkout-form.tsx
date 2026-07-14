@@ -321,7 +321,7 @@ export function CheckoutForm() {
                     Nội thành Đà Nẵng
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    Giao tận nơi, đặt nhận đơn tự động nhanh chóng. Xác nhận trong 5 phút, nhận Gạo trong vòng 30 phút
+                    Giao tận nơi, xác nhận đặt đơn trong 5 phút. Giao hoả tốc trong vòng 30 phút!
                   </div>
                 </div>
               </button>
