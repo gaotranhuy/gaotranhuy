@@ -31,7 +31,7 @@ const navLinks = [
   { href: '/tin-tuc', label: 'Tin tức' },
   { href: '/gioi-thieu', label: 'Giới thiệu' },
   { href: '/lien-he', label: 'Liên hệ' },
-  { href: '/admin', label: 'Admin' },
+  { href: '/admin/login', label: 'Admin' },
 ];
 
 export function SiteHeader() {
