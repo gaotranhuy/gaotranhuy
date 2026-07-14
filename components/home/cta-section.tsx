@@ -1,71 +1,97 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { Phone, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Phone, MapPin } from 'lucide-react';
 import { contactInfo } from '@/data/site';
 
-export function CTASection() {
+export function ContactCTA() {
   const shopeeShopUrl = contactInfo.shopee;
   const grabMartUrl = contactInfo.grabMart;
+  const googleMapUrl = `https://maps.google.com/`;
 
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-12 sm:py-16">
       <div className="container-page">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/80 px-6 py-12 text-primary-foreground shadow-xl sm:px-12 sm:py-16">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-warning/20 blur-3xl" />
-
-          <div className="relative flex flex-col items-center gap-6 text-center lg:flex-row lg:justify-between lg:text-left">
-            <div className="max-w-2xl">
-              <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Đặt hàng ngay - Giao tận nơi
-              </h2>
-              <p className="mt-3 text-base text-primary-foreground/90">
-                Gọi hotline, đặt qua GrabMart hoặc ghé thăm gian hàng Shopee để được tư vấn và đặt hàng nhanh
-                chóng. Giao hàng toàn quốc, thanh toán tại nhà.
-              </p>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Nút Gọi ngay */}
+          <a 
+            href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} 
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-primary hover:shadow-lg"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md">
+              <Phone className="h-5 w-5" />
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-              <Button asChild size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 h-12 rounded-xl text-sm font-semibold tracking-wide">
-                <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}>
-                  <Phone className="h-5 w-5 mr-1.5" />
-                  {contactInfo.phone}
-                </a>
-              </Button>
-              
-              {/* Nút GrabMart với Icon bọc nền trắng nổi bật */}
-              <Button asChild size="lg" className="bg-[#00B14F] text-white hover:bg-[#009a44] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
-                <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-sm">
-                    <Image 
-                      src="/icons/grabmart.svg" 
-                      alt="GrabMart" 
-                      width={16} 
-                      height={16} 
-                      className="object-contain"
-                    />
-                  </span>
-                  Mua tại GrabMart
-                </a>
-              </Button>
-
-              {/* Nút Shopee với Icon bọc nền trắng nổi bật */}
-              <Button asChild size="lg" className="bg-[#EE4D2D] text-white hover:bg-[#ff5733] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
-                <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-sm">
-                    <Image 
-                      src="/icons/shopee.svg" 
-                      alt="Shopee" 
-                      width={16} 
-                      height={16} 
-                      className="object-contain"
-                    />
-                  </span>
-                  Mua tại Shopee
-                </a>
-              </Button>
+            <div>
+              <div className="text-xs text-muted-foreground">Gọi ngay</div>
+              <div className="text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+                {contactInfo.phone}
+              </div>
             </div>
-          </div>
+          </a>
+
+          {/* Nút GrabMart - UI Đã cải tiến siêu sạch */}
+          <a 
+            href={grabMartUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#00B14F] hover:shadow-lg"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-neutral-100 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md group-hover:border-[#00B14F]/30">
+              <Image 
+                src="/icons/grabmart.svg" 
+                alt="GrabMart" 
+                width={26} 
+                height={26} 
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">GrabMart</div>
+              <div className="text-base font-semibold text-foreground transition-colors group-hover:text-[#00B14F]">
+                Đặt GrabMart giao nhanh
+              </div>
+            </div>
+          </a>
+
+          {/* Nút Shopee - UI Đã cải tiến siêu sạch */}
+          <a 
+            href={shopeeShopUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-[#EE4D2D] hover:shadow-lg"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-neutral-100 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md group-hover:border-[#EE4D2D]/30">
+              <Image 
+                src="/icons/shopee.svg" 
+                alt="Shopee" 
+                width={26} 
+                height={26} 
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Shopee</div>
+              <div className="text-base font-semibold text-foreground transition-colors group-hover:text-[#EE4D2D]">
+                Đặt Shopee giao toàn quốc
+              </div>
+            </div>
+          </a>
+
+          {/* Địa chỉ */}
+          <a 
+            href={googleMapUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-primary hover:shadow-lg"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md">
+              <MapPin className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Địa chỉ</div>
+              <div className="line-clamp-1 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                {contactInfo.address}
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </section>
