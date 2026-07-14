@@ -33,8 +33,8 @@ export function BackToTop() {
         <Image
           src="/icons/zalo.svg"
           alt="Zalo"
-          width={24}
-          height={24}
+          width={44}
+          height={44}
           className="h-6 w-6"
           priority
         />
