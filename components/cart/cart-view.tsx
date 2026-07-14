@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ShoppingCard,
+  ShoppingCart,
   Plus,
   Minus,
   Trash2,
@@ -25,7 +25,7 @@ export function CartView() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-20 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-          <ShoppingCard className="h-10 w-10 text-muted-foreground" />
+          <ShoppingCart className="h-10 w-10 text-muted-foreground" />
         </div>
         <div>
           <h2 className="text-lg font-semibold">Giỏ hàng trống</h2>
