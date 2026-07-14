@@ -321,7 +321,7 @@ export function CheckoutForm() {
                     Nội thành Đà Nẵng
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
-                    Giao tận nơi, đặt nhận đơn tự động nhanh chóng
+                    Giao tận nơi, đặt nhận đơn tự động nhanh chóng. Xác nhận trong 5 phút, nhận Gạo trong vòng 30 phút
                   </div>
                 </div>
               </button>
@@ -508,7 +508,7 @@ export function CheckoutForm() {
                 disabled={submitting}
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
-                {submitting ? 'Đang gửi đơn hàng...' : `Xác nhận đặt đơn ngay (${formatPrice(grandTotal)})`}
+                {submitting ? 'Đang gửi đơn hàng...' : `Đặt & nhận đơn trong 30 phút (${formatPrice(grandTotal)})`}
               </Button>
 
               <Button
