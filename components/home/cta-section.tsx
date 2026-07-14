@@ -32,27 +32,35 @@ export function CTASection() {
                   {contactInfo.phone}
                 </a>
               </Button>
+              
+              {/* Nút GrabMart với Icon bọc nền trắng nổi bật */}
               <Button asChild size="lg" className="bg-[#00B14F] text-white hover:bg-[#009a44] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
                 <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <Image 
-                    src="/icons/grabmart.svg" 
-                    alt="GrabMart" 
-                    width={20} 
-                    height={20} 
-                    className="object-contain"
-                  />
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-sm">
+                    <Image 
+                      src="/icons/grabmart.svg" 
+                      alt="GrabMart" 
+                      width={16} 
+                      height={16} 
+                      className="object-contain"
+                    />
+                  </span>
                   Mua tại GrabMart
                 </a>
               </Button>
+
+              {/* Nút Shopee với Icon bọc nền trắng nổi bật */}
               <Button asChild size="lg" className="bg-[#EE4D2D] text-white hover:bg-[#ff5733] border-none shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide active:scale-98 transition-transform">
                 <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <Image 
-                    src="/icons/shopee.svg" 
-                    alt="Shopee" 
-                    width={20} 
-                    height={20} 
-                    className="object-contain"
-                  />
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-sm">
+                    <Image 
+                      src="/icons/shopee.svg" 
+                      alt="Shopee" 
+                      width={16} 
+                      height={16} 
+                      className="object-contain"
+                    />
+                  </span>
                   Mua tại Shopee
                 </a>
               </Button>
