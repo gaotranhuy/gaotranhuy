@@ -25,43 +25,58 @@ export function CTASection() {
                 chóng. Giao hàng toàn quốc, thanh toán tại nhà.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-              {/* Nút Gọi Hotline */}
-              <Button asChild size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 h-12 rounded-xl text-sm font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-md">
-                <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}>
-                  <Phone className="h-5 w-5 mr-1.5" />
-                  {contactInfo.phone}
-                </a>
-              </Button>
-              
-              {/* Nút GrabMart - UI Premium Nền Trắng, Chữ Xanh */}
-              <Button asChild size="lg" className="bg-white text-[#00B14F] hover:bg-white border border-[#00B14F]/20 shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-lg hover:border-[#00B14F]/40 active:scale-98">
-                <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <Image 
-                    src="/icons/grabmart.svg" 
-                    alt="GrabMart" 
-                    width={22} 
-                    height={22} 
-                    className="object-contain"
-                  />
-                  Mua tại GrabMart
-                </a>
-              </Button>
+            
+            <div className="flex flex-col gap-3.5 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+              {/* 1. Nút Gọi Hotline - Nền phụ mờ sang trọng, hover lên sáng */}
+              <a 
+                href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
+                className="group flex h-12 items-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-semibold tracking-wide text-white shadow-md transition-all hover:scale-105 hover:bg-white hover:text-primary active:scale-98"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-white/20 text-white transition-all group-hover:bg-primary/10 group-hover:text-primary">
+                  <Phone className="h-4 w-4" />
+                </div>
+                <span>{contactInfo.phone}</span>
+              </a>
 
-              {/* Nút Shopee - UI Premium Nền Trắng, Chữ Cam Đỏ */}
-              <Button asChild size="lg" className="bg-white text-[#EE4D2D] hover:bg-white border border-[#EE4D2D]/20 shadow-md h-12 rounded-xl text-sm font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-lg hover:border-[#EE4D2D]/40 active:scale-98">
-                <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+              {/* 2. Nút Shopee - Nền Cam đậm đà, hover sang Cam đậm, hóa trắng icon cực đẹp */}
+              <a 
+                href={shopeeShopUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="group flex h-12 items-center gap-2.5 rounded-xl border border-[#EE4D2D] bg-[#EE4D2D] px-5 text-sm font-semibold tracking-wide text-white shadow-md transition-all hover:scale-105 hover:bg-[#D33D1E] hover:border-[#D33D1E] active:scale-98"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-white/20 transition-all group-hover:bg-white/30">
                   <Image 
                     src="/icons/shopee.svg" 
                     alt="Shopee" 
-                    width={22} 
-                    height={22} 
-                    className="object-contain"
+                    width={16} 
+                    height={16} 
+                    className="object-contain transition-all duration-300 brightness-0 invert"
                   />
-                  Mua tại Shopee
-                </a>
-              </Button>
+                </div>
+                <span>Mua tại Shopee</span>
+              </a>
+
+              {/* 3. Nút GrabMart - Nền Xanh Lá Grab, hover đổi màu nền đậm hơn (như cơ chế nút gọi điện của ContactCTA), giữ nguyên logo chuẩn */}
+              <a 
+                href={grabMartUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="group flex h-12 items-center gap-2.5 rounded-xl border border-[#00B14F] bg-[#00B14F] px-5 text-sm font-semibold tracking-wide text-white shadow-md transition-all hover:scale-105 hover:bg-[#00913F] hover:border-[#00913F] active:scale-98"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-white/20 transition-all group-hover:bg-white/30">
+                  <Image 
+                    src="/icons/grabmart.svg" 
+                    alt="GrabMart" 
+                    width={16} 
+                    height={16} 
+                    className="object-contain transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <span>Mua tại GrabMart</span>
+              </a>
             </div>
+
           </div>
         </div>
       </div>
