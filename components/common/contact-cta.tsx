@@ -13,7 +13,7 @@ export function ContactCTA() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {/* Nút Gọi ngay */}
           <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-primary hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground">
               <Phone className="h-6 w-6" />
             </div>
             <div>
@@ -24,7 +24,7 @@ export function ContactCTA() {
 
           {/* Nút GrabMart */}
           <a href={grabMartUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border border-[#00B14F]/30 bg-card p-5 transition-all hover:border-[#00B14F] hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 text-[#00B14F] transition-colors group-hover:bg-[#00B14F] group-hover:brightness-110">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00B14F]/10 text-[#00B14F] transition-all group-hover:scale-105 group-hover:bg-[#00B14F]/20">
               <Image 
                 src="/icons/grabmart.svg" 
                 alt="GrabMart" 
@@ -43,7 +43,7 @@ export function ContactCTA() {
 
           {/* Nút Shopee */}
           <a href={shopeeShopUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border border-[#EE4D2D]/30 bg-card p-5 transition-all hover:border-[#EE4D2D] hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EE4D2D]/10 text-[#EE4D2D] transition-colors group-hover:bg-[#EE4D2D] group-hover:brightness-110">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EE4D2D]/10 text-[#EE4D2D] transition-all group-hover:scale-105 group-hover:bg-[#EE4D2D]/20">
               <Image 
                 src="/icons/shopee.svg" 
                 alt="Shopee" 
@@ -62,7 +62,7 @@ export function ContactCTA() {
 
           {/* Địa chỉ */}
           <a href={googleMapUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 transition-all hover:border-primary hover:shadow-md">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground">
               <MapPin className="h-6 w-6" />
             </div>
             <div>
