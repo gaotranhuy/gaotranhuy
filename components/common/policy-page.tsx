@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+
 import { PageHeader } from '@/components/common/page-header';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { contactInfo } from '@/data/site';
@@ -14,7 +14,7 @@ export interface PolicyPageProps {
   description: string;
   breadcrumbLabel: string;
   sections: PolicySection[];
-  metadata: Metadata;
+  
 }
 
 export function PolicyPage({
