@@ -1,6 +1,5 @@
 # Gạo Trần Huy - Website bán gạo
 
-
 Website bán gạo và đặc sản Việt Nam cho cửa hàng **Gạo Trần Huy** (gaotranhuy.vn). Xây dựng bằng Next.js 15 (App Router), TypeScript, Tailwind CSS và Lucide React.
 
 ## Tính năng
