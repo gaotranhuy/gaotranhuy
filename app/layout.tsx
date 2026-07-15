@@ -1,18 +1,13 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
-import dynamic from 'next/dynamic';
 import { CartProvider } from '@/lib/cart-context';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { BackToTop } from '@/components/layout/back-to-top';
+import { FloatingContactWrapper } from '@/components/common/floating-contact-wrapper';
 import { Toaster } from '@/components/ui/sonner';
-
-const FloatingContact = dynamic(
-  () => import('@/components/common/floating-contact').then((m) => m.FloatingContact),
-  { ssr: false }
-);
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -123,7 +118,7 @@ export default function RootLayout({
           </div>
           <CartDrawer />
           <BackToTop />
-          <FloatingContact />
+          <FloatingContactWrapper />
         </CartProvider>
         <Toaster position="top-center" richColors />
       </body>
