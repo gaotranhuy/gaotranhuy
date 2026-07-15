@@ -306,7 +306,7 @@ export function CheckoutForm() {
                 >
                   <Truck className="h-5 w-5" />
                 </div>
-                <div>
+                
                   <div className="text-sm font-semibold">
                     Nội thành Đà Nẵng
                   </div>
