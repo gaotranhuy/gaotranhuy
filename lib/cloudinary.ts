@@ -10,11 +10,20 @@ export function getCloudinaryUploadUrl(): string {
   return `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 }
 
-export function optimizeCloudinaryUrl(url: string): string {
+type CloudinarySize = 'thumbnail' | 'product' | 'banner';
+
+const SIZE_MAP: Record<CloudinarySize, number> = {
+  thumbnail: 300,
+  product: 600,
+  banner: 1200,
+};
+
+export function optimizeCloudinaryUrl(url: string, size: CloudinarySize = 'product'): string {
   if (!url || !url.includes('res.cloudinary.com')) return url;
+  const w = SIZE_MAP[size];
   return url.replace(
     '/image/upload/',
-    '/image/upload/f_webp,q_auto:best,w_800,h_800,c_limit/'
+    `/image/upload/f_auto,q_auto:best,w_${w},c_limit,dpr_2.0/`
   );
 }
 
