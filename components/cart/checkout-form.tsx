@@ -621,7 +621,7 @@ export function CheckoutForm() {
         </aside>
       </div>
 
-      {/* Modal Shopee - Hiển thị danh sách sản phẩm trong giỏ hàng với nút mở trang Shopee cho từng sản phẩm */}
+          {/* Modal Shopee - Hiển thị danh sách sản phẩm trong giỏ hàng với nút mở trang Shopee cho từng sản phẩm */}
       <Dialog open={shopeeModalOpen} onOpenChange={setShopeeModalOpen}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
@@ -676,17 +676,14 @@ export function CheckoutForm() {
                     </span>
 
                     {product.shopeeUrl ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => {
-                          window.open(product.shopeeUrl, '_blank');
-                        }}
-                        className="w-fit gap-1.5 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none text-xs"
+                      /* Đổi từ Button onClick window.open thành thẻ <a> thuần, bỏ hoàn toàn target="_blank" */
+                      <a
+                        href={product.shopeeUrl}
+                        className="w-fit flex items-center gap-1.5 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold text-xs px-3 py-1.5 rounded-md shadow-sm transition-colors"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                         Mở trang Shopee
-                      </Button>
+                      </a>
                     ) : (
                       <span className="text-xs text-muted-foreground italic">
                         Sản phẩm chưa có link Shopee
@@ -699,16 +696,15 @@ export function CheckoutForm() {
           </div>
 
           <DialogFooter className="flex-col gap-2 sm:flex-col">
-            <Button
-              type="button"
-              asChild
-              className="w-full gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold border-none"
+            {/* Đổi từ Button bọc <a> có target="_blank" sang thẻ <a> thuần chuyển hướng tại chỗ */}
+            <a 
+              href={contactInfo.shopee}
+              className="w-full flex items-center justify-center gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold text-sm py-2.5 rounded-md shadow-sm transition-colors"
             >
-              <a href={contactInfo.shopee} target="_blank" rel="noopener noreferrer">
-                <ShoppingBag className="h-4 w-4" />
-                Mở gian hàng Shopee chính
-              </a>
-            </Button>
+              <ShoppingBag className="h-4 w-4" />
+              Mở gian hàng Shopee chính
+            </a>
+            
             <Button
               type="button"
               variant="outline"
@@ -720,6 +716,7 @@ export function CheckoutForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
