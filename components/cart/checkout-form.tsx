@@ -302,11 +302,11 @@ export function CheckoutForm() {
                     region === 'da-nang'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`
+                  }`}
                 >
                   <Truck className="h-5 w-5" />
                 </div>
-                
+                <div>
                   <div className="text-sm font-semibold">
                     Nội thành Đà Nẵng
                   </div>
@@ -323,14 +323,14 @@ export function CheckoutForm() {
                   region === 'nationwide'
                     ? 'border-primary bg-primary/5 ring-1 ring-primary'
                     : 'hover:border-primary/50'
-                }`
+                }`}
               >
                 <div
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
                     region === 'nationwide'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`
+                  }`}
                 >
                   <Store className="h-5 w-5" />
                 </div>
