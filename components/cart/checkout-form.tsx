@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ShoppingBag,
   ArrowLeft,
@@ -34,10 +33,10 @@ import {
 import { useCart } from '@/lib/cart-context';
 import { formatPrice } from '@/lib/format';
 import { siteSettings, contactInfo } from '@/data/site';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 
 type ShippingRegion = 'da-nang' | 'nationwide';
 
-// Danh sách 12 Phường và 3 Xã mới chuẩn địa giới hành chính Đà Nẵng
 const DANANG_WARDS = [
   'Phường Hải Châu', 'Phường Hòa Cường', 'Phường Thanh Khê', 'Phường An Khê',
   'Phường An Hải', 'Phường Sơn Trà', 'Phường Cẩm Lệ', 'Phường Hòa Vang',
@@ -45,7 +44,6 @@ const DANANG_WARDS = [
   'Xã Hòa Bắc', 'Xã Hòa Ninh', 'Xã Hòa Nhơn'
 ];
 
-// Component hiển thị chi tiết hóa đơn vừa đặt gần đây
 function OrderHistory() {
   const [orders, setOrders] = React.useState<any[]>([]);
 
@@ -119,14 +117,13 @@ export function CheckoutForm() {
   const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
   const [shopeeModalOpen, setShopeeModalOpen] = React.useState(false);
   
-  // Tách biệt ô nhập Phường (để gợi ý) và Địa chỉ chi tiết
   const [wardInput, setWardInput] = React.useState('');
   const [showWardSuggestions, setShowWardSuggestions] = React.useState(false);
   
   const [form, setForm] = React.useState({
     name: '',
     phone: '',
-    address: '', // Số nhà, tên đường
+    address: '',
     note: '',
   });
   
@@ -140,7 +137,6 @@ export function CheckoutForm() {
   const grandTotal = totalPrice + shippingFee;
   const missingForFreeShip = siteSettings.freeShippingThreshold - totalPrice;
 
-  // Lọc danh sách phường dựa trên ký tự khách nhập vào ô Phường
   const filteredWards = DANANG_WARDS.filter((w) =>
     w.toLowerCase().includes(wardInput.toLowerCase())
   );
@@ -151,10 +147,8 @@ export function CheckoutForm() {
 
     setSubmitting(true);
 
-    // Nối Phường nhập tay và Số nhà/Đường thành Địa chỉ đầy đủ
     const fullAddress = `${form.address}, ${wardInput}, TP. Đà Nẵng`;
 
-    // 1. Lưu đơn hàng vào localStorage trước khi xóa giỏ hàng
     const newOrder = {
       id: Math.floor(100000 + Math.random() * 900000).toString(),
       date: new Date().toLocaleString('vi-VN'),
@@ -186,7 +180,6 @@ export function CheckoutForm() {
       console.error('Lỗi lưu lịch sử đơn hàng:', e);
     }
 
-    // 2. Gom thông tin sản phẩm đơn hàng dạng danh sách sạch sẽ
     const productLines = items
       .map((item) => {
         const i = item as any;
@@ -197,7 +190,6 @@ export function CheckoutForm() {
       })
       .join('\n');
 
-    // 3. Thiết kế mẫu tin nhắn báo đơn hàng gửi về Telegram
     const telegramMessage = 
       `🌾 CÓ ĐƠN HÀNG GẠO MỚI! 🌾\n\n` +
       `👤 Khách hàng: ${form.name}\n` +
@@ -231,7 +223,6 @@ export function CheckoutForm() {
     }
   };
 
-  // MÀN HÌNH THÀNH CÔNG GIAO DIỆN ĐẸP 5 SAO
   if (submitted) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center gap-5 rounded-3xl border bg-card p-6 py-12 text-center shadow-xl border-gray-100">
@@ -250,7 +241,6 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        {/* HIỂN THỊ CẤU TRÚC HÓA ĐƠN VỪA ĐẶT ĐỂ KHÁCH XEM LẠI */}
         <OrderHistory />
 
         <div className="flex gap-3 w-full px-4 mt-2">
@@ -312,7 +302,7 @@ export function CheckoutForm() {
                     region === 'da-nang'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`}
+                  }`
                 >
                   <Truck className="h-5 w-5" />
                 </div>
@@ -333,14 +323,14 @@ export function CheckoutForm() {
                   region === 'nationwide'
                     ? 'border-primary bg-primary/5 ring-1 ring-primary'
                     : 'hover:border-primary/50'
-                }`}
+                }`
               >
                 <div
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
                     region === 'nationwide'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`}
+                  }`
                 >
                   <Store className="h-5 w-5" />
                 </div>
@@ -361,7 +351,6 @@ export function CheckoutForm() {
                   Thông tin giao hàng
                 </h2>
 
-                {/* Thanh thông báo tiến độ Free Ship thông minh tích hợp trong Form */}
                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
                   {shippingFee === 0 ? (
                     <p className="font-semibold text-emerald-700 flex items-center gap-1.5 text-sm">
@@ -418,7 +407,6 @@ export function CheckoutForm() {
                     </div>
                   </div>
 
-                  {/* Thiết kế trường Phường/Xã nhập tay kèm bảng tìm kiếm nhanh */}
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2 relative">
                       <label className="text-sm font-medium">
@@ -439,7 +427,6 @@ export function CheckoutForm() {
                         />
                       </div>
                       
-                      {/* Danh sách gợi ý thông minh đổ xuống */}
                       {showWardSuggestions && wardInput && filteredWards.length > 0 && (
                         <ul className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] max-h-48 overflow-y-auto rounded-xl border bg-white py-1.5 shadow-lg text-sm">
                           {filteredWards.map((w) => (
@@ -475,7 +462,6 @@ export function CheckoutForm() {
                     </div>
                   </div>
 
-                  {/* Hiển thị chi phí ship trực quan tương tác ngay trong form */}
                   <div className="flex items-center justify-between p-3.5 bg-gray-50 border border-gray-200/80 rounded-xl text-sm font-medium">
                     <span className="flex items-center gap-1.5 text-gray-600">
                       <Truck className="w-4 h-4 text-gray-400" />
@@ -547,7 +533,6 @@ export function CheckoutForm() {
           )}
         </div>
 
-        {/* Tóm tắt đơn hàng bên phải */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold">
@@ -566,11 +551,10 @@ export function CheckoutForm() {
                   <li key={id} className="flex gap-3">
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                       {image && (
-                        <Image
+                        <CloudinaryImage
                           src={image}
                           alt={name || 'Product'}
-                          fill
-                          sizes="56px"
+                          size="thumbnail"
                           className="object-cover"
                         />
                       )}
@@ -621,7 +605,6 @@ export function CheckoutForm() {
         </aside>
       </div>
 
-          {/* Modal Shopee - Hiển thị danh sách sản phẩm trong giỏ hàng với nút mở trang Shopee cho từng sản phẩm */}
       <Dialog open={shopeeModalOpen} onOpenChange={setShopeeModalOpen}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
@@ -635,7 +618,6 @@ export function CheckoutForm() {
           </DialogHeader>
 
           <div className="space-y-3">
-            {/* Banner hướng dẫn */}
             <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
               <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
               <p className="leading-relaxed">
@@ -654,11 +636,10 @@ export function CheckoutForm() {
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                     {product.image && (
-                      <Image
+                      <CloudinaryImage
                         src={product.image}
                         alt={product.name}
-                        fill
-                        sizes="64px"
+                        size="thumbnail"
                         className="object-cover"
                       />
                     )}
@@ -676,7 +657,6 @@ export function CheckoutForm() {
                     </span>
 
                     {product.shopeeUrl ? (
-                      /* Đổi từ Button onClick window.open thành thẻ <a> thuần, bỏ hoàn toàn target="_blank" */
                       <a
                         href={product.shopeeUrl}
                         className="w-fit flex items-center gap-1.5 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold text-xs px-3 py-1.5 rounded-md shadow-sm transition-colors"
@@ -696,7 +676,6 @@ export function CheckoutForm() {
           </div>
 
           <DialogFooter className="flex-col gap-2 sm:flex-col">
-            {/* Đổi từ Button bọc <a> có target="_blank" sang thẻ <a> thuần chuyển hướng tại chỗ */}
             <a 
               href={contactInfo.shopee}
               className="w-full flex items-center justify-center gap-2 bg-[#EE4D2D] hover:bg-[#ff5733] text-white font-semibold text-sm py-2.5 rounded-md shadow-sm transition-colors"
@@ -716,7 +695,6 @@ export function CheckoutForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
