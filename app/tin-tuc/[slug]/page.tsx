@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 import { RelatedNews } from '@/components/news/related-news';
 import { fetchNewsBySlug } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
@@ -33,7 +33,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
     { name: article.title, url: `/tin-tuc/${article.slug}` },
   ];
 
-  // Parse content into sections
   const sections = article.content.split(/\n##\s+/);
 
   return (
@@ -78,13 +77,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
           </div>
 
           <div className="relative mt-6 aspect-video overflow-hidden rounded-2xl bg-muted">
-            <Image
+            <CloudinaryImage
               src={article.image}
               alt={article.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 768px"
-              className="object-cover"
+              size="banner"
               priority
+              className="object-cover"
             />
           </div>
 

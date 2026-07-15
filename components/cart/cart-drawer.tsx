@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ShoppingBag,
   X,
@@ -23,6 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 
 export function CartDrawer() {
   const {
@@ -110,11 +110,10 @@ export function CartDrawer() {
                       onClick={closeCart}
                       className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted"
                     >
-                      <Image
+                      <CloudinaryImage
                         src={item.product.image}
                         alt={item.product.name}
-                        fill
-                        sizes="80px"
+                        size="thumbnail"
                         className="object-cover"
                       />
                     </Link>

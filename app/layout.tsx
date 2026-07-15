@@ -6,6 +6,7 @@ import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { BackToTop } from '@/components/layout/back-to-top';
+import { FloatingContactWrapper } from '@/components/common/floating-contact-wrapper';
 import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
@@ -117,6 +118,7 @@ export default function RootLayout({
           </div>
           <CartDrawer />
           <BackToTop />
+          <FloatingContactWrapper />
         </CartProvider>
         <Toaster position="top-center" richColors />
       </body>

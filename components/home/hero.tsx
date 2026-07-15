@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
   ShieldCheck,
@@ -8,6 +8,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 import { contactInfo } from '@/data/site';
 
 interface HeroProps {
@@ -101,13 +102,12 @@ export function Hero({ totalProducts }: HeroProps) {
 
         <div className="relative animate-fade-in">
           <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted shadow-2xl">
-            <Image
+            <CloudinaryImage
               src="https://res.cloudinary.com/f9krxetg/image/upload/v1783168677/IMG_7085_rvamwo.avif"
               alt="Gạo thơm dẻo đặc sản Gạo Trần Huy"
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
+              size="banner"
               priority
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent" />
           </div>

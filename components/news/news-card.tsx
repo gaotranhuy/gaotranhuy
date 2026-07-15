@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { formatDate, formatNumber } from '@/lib/format';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 import type { NewsArticle } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -19,11 +19,10 @@ export function NewsCard({
         className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg md:flex-row"
       >
         <div className="relative aspect-video overflow-hidden bg-muted md:aspect-auto md:w-1/2">
-          <Image
+          <CloudinaryImage
             src={article.image}
             alt={article.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
+            size="banner"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow">
@@ -66,11 +65,10 @@ export function NewsCard({
       )}
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
-        <Image
+        <CloudinaryImage
           src={article.image}
           alt={article.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
+          size="product"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow">
