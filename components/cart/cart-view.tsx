@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ShoppingCart,
   Plus,
@@ -16,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 
 export function CartView() {
   const { items, updateQuantity, removeItem, totalPrice, totalItems, clearCart } =
@@ -67,11 +67,10 @@ export function CartView() {
                 href={`/san-pham/${item.product.slug}`}
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28"
               >
-                <Image
+                <CloudinaryImage
                   src={item.product.image}
                   alt={item.product.name}
-                  fill
-                  sizes="112px"
+                  size="thumbnail"
                   className="object-cover"
                 />
               </Link>

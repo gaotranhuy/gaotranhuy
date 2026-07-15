@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -27,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCart } from '@/lib/cart-context';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import { getCategoryBySlug } from '@/lib/products';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 
@@ -73,56 +73,44 @@ export function ProductDetail({ product }: { product: Product }) {
     touchStartX.current = e.touches[0].clientX;
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStartX.current && touchEndX.current) {
-      const diff = touchStartX.current - touchEndX.current;
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) handleNextImage();
-        else handlePrevImage();
-      }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) handleNextImage();
+      else handlePrevImage();
     }
-    touchStartX.current = 0;
-    touchEndX.current = 0;
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
-      {/* Gallery Section */}
-      <div className="flex flex-col gap-3 min-w-0">
+    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      {/* Gallery */}
+      <div className="space-y-4">
         <div
-          className="relative aspect-square w-full overflow-hidden rounded-2xl border bg-muted/40"
+          className="relative aspect-square overflow-hidden rounded-2xl border bg-muted"
           onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <Image
+          <CloudinaryImage
             src={gallery[activeImage]}
             alt={product.name}
-            fill
-            priority={activeImage === 0}
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            size="product"
+            priority
             className="object-cover"
           />
-
           {gallery.length > 1 && (
             <>
               <button
-                type="button"
                 onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 backdrop-blur shadow-md transition-transform hover:scale-110 active:scale-95"
-                aria-label="Ảnh trước"
+                className="absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 shadow-md backdrop-blur transition-colors hover:bg-background"
+                aria-label="Previous image"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
-                type="button"
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/80 backdrop-blur shadow-md transition-transform hover:scale-110 active:scale-95"
-                aria-label="Ảnh sau"
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 shadow-md backdrop-blur transition-colors hover:bg-background"
+                aria-label="Next image"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -130,130 +118,88 @@ export function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* Thumbnails - Slide ngang chuẩn responsive không bị bể khung hình */}
         {gallery.length > 1 && (
-          <div 
-            className="flex w-full overflow-x-auto gap-2 py-1 snap-x snap-mandatory scroll-smooth"
-            style={{
-              scrollbarWidth: 'none', /* Firefox */
-              msOverflowStyle: 'none', /* IE and Edge */
-            }}
-          >
-            {/* CSS inline ẩn thanh cuộn thô trên các trình duyệt Webkit */}
-            <style jsx global>{`
-              .scrollbar-none::-webkit-scrollbar {
-                display: none !important;
-              }
-            `}</style>
-            
-            <div className="flex gap-2 scrollbar-none">
-              {gallery.map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveImage(i)}
-                  className={`relative aspect-square h-14 w-14 sm:h-20 sm:w-20 shrink-0 snap-start overflow-hidden rounded-xl border-2 bg-card transition-all duration-300 ${
-                    activeImage === i
-                      ? 'border-primary scale-95 shadow-sm opacity-100'
-                      : 'border-border/60 opacity-60 hover:border-primary/40 hover:opacity-90'
-                  }`}
-                >
-                  <Image
-                    src={img}
-                    alt={`${product.name} hình ${i + 1}`}
-                    fill
-                    loading="lazy"
-                    sizes="(max-width: 640px) 56px, 80px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2 pb-2">
+            {gallery.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveImage(i)}
+                className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+                  i === activeImage
+                    ? 'border-primary ring-2 ring-primary/20'
+                    : 'border-transparent hover:border-border'
+                }`}
+              >
+                <CloudinaryImage
+                  src={img}
+                  alt={`${product.name} ${i + 1}`}
+                  size="thumbnail"
+                  className="object-cover"
+                />
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Info Section */}
-      <div className="flex flex-col w-full min-w-0 overflow-hidden">
-        {category && (
-          <Link
-            href={`/danh-muc/${category.slug}`}
-            className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/15"
-          >
-            {category.name}
-          </Link>
-        )}
-
-        <h1 className="font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl lg:text-4xl break-words">
-          {product.name}
-        </h1>
-
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
-          {product.shortDescription}
-        </p>
-
-        {/* Rating + sold */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 rounded bg-amber-500/10 px-2 py-1 text-sm font-bold text-amber-600 dark:text-amber-400">
-            <Star className="h-4 w-4 fill-current" />
-            <span>{product.rating.toFixed(1)}</span>
+      {/* Info */}
+      <div className="space-y-6">
+        <div>
+          {category && (
+            <Link
+              href={`/danh-muc/${category.slug}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"
+            >
+              {category.name}
+            </Link>
+          )}
+          <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
+            {product.name}
+          </h1>
+          <div className="mt-3 flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+              <span className="font-bold">{product.rating.toFixed(1)}</span>
+            </div>
+            <span className="text-muted-foreground">({formatNumber(product.reviewCount)} đánh giá)</span>
+            <span className="text-muted-foreground/30">|</span>
+            <span className="text-muted-foreground">Đã bán {formatNumber(product.soldCount)}</span>
           </div>
-          <span className="text-sm text-muted-foreground">
-            ({formatNumber(product.reviewCount)} đánh giá)
-          </span>
-          <Separator orientation="vertical" className="h-4" />
-          <span className="text-sm text-muted-foreground">
-            Đã bán {formatNumber(product.soldCount)}
-          </span>
         </div>
 
-        {/* Price */}
-        <div className="mt-5 flex flex-wrap items-baseline gap-3">
-          <span className="text-3xl font-bold text-primary sm:text-4xl">
+        <div className="flex items-end gap-3">
+          <span className="font-display text-3xl font-extrabold text-primary sm:text-4xl">
             {formatPrice(product.price)}
           </span>
-          <span className="text-sm font-medium text-muted-foreground">
-            /{product.unit}
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">/{product.unit}</span>
           {product.oldPrice && (
-            <span className="text-base text-muted-foreground/60 line-through">
+            <span className="mb-1 text-base text-muted-foreground/60 line-through">
               {formatPrice(product.oldPrice)}
             </span>
           )}
           {discount && (
-            <Badge className="bg-rose-500 text-white">-{discount}%</Badge>
+            <Badge className="mb-1.5 bg-rose-500 hover:bg-rose-500 text-white font-semibold">
+              -{discount}%
+            </Badge>
           )}
         </div>
 
-        {/* Origin & weight */}
-        <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          {product.origin && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4" />
-              {product.origin}
-            </div>
-          )}
-          {product.weight && (
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4" />
-              {product.weight}
-            </div>
-          )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>Xuất xứ: {product.origin}</span>
         </div>
 
-        <Separator className="my-5" />
+        <Separator />
 
-        {/* Quantity + Add to cart */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-foreground">Số lượng:</span>
-            <div className="flex items-center gap-1 rounded-lg border">
+        {/* Quantity & Add to cart */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Số lượng:</span>
+            <div className="flex items-center rounded-lg border">
               <button
-                type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-primary disabled:opacity-50"
-                disabled={quantity <= 1}
-                aria-label="Giảm số lượng"
+                className="flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
+                aria-label="Giảm"
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -261,141 +207,89 @@ export function ProductDetail({ product }: { product: Product }) {
                 {quantity}
               </span>
               <button
-                type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="flex h-10 w-10 items-center justify-center text-muted-foreground hover:text-primary"
-                aria-label="Tăng số lượng"
+                className="flex h-9 w-9 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
+                aria-label="Tăng"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1 w-full">
+          <div className="flex flex-1 gap-2">
             <Button
-              size="lg"
               onClick={handleAddToCart}
-              disabled={!product.inStock}
-              className={`w-full h-12 rounded-xl text-sm font-semibold tracking-wide shadow-md active:scale-98 transition-all duration-300 sm:col-span-1 ${
-                addedFeedback
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  : ''
-              }`}
+              size="lg"
+              className="flex-1 gap-2"
+              variant={addedFeedback ? 'secondary' : 'default'}
             >
               {addedFeedback ? (
                 <>
-                  <CheckCircle2 className="h-4 w-4 mr-1.5 animate-in zoom-in-50 duration-200" />
-                  Đã thêm vào giỏ!
+                  <CheckCircle2 className="h-5 w-5" />
+                  Đã thêm!
                 </>
               ) : (
                 <>
-                  <ShoppingBag className={`h-4 w-4 mr-1.5 transition-transform ${addedFeedback ? 'scale-150' : ''}`} />
-                  {product.inStock ? 'Thêm vào giỏ hàng' : 'Hết hàng tạm thời'}
+                  <ShoppingBag className="h-5 w-5" />
+                  Thêm vào giỏ
                 </>
               )}
             </Button>
-
             <Button
-              size="lg"
               onClick={handleBuyNow}
-              disabled={!product.inStock}
-              className="w-full h-12 rounded-xl text-sm font-semibold tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 shadow-md active:scale-98 transition-transform sm:col-span-1"
+              size="lg"
+              className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700"
             >
-              <ShoppingBag className="h-4 w-4 mr-1.5" />
-              Mua hàng ngay
+              Mua ngay
             </Button>
           </div>
         </div>
 
         {/* Trust badges */}
-        <div className="mt-6 grid grid-cols-3 gap-2 border-t border-muted pt-5 w-full">
+        <div className="grid grid-cols-3 gap-3 rounded-xl border bg-card p-4">
           <div className="flex flex-col items-center gap-1.5 text-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Truck className="h-4 w-4" />
-            </div>
-            <span className="text-xs text-muted-foreground">Giao hàng nhanh</span>
+            <ShieldCheck className="h-6 w-6 text-primary" />
+            <span className="text-xs font-medium">Cam kết chất lượng</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-            <span className="text-xs text-muted-foreground">Chính hãng 100%</span>
+            <Truck className="h-6 w-6 text-primary" />
+            <span className="text-xs font-medium">Giao hàng nhanh</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 text-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <RotateCcw className="h-4 w-4" />
-            </div>
-            <span className="text-xs text-muted-foreground">Đổi trả dễ dàng</span>
+            <RotateCcw className="h-6 w-6 text-primary" />
+            <span className="text-xs font-medium">Đổi trả dễ dàng</span>
           </div>
         </div>
-      </div>
 
-      {/* Tabs section - full width */}
-      <div className="lg:col-span-2 mt-6">
+        {/* Tabs */}
         <Tabs defaultValue="description" className="w-full">
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
-            <TabsTrigger value="features">Đặc điểm</TabsTrigger>
+            <TabsTrigger value="description">Mô tả</TabsTrigger>
             {product.nutritionFacts && product.nutritionFacts.length > 0 && (
               <TabsTrigger value="nutrition">Dinh dưỡng</TabsTrigger>
             )}
           </TabsList>
-
           <TabsContent value="description" className="mt-4">
-            <div className="relative">
-              <div 
-                className={`prose prose-sm dark:prose-invert max-w-none text-muted-foreground transition-all duration-300 overflow-hidden ${
-                  !isExpanded ? 'max-h-[220px] pb-10' : 'max-h-none pb-4'
-                }`}
-              >
-                <ReactMarkdown className="space-y-3 leading-relaxed">
-                  {product.description || product.shortDescription}
-                </ReactMarkdown>
-
-                {/* Sửa phần Gradient: Thu nhỏ vùng mờ để không làm mờ nút "Xem thêm" */}
-                {!isExpanded && (
-                  <div className="absolute bottom-10 left-0 right-0 h-16 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
-                )}
-              </div>
-
-              {/* Nút Xem thêm / Thu gọn - Thêm z-10 nổi bật trên lớp mờ */}
-              <div className="relative z-10 mt-2 flex justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="gap-1.5 rounded-full text-xs font-bold px-5 py-2 shadow-md bg-background text-foreground border-border hover:bg-muted hover:text-primary transition-all duration-200"
-                >
-                  {isExpanded ? (
-                    <>
-                      Thu gọn mô tả <ChevronUp className="h-3.5 w-3.5 text-primary" />
-                    </>
-                  ) : (
-                    <>
-                      Xem thêm mô tả <ChevronDown className="h-3.5 w-3.5 text-primary" />
-                    </>
-                  )}
-                </Button>
-              </div>
+            <div className={`prose prose-sm max-w-none text-foreground/80 ${!isExpanded ? 'line-clamp-4' : ''}`}>
+              <ReactMarkdown>{product.description || ''}</ReactMarkdown>
             </div>
-          </TabsContent>
-
-          <TabsContent value="features" className="mt-4">
-            {product.features.length > 0 ? (
-              <ul className="grid gap-2 sm:grid-cols-2">
-                {product.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">Chưa có thông tin</p>
+            {product.description && product.description.length > 200 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-2 flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                {isExpanded ? (
+                  <>
+                    Thu gọn <ChevronUp className="h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Xem thêm <ChevronDown className="h-4 w-4" />
+                  </>
+                )}
+              </button>
             )}
           </TabsContent>
-
           {product.nutritionFacts && product.nutritionFacts.length > 0 && (
             <TabsContent value="nutrition" className="mt-4">
               <div className="overflow-hidden rounded-xl border">

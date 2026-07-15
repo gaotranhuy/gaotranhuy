@@ -2,11 +2,11 @@
 
 import { memo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Star, MapPin, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AddToCartButton } from './add-to-cart-button';
+import { CloudinaryImage } from '@/components/common/cloudinary-image';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import type { Product } from '@/types';
 
@@ -19,13 +19,11 @@ function ProductCardComponent({ product }: { product: Product }) {
         href={`/san-pham/${product.slug}`}
         className="relative block aspect-square overflow-hidden bg-muted/40"
       >
-        <Image
+        <CloudinaryImage
           src={product.image}
           alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          size="product"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          loading="lazy"
         />
 
         <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5 z-10">
