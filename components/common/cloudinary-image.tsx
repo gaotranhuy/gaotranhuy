@@ -1,3 +1,5 @@
+'use client';
+
 import { optimizeCloudinaryUrl, getPlaceholderImage } from '@/lib/cloudinary';
 import { cn } from '@/lib/utils';
 
