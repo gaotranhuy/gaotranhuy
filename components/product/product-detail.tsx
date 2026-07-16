@@ -100,12 +100,13 @@ export function ProductDetail({ product }: { product: Product }) {
           onTouchEnd={handleTouchEnd}
         >
           <Image
-  src={img}
-  alt={`${product.name} hình ${i + 1}`}
+  src={gallery[activeImage]}
+  alt={product.name}
   fill
   unoptimized
-  loading="lazy"
-  sizes="80px"
+  priority={activeImage === 0}
+  fetchPriority="high"
+  sizes="(max-width:768px) 100vw, (max-width:1200px) 60vw, 50vw"
   className="object-cover"
 />
 
@@ -159,7 +160,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       : 'border-border/60 opacity-60 hover:border-primary/40 hover:opacity-90'
                   }`}
                 >
-                  <Image
+              <Image
   src={img}
   alt={`${product.name} hình ${i + 1}`}
   fill
