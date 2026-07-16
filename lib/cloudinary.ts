@@ -18,15 +18,22 @@ const SIZE_MAP: Record<CloudinarySize, number> = {
   banner: 1200,
 };
 
-export function optimizeCloudinaryUrl(url: string, size: CloudinarySize = 'product'): string {
-  if (!url || !url.includes('res.cloudinary.com')) return url;
+export function optimizeCloudinaryUrl(
+  url: string,
+  size: CloudinarySize = 'product'
+): string {
+  if (!url || !url.includes('res.cloudinary.com')) {
+    return url;
+  }
+
   const w = SIZE_MAP[size];
+
   return url.replace(
     '/image/upload/',
-    `/image/upload/f_auto,q_auto:best,w_${w},c_limit,dpr_2.0/`
+    `/image/upload/f_auto,q_auto:good,w_${w},c_limit,dpr_auto,fl_progressive/`
   );
 }
 
 export function getPlaceholderImage(): string {
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/v1/placeholder-product`;
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto:good,w_600,c_limit,dpr_auto/v1/placeholder-product`;
 }
