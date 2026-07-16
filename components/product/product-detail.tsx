@@ -24,14 +24,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCart } from '@/lib/cart-context';
+import { useCartStore } from '@/lib/cart-store';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import { getCategoryBySlug } from '@/lib/products';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 export function ProductDetail({ product }: { product: Product }) {
-  const { addItem } = useCart();
+  const { addItem } = useCartStore();
   const [quantity, setQuantity] = React.useState(1);
   const [activeImage, setActiveImage] = React.useState(0);
   const [addedFeedback, setAddedFeedback] = React.useState(false);
