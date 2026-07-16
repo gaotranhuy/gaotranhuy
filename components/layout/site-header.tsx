@@ -1,5 +1,5 @@
 'use client';
-
+import Image from "next/image";
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -92,11 +92,13 @@ export function SiteHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
-              <img
-                src="/logo-brand.avif"
-                alt="Gạo Trần Huy Logo"
-                className="h-full w-full object-contain"
-              />
+              <Image
+  src="/logo-brand.avif"
+  alt="Gạo Trần Huy Logo"
+  width={64}
+  height={64}
+  className="h-full w-full object-contain"
+/>
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-extrabold tracking-tight text-foreground" />
