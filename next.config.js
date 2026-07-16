@@ -16,6 +16,10 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  experimental: {
+    inlineCss: true, // Tự động chèn CSS trực tiếp vào HTML nhằm giải quyết lỗi chặn hiển thị 370ms
+    optimizePackageImports: ['lucide-react'], // Gom nhỏ và tối ưu hóa import từ thư viện icon
+  },
   async headers() {
     return [
       {
