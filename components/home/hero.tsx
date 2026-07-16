@@ -25,7 +25,7 @@ export function Hero({ totalProducts }: HeroProps) {
       <div className="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-warning/10 blur-3xl" />
 
       <div className="container-page relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-2 lg:gap-8 lg:py-24">
-        <div className="flex flex-col items-start gap-6 animate-fade-up">
+        <div className="flex flex-col items-start gap-6 ">
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             Gạo sạch - Đặc sản Việt - Giao tận nhà
@@ -99,16 +99,17 @@ export function Hero({ totalProducts }: HeroProps) {
           </div>
         </div>
 
-        <div className="relative animate-fade-in">
+        <div className="relative">
           <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted shadow-2xl">
             <Image
-              src="https://res.cloudinary.com/zvgdprbd/image/upload/v1784124942/IMG_5727_1_kwlxct.avif"
-              alt="Gạo thơm dẻo đặc sản Gạo Trần Huy"
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
+  src="https://res.cloudinary.com/zvgdprbd/image/upload/f_auto,q_auto,w_1200,c_fill/v1784124942/IMG_5727_1_kwlxct.avif"
+  alt="Gạo thơm dẻo đặc sản Gạo Trần Huy"
+  fill
+  priority
+  fetchPriority="high"
+  sizes="(max-width:768px) 100vw, (max-width:1024px) 80vw, 50vw"
+  className="object-cover"
+/>
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent" />
           </div>
 
