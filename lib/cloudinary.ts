@@ -10,7 +10,7 @@ export function getCloudinaryUploadUrl(): string {
   return `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 }
 
-type CloudinarySize = 'thumbnail' | 'product' | 'banner';
+export type CloudinarySize = 'thumbnail' | 'product' | 'banner';
 
 const SIZE_MAP: Record<CloudinarySize, number> = {
   thumbnail: 300,
@@ -26,14 +26,13 @@ export function optimizeCloudinaryUrl(
     return url;
   }
 
-  const w = SIZE_MAP[size];
+  const width = SIZE_MAP[size];
 
-  return url.replace(
-    '/image/upload/',
-    `/image/upload/f_auto,q_auto:good,w_${w},c_limit,dpr_auto,fl_progressive/`
-  );
+  const transform = `f_auto,q_auto:good,dpr_auto,w_${width},c_limit,g_auto`;
+
+  return url.replace('/image/upload/', `/image/upload/${transform}/`);
 }
 
 export function getPlaceholderImage(): string {
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto:good,w_600,c_limit,dpr_auto/v1/placeholder-product`;
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto:good,dpr_auto,w_600,c_limit,g_auto/v1/placeholder-product`;
 }
