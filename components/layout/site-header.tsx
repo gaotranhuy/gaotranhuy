@@ -93,7 +93,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
               <img
-                src="/logo-brand.png"
+                src="/logo-brand.avif"
                 alt="Gạo Trần Huy Logo"
                 className="h-full w-full object-contain"
               />
