@@ -100,13 +100,14 @@ export function ProductDetail({ product }: { product: Product }) {
           onTouchEnd={handleTouchEnd}
         >
           <Image
-            src={gallery[activeImage]}
-            alt={product.name}
-            fill
-            priority={activeImage === 0}
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
-          />
+  src={img}
+  alt={`${product.name} hình ${i + 1}`}
+  fill
+  unoptimized
+  loading="lazy"
+  sizes="80px"
+  className="object-cover"
+/>
 
           {gallery.length > 1 && (
             <>
@@ -159,13 +160,14 @@ export function ProductDetail({ product }: { product: Product }) {
                   }`}
                 >
                   <Image
-                    src={img}
-                    alt={`${product.name} hình ${i + 1}`}
-                    fill
-                    loading="lazy"
-                    sizes="(max-width: 640px) 56px, 80px"
-                    className="object-cover"
-                  />
+  src={img}
+  alt={`${product.name} hình ${i + 1}`}
+  fill
+  unoptimized
+  loading="lazy"
+  sizes="80px"
+  className="object-cover"
+/>
                 </button>
               ))}
             </div>
