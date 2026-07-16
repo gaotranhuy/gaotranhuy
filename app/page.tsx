@@ -7,13 +7,12 @@ import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
 
 import { organizationJsonLd } from '@/lib/seo';
-import { getAllCategories, fetchAllProducts } from '@/lib/supabase-data';
+import { fetchProductCount } from '@/lib/supabase-data';
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const categories = getAllCategories();
-  const allProducts = await fetchAllProducts();
+  const totalProducts = await fetchProductCount();
 
   return (
     <>
@@ -23,16 +22,15 @@ export default async function HomePage() {
           __html: JSON.stringify(organizationJsonLd()),
         }}
       />
-      
-      <Hero totalProducts={allProducts.length} />
+
+      <Hero totalProducts={totalProducts} />
+
       <CategorySection />
       <FeaturedProducts />
       <Features />
       <CTASection />
       <NewsSection />
       <ContactCTA />
-
-  
     </>
   );
 }
