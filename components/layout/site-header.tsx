@@ -11,7 +11,6 @@ import { ScrollHeader } from './scroll-header';
 import { NavLinks } from './nav-links';
 
 const MobileMenu = dynamic(() => import('./mobile-menu').then((m) => m.MobileMenu), {
-  ssr: false,
   loading: () => (
     <button
       className="inline-flex h-10 w-10 items-center justify-center lg:hidden"

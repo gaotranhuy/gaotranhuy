@@ -3,8 +3,7 @@
 import dynamic from 'next/dynamic';
 
 const CartDrawer = dynamic(
-  () => import('@/components/cart/cart-drawer').then((m) => m.CartDrawer),
-  { ssr: false }
+  () => import('@/components/cart/cart-drawer').then((m) => m.CartDrawer)
 );
 
 export function CartClient() {
