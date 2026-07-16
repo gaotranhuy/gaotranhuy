@@ -101,6 +101,20 @@ export async function fetchAllProducts(): Promise<Product[]> {
   return (data as ProductRow[]).map(mapProductRow);
 }
 
+export async function fetchProductCount(): Promise<number> {
+  const supabase = getSupabase();
+
+  const { count, error } = await supabase
+    .from('products')
+    .select('id', {
+      head: true,
+      count: 'exact',
+    });
+
+  if (error) return 0;
+
+  return count ?? 0;
+}
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
