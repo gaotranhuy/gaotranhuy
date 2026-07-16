@@ -1,10 +1,9 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
-import { CartProvider } from '@/lib/cart-context';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
-import { CartDrawer } from '@/components/cart/cart-drawer';
+import { CartClient } from '@/components/cart/cart-client';
 import { BackToTop } from '@/components/layout/back-to-top';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -109,15 +108,13 @@ export default function RootLayout({
         className={`${inter.variable} ${beVietnam.variable} font-sans`}
         suppressHydrationWarning
       >
-        <CartProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
-          <CartDrawer />
-          <BackToTop />
-        </CartProvider>
+        <div className="relative flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </div>
+        <CartClient />
+        <BackToTop />
         <Toaster position="top-center" richColors />
       </body>
     </html>

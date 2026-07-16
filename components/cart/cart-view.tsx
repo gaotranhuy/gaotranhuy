@@ -13,13 +13,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/lib/cart-context';
+import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
 
 export function CartView() {
   const { items, updateQuantity, removeItem, totalPrice, totalItems, clearCart } =
-    useCart();
+    useCartStore();
 
   if (items.length === 0) {
     return (

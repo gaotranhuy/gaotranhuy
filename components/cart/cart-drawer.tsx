@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/lib/cart-context';
+import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
 
@@ -33,7 +33,7 @@ export function CartDrawer() {
     removeItem,
     totalPrice,
     totalItems,
-  } = useCart();
+  } = useCartStore();
 
   const remainingForFreeShip = Math.max(
     0,

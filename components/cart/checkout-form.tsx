@@ -31,7 +31,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useCart } from '@/lib/cart-context';
+import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings, contactInfo } from '@/data/site';
 
@@ -115,7 +115,7 @@ function OrderHistory() {
 }
 
 export function CheckoutForm() {
-  const { items, totalPrice, totalItems, clearCart } = useCart();
+  const { items, totalPrice, totalItems, clearCart } = useCartStore();
   const [region, setRegion] = React.useState<ShippingRegion>('da-nang');
   const [shopeeModalOpen, setShopeeModalOpen] = React.useState(false);
   
