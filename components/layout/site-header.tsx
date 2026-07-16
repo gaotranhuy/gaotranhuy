@@ -211,7 +211,7 @@ export function SiteHeader() {
                   <SheetTitle className="flex items-center gap-2">
                     <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-none bg-transparent p-0">
                       <img
-                        src="/logo-brand.png"
+                        src="/logo-brand.avif"
                         alt="Gạo Trần Huy Logo"
                         className="h-full w-full object-contain"
                       />
