@@ -61,7 +61,7 @@ export function SiteFooter() {
         <div className="lg:col-span-1">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
-              <img src="/logo-brand1.png" alt="Gạo Trần Huy Logo" className="max-h-full max-w-full object-contain" />
+              <img src="/logo-brand1.avif" alt="Gạo Trần Huy Logo" className="max-h-full max-w-full object-contain" />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-extrabold">Gạo Trần Huy</span>
