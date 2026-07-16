@@ -10,7 +10,7 @@ export function absoluteUrl(path: string): string {
 }
 
 export function productJsonLd(product: Product) {
-  return {
+  const result: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
@@ -27,13 +27,56 @@ export function productJsonLd(product: Product) {
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
-    },
-    aggregateRating: {
+      // 👇 Thêm chính sách vận chuyển
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: 30000,        // 30.000 VND (thay đổi theo thực tế)
+          currency: 'VND'
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'VN'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'DAY'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 4,
+            unitCode: 'DAY'
+          }
+        }
+      },
+      // 👇 Thêm chính sách đổi trả
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'VN',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,        // 7 ngày đổi trả
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn'  // hoặc 'ReturnShippingFees' nếu khách trả phí
+      }
+    }
+  };
+
+  // Chỉ thêm đánh giá nếu có review thực tế (>0)
+  if (product.reviewCount > 0) {
+    result.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: product.rating,
       reviewCount: product.reviewCount,
-    },
-  };
+    };
+  }
+
+  return result;
 }
 
 export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
