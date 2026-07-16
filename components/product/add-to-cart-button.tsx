@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ShoppingBag, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/lib/cart-context';
+import { useCartStore } from '@/lib/cart-store';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 import { cn } from '@/lib/utils';
@@ -27,7 +27,7 @@ export function AddToCartButton({
   label = 'Thêm vào giỏ',
   showSuccess = true,
 }: AddToCartButtonProps) {
-  const { addItem } = useCart();
+  const { addItem } = useCartStore();
   const [added, setAdded] = React.useState(false);
 
   const handleAdd = (e: React.MouseEvent) => {
