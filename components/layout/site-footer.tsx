@@ -61,8 +61,14 @@ export function SiteFooter() {
         <div className="lg:col-span-1">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
-              <img src="/logo-brand1.avif" alt="Gạo Trần Huy Logo" className="max-h-full max-w-full object-contain" />
-            </div>
+<Image
+  src="/logo-brand1.avif"
+  alt="Gạo Trần Huy Logo"
+  width={64}
+  height={64}
+  loading="lazy"
+  className="max-h-full max-w-full object-contain"
+/>            </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg font-extrabold">Gạo Trần Huy</span>
               <span className="text-[11px] text-background/60">{siteSettings.tagline}</span>
@@ -80,19 +86,26 @@ export function SiteFooter() {
                 aria-label={s.label}
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/10 transition-all hover:bg-background/20 hover:scale-105"
               >
-                <Image src={s.icon} alt={s.label} width={22} height={22} className="object-contain" />
-              </a>
+                <Image
+  src={s.icon}
+  alt={s.label}
+  width={22}
+  height={22}
+  loading="lazy"
+  className="object-contain"
+/>  </a>
             ))}
           </div>
           {/* Bo Cong Thuong badge */}
           <a href="#" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block">
             <Image
-              src="/icons/bo-cong-thuong.png"
-              alt="Đã thông báo Bộ Công Thương"
-              width={170}
-              height={64}
-              className="w-[140px] md:w-[170px] h-auto"
-            />
+  src="/icons/bo-cong-thuong.png"
+  alt="Đã thông báo Bộ Công Thương"
+  width={170}
+  height={64}
+  loading="lazy"
+  className="w-[140px] md:w-[170px] h-auto"
+/>
           </a>
         </div>
 
