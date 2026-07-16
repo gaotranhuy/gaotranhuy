@@ -8,47 +8,38 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AddToCartButton } from './add-to-cart-button';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
-import { optimizeCloudinaryUrl } from '@/lib/cloudinary';
 import type { Product } from '@/types';
 
 function ProductCardComponent({ product }: { product: Product }) {
   const discount = calculateDiscount(product.price, product.oldPrice);
 
-  // Tối ưu URL Cloudinary chỉ 1 lần
-  const imageUrl = optimizeCloudinaryUrl(product.image, 'product');
-
   return (
     <Card className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/30">
       <Link
         href={`/san-pham/${product.slug}`}
-        prefetch={false}
         className="relative block aspect-square overflow-hidden bg-muted/40"
       >
         <Image
-          src={imageUrl}
+          src={product.image}
           alt={product.name}
           fill
-          quality={75}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           loading="lazy"
-          decoding="async"
         />
 
-        <div className="absolute left-2.5 top-2.5 z-10 flex flex-col gap-1.5">
+        <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5 z-10">
           {product.isBestSeller && (
             <Badge className="bg-amber-500 hover:bg-amber-500 text-white font-medium text-[10px] px-2 py-0.5 rounded-md shadow-sm border-none">
-              <Zap className="mr-0.5 h-3 w-3 fill-current" />
+              <Zap className="mr-0.5 h-3 w-3 fill-current inline" />
               Bán chạy
             </Badge>
           )}
-
           {product.isNew && (
             <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white font-medium text-[10px] px-2 py-0.5 rounded-md shadow-sm border-none">
               Mới về
             </Badge>
           )}
-
           {discount && (
             <Badge className="bg-rose-500 hover:bg-rose-500 text-white font-semibold text-[10px] px-2 py-0.5 rounded-md shadow-sm border-none">
               -{discount}%
@@ -66,8 +57,8 @@ function ProductCardComponent({ product }: { product: Product }) {
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-1.5 flex items-center justify-end gap-2 text-[11px] font-medium text-muted-foreground/60">
-          <div className="flex shrink-0 items-center gap-0.5">
+        <div className="flex items-center justify-end gap-2 mb-1.5 text-[11px] font-medium text-muted-foreground/60">
+          <div className="flex items-center gap-0.5 shrink-0">
             <MapPin className="h-3 w-3" />
             <span className="truncate max-w-[120px]">{product.origin}</span>
           </div>
@@ -75,43 +66,35 @@ function ProductCardComponent({ product }: { product: Product }) {
 
         <Link
           href={`/san-pham/${product.slug}`}
-          prefetch={false}
-          className="line-clamp-2 min-h-[40px] text-sm font-semibold leading-snug tracking-tight text-foreground transition-colors hover:text-primary"
+          className="line-clamp-2 text-sm font-semibold tracking-tight text-foreground leading-snug min-h-[40px] transition-colors hover:text-primary"
         >
           {product.name}
         </Link>
 
-        <div className="mt-2 flex items-center gap-1 border-b border-muted pb-3 text-[11px] text-muted-foreground">
-          <div className="flex shrink-0 items-center gap-0.5 rounded bg-amber-500/10 px-1.5 py-0.5 font-bold text-amber-600 dark:text-amber-400">
+        <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground border-b border-muted pb-3">
+          <div className="flex items-center gap-0.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-amber-600 dark:text-amber-400 font-bold shrink-0">
             <Star className="h-3 w-3 fill-current" />
             <span>{product.rating.toFixed(1)}</span>
           </div>
-
-          <span className="font-medium">
-            ({formatNumber(product.reviewCount)})
-          </span>
-
+          <span className="font-medium">({formatNumber(product.reviewCount)})</span>
           <span className="mx-0.5 text-muted-foreground/30">|</span>
-
           <span className="font-medium text-foreground/70">
             Đã bán {formatNumber(product.soldCount)}
           </span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-          <div className="flex min-h-[40px] flex-col justify-center">
+        <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+          <div className="flex flex-col min-h-[40px] justify-center">
             <div className="flex items-baseline gap-0.5">
-              <span className="text-base font-bold tracking-tight text-primary sm:text-lg">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-primary">
                 {formatPrice(product.price)}
               </span>
-
               <span className="text-[11px] font-medium text-muted-foreground">
                 /{product.unit}
               </span>
             </div>
-
             {product.oldPrice && (
-              <span className="text-xs tracking-tight text-muted-foreground/60 line-through">
+              <span className="text-xs text-muted-foreground/60 line-through tracking-tight">
                 {formatPrice(product.oldPrice)}
               </span>
             )}
@@ -121,7 +104,7 @@ function ProductCardComponent({ product }: { product: Product }) {
             <AddToCartButton
               product={product}
               size="icon"
-              className="h-9 w-9 rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/10 transition-transform hover:bg-primary/90 active:scale-95"
+              className="h-9 w-9 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/10 active:scale-95 transition-transform"
             />
           </div>
         </div>
