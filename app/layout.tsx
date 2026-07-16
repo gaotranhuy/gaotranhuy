@@ -91,6 +91,7 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: light)', color: '#d68a2e' },
     { media: '(prefers-color-scheme: dark)', color: '#1a1410' },
   ],
+  colorScheme: 'light dark',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -104,6 +105,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+      </head>
+
       <body
         className={`${inter.variable} ${beVietnam.variable} font-sans`}
         suppressHydrationWarning
@@ -113,6 +126,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </div>
+
         <CartClient />
         <BackToTop />
         <Toaster position="top-center" richColors />
