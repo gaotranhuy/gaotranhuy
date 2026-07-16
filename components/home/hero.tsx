@@ -21,12 +21,12 @@ export function Hero({ totalProducts }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-accent/50 via-background to-background">
       <div className="grain-bg absolute inset-0 opacity-60" />
-      <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-warning/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 -top-32 hidden h-96 w-96 rounded-full bg-primary/10 blur-3xl sm:block" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 hidden h-96 w-96 rounded-full bg-warning/10 blur-3xl sm:block" />
 
       <div className="container-page relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-2 lg:gap-8 lg:py-24">
         <div className="flex flex-col items-start gap-6 ">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-background/95 px-4 py-1.5 text-xs font-semibold text-primary shadow-sm sm:bg-background/80 sm:backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             Gạo sạch - Đặc sản Việt - Giao tận nhà
           </div>
@@ -114,7 +114,7 @@ export function Hero({ totalProducts }: HeroProps) {
           </div>
 
           {/* Floating cards */}
-          <div className="absolute -left-4 top-8 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur animate-float sm:-left-8">
+          <div className="absolute -left-4 top-8 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg sm:backdrop-blur animate-float sm:-left-8">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-success/15 text-success">
               <ShieldCheck className="h-5 w-5" />
             </div>
@@ -124,7 +124,7 @@ export function Hero({ totalProducts }: HeroProps) {
             </div>
           </div>
 
-          <div className="absolute -right-4 bottom-12 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur animate-float sm:-right-8" style={{ animationDelay: '1s' }}>
+          <div className="absolute -right-4 bottom-12 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg sm:backdrop-blur animate-float sm:-right-8" style={{ animationDelay: '1s' }}>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Truck className="h-5 w-5" />
             </div>
@@ -134,7 +134,7 @@ export function Hero({ totalProducts }: HeroProps) {
             </div>
           </div>
 
-          <div className="absolute right-8 top-4 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg backdrop-blur animate-float" style={{ animationDelay: '2s' }}>
+          <div className="absolute right-8 top-4 flex items-center gap-2 rounded-2xl border bg-background/95 p-3 shadow-lg sm:backdrop-blur animate-float" style={{ animationDelay: '2s' }}>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-warning/15 text-warning">
               <Star className="h-5 w-5 fill-current" />
             </div>
