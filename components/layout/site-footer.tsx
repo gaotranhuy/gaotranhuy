@@ -62,7 +62,7 @@ export function SiteFooter() {
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-transparent p-1">
 <Image
-  src="/logo_brand1.avif"
+  src="/logo_brand1.webp"
   alt="Gạo Trần Huy Logo"
   width={64}
   height={64}
