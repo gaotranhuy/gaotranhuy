@@ -112,13 +112,13 @@ export function getPlaceholderImage(): string {
 }
 
 export const cloudinaryThumb = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 200, crop: 'limit' });
+  optimizeCloudinaryUrl(url, { width: 150, crop: 'limit', quality: 'auto:eco' });
 
 export const cloudinaryCard = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 600, crop: 'limit' });
+  optimizeCloudinaryUrl(url, { width: 400, crop: 'limit', quality: 'auto:eco' });
 
 export const cloudinaryProduct = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 800, crop: 'limit' });
+  optimizeCloudinaryUrl(url, { width: 800, crop: 'limit', quality: 'auto' });
 
 export const cloudinaryBanner = (url: string) =>
   optimizeCloudinaryUrl(url, { width: 1200, crop: 'limit' });
