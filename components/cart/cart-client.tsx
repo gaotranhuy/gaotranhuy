@@ -1,10 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const CartDrawer = dynamic(
-  () => import('@/components/cart/cart-drawer').then((m) => m.CartDrawer)
-);
+import { CartDrawer } from '@/components/cart/cart-drawer';
 
 export function CartClient() {
   return <CartDrawer />;

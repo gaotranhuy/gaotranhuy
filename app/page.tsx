@@ -7,13 +7,10 @@ import { NewsSection } from '@/components/home/news-section';
 import { ContactCTA } from '@/components/common/contact-cta';
 
 import { organizationJsonLd } from '@/lib/seo';
-import { fetchProductCount } from '@/lib/supabase-data';
 
 export const revalidate = 3600;
 
-export default async function HomePage() {
-  const totalProducts = await fetchProductCount();
-
+export default function HomePage() {
   return (
     <>
       <script
@@ -23,7 +20,7 @@ export default async function HomePage() {
         }}
       />
 
-      <Hero totalProducts={totalProducts} />
+      <Hero />
 
       <CategorySection />
       <FeaturedProducts />

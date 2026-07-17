@@ -1,10 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function SearchBar() {
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
 
@@ -30,7 +32,7 @@ export function SearchBar() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && query.trim()) {
-                  window.location.href = `/san-pham?q=${encodeURIComponent(query.trim())}`;
+                  router.push(`/san-pham?q=${encodeURIComponent(query.trim())}`);
                 }
               }}
               className="w-full rounded-lg border bg-background px-4 py-2.5 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary"

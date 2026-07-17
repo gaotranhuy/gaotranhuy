@@ -1,11 +1,18 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
+import dynamic from 'next/dynamic';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
-import { CartClient } from '@/components/cart/cart-client';
-import { BackToTop } from '@/components/layout/back-to-top';
 import { Toaster } from '@/components/ui/sonner';
+
+const CartClient = dynamic(
+  () => import('@/components/cart/cart-client').then((m) => m.CartClient)
+);
+
+const BackToTop = dynamic(
+  () => import('@/components/layout/back-to-top').then((m) => m.BackToTop)
+);
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -108,13 +115,6 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
       </head>
 
       <body

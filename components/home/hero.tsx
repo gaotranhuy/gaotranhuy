@@ -12,7 +12,7 @@ import { contactInfo } from '@/data/site';
 import { cloudinaryHero } from '@/lib/cloudinary';
 
 interface HeroProps {
-  totalProducts: number;
+  totalProducts?: number;
 }
 
 export function Hero({ totalProducts }: HeroProps) {
