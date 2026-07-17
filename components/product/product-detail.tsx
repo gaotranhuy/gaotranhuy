@@ -28,6 +28,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
 import { getCategoryBySlug } from '@/lib/products';
 import { toast } from 'sonner';
+import { cloudinaryProduct, cloudinaryThumb } from '@/lib/cloudinary';
 import type { Product } from '@/types';
 
 export function ProductDetail({ product }: { product: Product }) {
@@ -100,10 +101,9 @@ export function ProductDetail({ product }: { product: Product }) {
           onTouchEnd={handleTouchEnd}
         >
           <Image
-  src={gallery[activeImage]}
+  src={cloudinaryProduct(gallery[activeImage])}
   alt={product.name}
   fill
-  unoptimized
   priority={activeImage === 0}
   fetchPriority="high"
   sizes="(max-width:768px) 100vw, (max-width:1200px) 60vw, 50vw"
@@ -161,10 +161,9 @@ export function ProductDetail({ product }: { product: Product }) {
                   }`}
                 >
               <Image
-  src={img}
+  src={cloudinaryThumb(img)}
   alt={`${product.name} hình ${i + 1}`}
   fill
-  unoptimized
   loading="lazy"
   sizes="80px"
   className="object-cover"

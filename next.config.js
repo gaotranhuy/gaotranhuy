@@ -4,6 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,8 +14,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
     ],
-    formats: ['image/avif', 'image/webp'],
   },
   experimental: {
     inlineCss: true, // Tự động chèn CSS trực tiếp vào HTML nhằm giải quyết lỗi chặn hiển thị 370ms

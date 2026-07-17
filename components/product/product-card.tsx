@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { AddToCartButton } from './add-to-cart-button';
 import { formatPrice, calculateDiscount, formatNumber } from '@/lib/format';
+import { cloudinaryCard } from '@/lib/cloudinary';
 import type { Product } from '@/types';
 
 function ProductCardComponent({ product }: { product: Product }) {
@@ -20,7 +21,7 @@ function ProductCardComponent({ product }: { product: Product }) {
         className="relative block aspect-square overflow-hidden bg-muted/40"
       >
         <Image
-          src={product.image}
+          src={cloudinaryCard(product.image)}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

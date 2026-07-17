@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
+import { cloudinaryThumb } from '@/lib/cloudinary';
 
 export function CartDrawer() {
   const {
@@ -111,7 +112,7 @@ export function CartDrawer() {
                       className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted"
                     >
                       <Image
-                        src={item.product.image}
+                        src={cloudinaryThumb(item.product.image)}
                         alt={item.product.name}
                         fill
                         sizes="80px"

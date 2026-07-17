@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const optimizedUrl = (data.secure_url as string).replace(
       '/image/upload/',
-      '/image/upload/f_webp,q_auto:best,w_800,h_800,c_limit/'
+      '/image/upload/f_auto,q_auto,dpr_auto,w_800,c_limit/'
     );
 
     return NextResponse.json({
