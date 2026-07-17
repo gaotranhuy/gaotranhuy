@@ -124,4 +124,4 @@ export const cloudinaryBanner = (url: string) =>
   optimizeCloudinaryUrl(url, { width: 1200, crop: 'limit' });
 
 export const cloudinaryHero = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 400, crop: 'fill' });
+  optimizeCloudinaryUrl(url, { width: 800, crop: 'fill' });
