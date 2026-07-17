@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings } from '@/data/site';
+import { cloudinaryThumb } from '@/lib/cloudinary';
 
 export function CartView() {
   const { items, updateQuantity, removeItem, totalPrice, totalItems, clearCart } =
@@ -68,7 +69,7 @@ export function CartView() {
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-28 sm:w-28"
               >
                 <Image
-                  src={item.product.image}
+                  src={cloudinaryThumb(item.product.image)}
                   alt={item.product.name}
                   fill
                   sizes="112px"

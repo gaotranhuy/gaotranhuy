@@ -34,6 +34,7 @@ import {
 import { useCartStore } from '@/lib/cart-store';
 import { formatPrice } from '@/lib/format';
 import { siteSettings, contactInfo } from '@/data/site';
+import { cloudinaryThumb } from '@/lib/cloudinary';
 
 type ShippingRegion = 'da-nang' | 'nationwide';
 
@@ -567,7 +568,7 @@ export function CheckoutForm() {
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                       {image && (
                         <Image
-                          src={image}
+                          src={cloudinaryThumb(image)}
                           alt={name || 'Product'}
                           fill
                           sizes="56px"
@@ -630,7 +631,7 @@ export function CheckoutForm() {
               Đặt hàng qua Shopee
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              Nhấn nút "Mở trang Shopee" bên cạnh từng sản phẩm để được dẫn thẳng đến trang mua hàng tương ứng trên Shopee.
+              Nhấn nút &quot;Mở trang Shopee&quot; bên cạnh từng sản phẩm để được dẫn thẳng đến trang mua hàng tương ứng trên Shopee.
             </DialogDescription>
           </DialogHeader>
 
@@ -655,7 +656,7 @@ export function CheckoutForm() {
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                     {product.image && (
                       <Image
-                        src={product.image}
+                        src={cloudinaryThumb(product.image)}
                         alt={product.name}
                         fill
                         sizes="64px"

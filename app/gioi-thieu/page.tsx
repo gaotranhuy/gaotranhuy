@@ -15,6 +15,7 @@ import { Breadcrumb } from '@/components/common/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { CTASection } from '@/components/home/cta-section';
 import { siteSettings } from '@/data/site';
+import { cloudinaryBanner } from '@/lib/cloudinary';
 
 export const metadata: Metadata = {
   title: 'Giới thiệu',
@@ -69,7 +70,7 @@ export default function AboutPage() {
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
             <Image
-              src="https://images.pexels.com/photos/7421205/pexels-photo-7421205.jpeg?auto=compress&cs=tinysrgb&w=1000"
+              src={cloudinaryBanner('https://images.pexels.com/photos/7421205/pexels-photo-7421205.jpeg')}
               alt="Gạo Trần Huy"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"

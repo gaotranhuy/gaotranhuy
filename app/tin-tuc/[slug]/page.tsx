@@ -9,6 +9,7 @@ import { RelatedNews } from '@/components/news/related-news';
 import { fetchNewsBySlug } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong } from '@/lib/format';
+import { cloudinaryBanner } from '@/lib/cloudinary';
 
 export const revalidate = 3600;
 
@@ -79,7 +80,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
           <div className="relative mt-6 aspect-video overflow-hidden rounded-2xl bg-muted">
             <Image
-              src={article.image}
+              src={cloudinaryBanner(article.image)}
               alt={article.title}
               fill
               sizes="(max-width: 768px) 100vw, 768px"
