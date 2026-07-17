@@ -103,7 +103,7 @@ export function Hero({ totalProducts }: HeroProps) {
         <div className="relative">
           <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted shadow-2xl">
             <Image
-  src={cloudinaryHero('https://res.cloudinary.com/f9krxetg/image/upload/v1784272175/IMG_5727_1_mb30h6.jpg')}
+  src={cloudinaryHero('https://res.cloudinary.com/f9krxetg/image/upload/v1784274490/IMG_5727_taeokx.avif')}
   alt="Gạo thơm dẻo đặc sản Gạo Trần Huy"
   fill
   priority
