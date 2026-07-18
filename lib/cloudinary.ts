@@ -115,7 +115,7 @@ export const cloudinaryThumb = (url: string) =>
   optimizeCloudinaryUrl(url, { width: 150, crop: 'limit', quality: 'auto:eco' });
 
 export const cloudinaryCard = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 400, crop: 'limit', quality: 'auto:eco' });
+  optimizeCloudinaryUrl(url, { width: 315, crop: 'limit', quality: 'auto:eco' });
 
 export const cloudinaryProduct = (url: string) =>
   optimizeCloudinaryUrl(url, { width: 800, crop: 'limit', quality: 'auto' });
@@ -124,4 +124,4 @@ export const cloudinaryBanner = (url: string) =>
   optimizeCloudinaryUrl(url, { width: 1200, crop: 'limit' });
 
 export const cloudinaryHero = (url: string) =>
-  optimizeCloudinaryUrl(url, { width: 1200, crop: 'fill' });
+  optimizeCloudinaryUrl(url, { width: 881, crop: 'fill' });
