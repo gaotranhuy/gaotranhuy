@@ -211,3 +211,61 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
 }
+
+/* ===== Markdown CMS: prose + MDXEditor + highlight.js ===== */
+.prose :where(h1, h2, h3, h4, h5, h6):hover .heading-anchor::before {
+  content: '#';
+  margin-right: 0.4rem;
+  color: hsl(var(--muted-foreground));
+  opacity: 0.6;
+}
+
+.prose .heading-anchor {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* MDXEditor wrapper */
+.markdown-editor-wrapper .mdxeditor {
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.markdown-editor-wrapper [role="toolbar"] {
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.4);
+}
+
+/* Code block copy button hover */
+.group:hover [data-copy-btn] {
+  opacity: 1;
+}
+
+/* highlight.js token fallbacks (github-dark theme handles most) */
+.hljs {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* TOC scroll offset */
+:where(h1, h2, h3, h4, h5, h6)[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* Dark mode prose tweaks */
+.dark .prose {
+  color: hsl(var(--foreground) / 0.85);
+}
+.dark .prose :where(strong) {
+  color: hsl(var(--foreground));
+}
+.dark .prose :where(blockquote) {
+  background: hsl(var(--muted) / 0.2);
+}

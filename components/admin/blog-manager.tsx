@@ -14,9 +14,18 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ImageUpload } from '@/components/admin/image-upload';
-import { RichTextEditor } from '@/components/admin/rich-text-editor';
+import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { formatDateLong } from '@/lib/format';
+
+const MarkdownEditor = dynamic(
+  () => import('@/components/admin/markdown-editor').then((m) => m.MarkdownEditor),
+  { ssr: false, loading: () => (
+    <div className="min-h-[300px] rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+      Đang tải trình soạn thảo Markdown...
+    </div>
+  ) }
+);
 
 interface BlogPost {
   id: string;
@@ -457,19 +466,17 @@ export function BlogManager() {
               />
             </div>
 
-            {/* ĐOẠN CODE MỚI ĐÃ SỬA LỖI ĐỊNH KIỂU */}
-<ImageUpload
-  value={form.image}
-  onChange={(url) => setForm({ ...form, image: url as string })} // <--- Thêm chữ "as string" ở đây ní nhé
-  label="Ảnh bìa"
-/>
-
+            <ImageUpload
+              value={form.image}
+              onChange={(url) => setForm({ ...form, image: url as string })}
+              label="Ảnh bìa"
+            />
 
             <div className="space-y-2">
               <Label>Nội dung</Label>
-              <RichTextEditor
+              <MarkdownEditor
                 value={form.content}
-                onChange={(html) => setForm({ ...form, content: html })}
+                onChange={(markdown) => setForm({ ...form, content: markdown })}
               />
             </div>
 
