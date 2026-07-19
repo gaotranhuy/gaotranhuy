@@ -162,17 +162,26 @@ export function categoryMetadata(category: Category): Metadata {
 }
 
 export function articleMetadata(article: NewsArticle): Metadata {
+  const url = absoluteUrl(`/tin-tuc/${article.slug}`);
+  const title = `${article.title} | ${SITE_NAME}`;
   return {
     title: article.title,
     description: article.excerpt,
     alternates: { canonical: `/tin-tuc/${article.slug}` },
     openGraph: {
       type: 'article',
-      url: absoluteUrl(`/tin-tuc/${article.slug}`),
-      title: `${article.title} | ${SITE_NAME}`,
+      url,
+      title,
       description: article.excerpt,
       publishedTime: article.publishedAt,
-      images: [{ url: article.image, alt: article.title }],
+      authors: [article.author],
+      images: [{ url: article.image, alt: article.title, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: article.excerpt,
+      images: [article.image],
     },
   };
 }

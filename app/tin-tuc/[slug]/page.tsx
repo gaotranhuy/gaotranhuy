@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
@@ -10,6 +11,18 @@ import { fetchNewsBySlug } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
+import { buildToc } from '@/components/news/markdown-content';
+
+const MarkdownContent = dynamic(
+  () => import('@/components/news/markdown-content').then((m) => m.MarkdownContent),
+  { ssr: true, loading: () => (
+    <div className="space-y-3">
+      <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+      <div className="h-4 w-full animate-pulse rounded bg-muted" />
+      <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
+    </div>
+  ) }
+);
 
 export const revalidate = 3600;
 
@@ -34,8 +47,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
     { name: article.title, url: `/tin-tuc/${article.slug}` },
   ];
 
-  // Parse content into sections
-  const sections = article.content.split(/\n##\s+/);
+  const toc = buildToc(article.content);
 
   return (
     <>
@@ -55,7 +67,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           className="mb-6"
         />
 
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-[800px]">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             {article.category}
           </span>
@@ -83,50 +95,18 @@ export default async function NewsDetailPage({ params }: PageProps) {
               src={cloudinaryBanner(article.image)}
               alt={article.title}
               fill
-              sizes="(max-width: 768px) 100vw, 768px"
+              sizes="(max-width: 768px) 100vw, 800px"
               className="object-cover"
               priority
             />
           </div>
 
-          <p className="mt-6 text-lg font-medium text-foreground/90">
+          <p className="mt-6 text-lg font-medium leading-relaxed text-foreground/90">
             {article.excerpt}
           </p>
 
-          <div className="prose prose-sm mt-6 max-w-none sm:prose-base">
-            {sections.map((section, i) => {
-              const lines = section.split('\n');
-              const [heading, ...body] = lines;
-              return (
-                <div key={i} className="mb-6">
-                  {i > 0 && (
-                    <h2 className="mb-3 font-display text-xl font-bold sm:text-2xl">
-                      {heading.trim()}
-                    </h2>
-                  )}
-                  <div className="space-y-3 text-foreground/80">
-                    {body
-                      .join('\n')
-                      .split('\n')
-                      .filter((l) => l.trim())
-                      .map((line, j) => {
-                        if (line.startsWith('**') && line.endsWith('**')) {
-                          return (
-                            <p key={j} className="font-semibold text-foreground">
-                              {line.replace(/\*\*/g, '')}
-                            </p>
-                          );
-                        }
-                        return (
-                          <p key={j} className="leading-relaxed">
-                            {line.replace(/- /, '• ')}
-                          </p>
-                        );
-                      })}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="mt-8">
+            <MarkdownContent content={article.content} />
           </div>
 
           {/* Tags */}
@@ -150,6 +130,26 @@ export default async function NewsDetailPage({ params }: PageProps) {
             </Button>
           </div>
         </div>
+
+        {toc.length > 0 && (
+          <aside className="mx-auto mt-12 max-w-[800px] rounded-xl border bg-muted/30 p-5">
+            <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">
+              Mục lục
+            </h2>
+            <nav className="space-y-1 text-sm">
+              {toc.map((item, i) => (
+                <a
+                  key={`${item.id}-${i}`}
+                  href={`#${item.id}`}
+                  className="block text-muted-foreground transition-colors hover:text-primary"
+                  style={{ paddingLeft: `${(item.level - 1) * 12}px` }}
+                >
+                  {item.text}
+                </a>
+              ))}
+            </nav>
+          </aside>
+        )}
 
         <div className="mx-auto mt-12 max-w-5xl">
           <RelatedNews article={article} />
