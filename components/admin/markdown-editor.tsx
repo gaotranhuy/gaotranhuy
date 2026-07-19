@@ -26,7 +26,6 @@ import {
   codeBlockPlugin,
   linkDialogPlugin,
   imagePlugin,
-  KitchenSinkToolbar,
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
 import { useCallback, useRef, useState } from 'react';
@@ -78,8 +77,9 @@ function ImageUploadButton({ onInsert }: { onInsert: (url: string, alt: string) 
       const uploaded = await Promise.all(uploadPromises);
       uploaded.forEach((item) => onInsert(item.url, item.alt));
       toast.success('Tải ảnh thành công', { id: toastId });
-    } catch (error: any) {
-      toast.error(error.message || 'Lỗi kết nối khi tải ảnh', { id: toastId });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Lỗi kết nối khi tải ảnh';
+      toast.error(message, { id: toastId });
     } finally {
       setUploading(false);
     }
@@ -125,12 +125,19 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
     editor.insertMarkdown(`\n![${alt}](${url})\n`);
   }, []);
 
+  const handleChange = useCallback(
+    (markdown: string) => {
+      onChange(markdown);
+    },
+    [onChange]
+  );
+
   return (
     <div className="markdown-editor-wrapper rounded-lg border border-input bg-background overflow-hidden">
       <MDXEditor
         ref={editorRef}
         markdown={value}
-        onChange={onChange}
+        onChange={handleChange}
         contentEditableClassName="prose prose-sm max-w-none min-h-[300px] prose-headings:font-display prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground/80 prose-li:text-foreground/80 prose-strong:text-foreground prose-blockquote:border-l-primary prose-code:before:hidden prose-code:after:hidden prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-foreground prose-img:rounded-lg prose-table:text-sm prose-th:bg-muted"
         plugins={[
           headingsPlugin(),
@@ -152,18 +159,16 @@ export function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
           toolbarPlugin({
             toolbarContents: () => (
               <DiffSourceToggleWrapper>
-                <KitchenSinkToolbar>
-                  <UndoRedo />
-                  <BlockTypeSelect />
-                  <BoldItalicUnderlineToggles />
-                  <ListsToggle />
-                  <CreateLink />
-                  <InsertTable />
-                  <InsertThematicBreak />
-                  <InsertCodeBlock />
-                  <InsertFrontmatter />
-                  <ImageUploadButton onInsert={insertImageAtCursor} />
-                </KitchenSinkToolbar>
+                <UndoRedo />
+                <BlockTypeSelect />
+                <BoldItalicUnderlineToggles />
+                <ListsToggle />
+                <CreateLink />
+                <InsertTable />
+                <InsertThematicBreak />
+                <InsertCodeBlock />
+                <InsertFrontmatter />
+                <ImageUploadButton onInsert={insertImageAtCursor} />
               </DiffSourceToggleWrapper>
             ),
           }),

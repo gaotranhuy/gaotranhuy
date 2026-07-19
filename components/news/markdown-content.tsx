@@ -47,7 +47,7 @@ export function MarkdownContent({ content }: { content: string }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const handler = (e: ClipboardEvent) => {
+    const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const btn = target.closest('[data-copy-btn]') as HTMLButtonElement | null;
       if (!btn) return;
@@ -62,8 +62,8 @@ export function MarkdownContent({ content }: { content: string }) {
         });
       }
     };
-    document.addEventListener('click', handler as any);
-    return () => document.removeEventListener('click', handler as any);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
   }, []);
 
   return (
