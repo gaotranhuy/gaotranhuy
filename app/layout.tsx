@@ -1,24 +1,10 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
-import dynamic from 'next/dynamic';
+import { ClientOnly } from '@/components/layout/client-only';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 
-const Toaster = dynamic(
-  () => import('@/components/ui/sonner').then((m) => m.Toaster),
-  { ssr: false }
-);
-
-const CartClient = dynamic(
-  () => import('@/components/cart/cart-client').then((m) => m.CartClient),
-  { ssr: false }
-);
-
-const BackToTop = dynamic(
-  () => import('@/components/layout/back-to-top').then((m) => m.BackToTop),
-  { ssr: false }
-);
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -133,10 +119,18 @@ export default function RootLayout({
           <SiteFooter />
         </div>
 
-        <CartClient />
-        <BackToTop />
-        <Toaster position="top-center" richColors />
-      </body>
+        <body
+  className={`${inter.variable} ${beVietnam.variable} font-sans`}
+  suppressHydrationWarning
+>
+  <div className="relative flex min-h-screen flex-col">
+    <SiteHeader />
+    <main className="flex-1">{children}</main>
+    <SiteFooter />
+  </div>
+
+  <ClientOnly />
+</body>   </body>
     </html>
   );
 }
