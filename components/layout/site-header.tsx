@@ -5,10 +5,30 @@ import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { contactInfo, siteSettings } from '@/data/site';
 import { getAllCategories } from '@/lib/products';
-import { HeaderCart } from './header-cart';
-import { SearchBar } from './search-bar';
 import { ScrollHeader } from './scroll-header';
-import { NavLinks } from './nav-links';
+
+const NavLinks = dynamic(() => import('./nav-links').then((m) => m.NavLinks), {
+  ssr: true,
+  loading: () => <nav className="hidden lg:flex" aria-hidden="true" />,
+});
+
+const SearchBar = dynamic(() => import('./search-bar').then((m) => m.SearchBar), {
+  loading: () => (
+    <button
+      className="hidden sm:inline-flex h-10 w-10 items-center justify-center"
+      aria-label="Tìm kiếm"
+    />
+  ),
+});
+
+const HeaderCart = dynamic(() => import('./header-cart').then((m) => m.HeaderCart), {
+  loading: () => (
+    <button
+      className="inline-flex h-10 w-10 items-center justify-center"
+      aria-label="Giỏ hàng"
+    />
+  ),
+});
 
 const MobileMenu = dynamic(() => import('./mobile-menu').then((m) => m.MobileMenu), {
   loading: () => (
