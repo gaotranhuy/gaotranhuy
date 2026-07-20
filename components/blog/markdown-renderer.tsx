@@ -4,7 +4,6 @@ import * as React from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import remarkFootnotes from 'remark-footnotes';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 import { Check, Copy } from 'lucide-react';
@@ -76,45 +75,28 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
   const memoized = React.useMemo(() => content ?? '', [content]);
 
   return (
-    <div
-      className={cn(
-        'prose prose-blog max-w-none dark:prose-invert',
-        className
-      )}
-    >
+    <div className={cn('prose prose-blog max-w-none dark:prose-invert', className)}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkFootnotes]}
+        remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={{
           h1: ({ children, id }) => (
-            <h1 id={id} className="article-h1">
-              {children}
-            </h1>
+            <h1 id={id} className="article-h1">{children}</h1>
           ),
           h2: ({ children, id }) => (
-            <h2 id={id} className="article-h2">
-              {children}
-            </h2>
+            <h2 id={id} className="article-h2">{children}</h2>
           ),
           h3: ({ children, id }) => (
-            <h3 id={id} className="article-h3">
-              {children}
-            </h3>
+            <h3 id={id} className="article-h3">{children}</h3>
           ),
           h4: ({ children, id }) => (
-            <h4 id={id} className="article-h4">
-              {children}
-            </h4>
+            <h4 id={id} className="article-h4">{children}</h4>
           ),
           h5: ({ children, id }) => (
-            <h5 id={id} className="article-h5">
-              {children}
-            </h5>
+            <h5 id={id} className="article-h5">{children}</h5>
           ),
           h6: ({ children, id }) => (
-            <h6 id={id} className="article-h6">
-              {children}
-            </h6>
+            <h6 id={id} className="article-h6">{children}</h6>
           ),
           p: ({ children }) => <p className="article-p">{children}</p>,
           a: ({ href, children }) => {
@@ -162,7 +144,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             const childArray = React.Children.toArray(children);
             const firstChild = childArray[0];
             let calloutType: string | null = null;
-            let restChildren = children;
+            let restChildren: React.ReactNode = children;
 
             if (React.isValidElement(firstChild)) {
               const props = firstChild.props as { children?: React.ReactNode };
