@@ -6,6 +6,9 @@ import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { RelatedNews } from '@/components/news/related-news';
+import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
+import { TableOfContents } from '@/components/blog/table-of-contents';
+import { BackToTop } from '@/components/blog/back-to-top';
 import { fetchNewsBySlug } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong } from '@/lib/format';
@@ -34,9 +37,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
     { name: article.title, url: `/tin-tuc/${article.slug}` },
   ];
 
-  // Parse content into sections
-  const sections = article.content.split(/\n##\s+/);
-
   return (
     <>
       <script
@@ -49,6 +49,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           __html: JSON.stringify(breadcrumbJsonLd(breadcrumbItems)),
         }}
       />
+
       <article className="container-page py-8">
         <Breadcrumb
           items={breadcrumbItems.map((b) => ({ name: b.name, href: b.url }))}
@@ -89,72 +90,57 @@ export default async function NewsDetailPage({ params }: PageProps) {
             />
           </div>
 
-          <p className="mt-6 text-lg font-medium text-foreground/90">
-            {article.excerpt}
-          </p>
+          <p className="mt-6 text-lg font-medium text-foreground/90">{article.excerpt}</p>
 
-          <div className="prose prose-sm mt-6 max-w-none sm:prose-base">
-            {sections.map((section, i) => {
-              const lines = section.split('\n');
-              const [heading, ...body] = lines;
-              return (
-                <div key={i} className="mb-6">
-                  {i > 0 && (
-                    <h2 className="mb-3 font-display text-xl font-bold sm:text-2xl">
-                      {heading.trim()}
-                    </h2>
-                  )}
-                  <div className="space-y-3 text-foreground/80">
-                    {body
-                      .join('\n')
-                      .split('\n')
-                      .filter((l) => l.trim())
-                      .map((line, j) => {
-                        if (line.startsWith('**') && line.endsWith('**')) {
-                          return (
-                            <p key={j} className="font-semibold text-foreground">
-                              {line.replace(/\*\*/g, '')}
-                            </p>
-                          );
-                        }
-                        return (
-                          <p key={j} className="leading-relaxed">
-                            {line.replace(/- /, '• ')}
-                          </p>
-                        );
-                      })}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Mobile TOC */}
+          <div className="mt-6 lg:hidden">
+            <TableOfContents />
+          </div>
+        </div>
+
+        <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-10 lg:grid-cols-[1fr_220px]">
+          <div
+            data-article-body
+            className="min-w-0 max-w-3xl lg:max-w-none"
+          >
+            <MarkdownRenderer content={article.content} />
+
+            {/* Tags */}
+            <div className="mt-10 flex flex-wrap gap-2">
+              {article.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-foreground/70"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-8 border-t pt-6">
+              <Button asChild variant="outline">
+                <Link href="/tin-tuc">
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Quay lại tin tức
+                </Link>
+              </Button>
+            </div>
           </div>
 
-          {/* Tags */}
-          <div className="mt-8 flex flex-wrap gap-2">
-            {article.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-foreground/70"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-8 border-t pt-6">
-            <Button asChild variant="outline">
-              <Link href="/tin-tuc">
-                <ArrowLeft className="mr-1 h-4 w-4" />
-                Quay lại tin tức
-              </Link>
-            </Button>
-          </div>
+          {/* Desktop sticky TOC */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              <TableOfContents />
+            </div>
+          </aside>
         </div>
 
         <div className="mx-auto mt-12 max-w-5xl">
           <RelatedNews article={article} />
         </div>
       </article>
+
+      <BackToTop />
     </>
   );
 }
