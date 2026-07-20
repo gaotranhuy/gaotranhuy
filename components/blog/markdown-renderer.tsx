@@ -1,12 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkFootnotes from 'remark-footnotes';
-import type { Pluggable } from 'unified';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 import { Check, Copy } from 'lucide-react';
@@ -20,10 +18,27 @@ interface MarkdownRendererProps {
 
 const CALLOUT_RE = /^\[!(info|warning|success|error|note)\]/i;
 
-function CodeBlock({ className, children }: { className?: string; children?: React.ReactNode }) {
+function extractText(children: React.ReactNode): string {
+  let text = '';
+  React.Children.forEach(children, (child) => {
+    if (typeof child === 'string') text += child;
+    else if (typeof child === 'number') text += String(child);
+    else if (React.isValidElement(child)) {
+      text += extractText((child.props as { children?: React.ReactNode }).children);
+    }
+  });
+  return text;
+}
+
+function CodeBlock({
+  language,
+  children,
+}: {
+  language: string;
+  children: React.ReactNode;
+}) {
   const ref = React.useRef<HTMLPreElement>(null);
   const [copied, setCopied] = React.useState(false);
-  const language = className?.replace(/^language-/, '') || 'text';
 
   const handleCopy = async () => {
     const text = ref.current?.innerText ?? '';
@@ -37,10 +52,15 @@ function CodeBlock({ className, children }: { className?: string; children?: Rea
   };
 
   return (
-    <div className="code-block not-prose my-5">
+    <div className="code-block not-prose my-6">
       <div className="code-block__header">
         <span className="uppercase tracking-wide">{language}</span>
-        <button type="button" onClick={handleCopy} className={cn('code-block__copy', copied && 'copied')} aria-label="Sao chép mã">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={cn('code-block__copy', copied && 'copied')}
+          aria-label="Sao chép mã"
+        >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? 'Đã chép' : 'Sao chép'}
         </button>
@@ -53,33 +73,91 @@ function CodeBlock({ className, children }: { className?: string; children?: Rea
 }
 
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+  const memoized = React.useMemo(() => content ?? '', [content]);
+
   return (
-    <div className={cn('prose prose-sm dark:prose-invert max-w-none sm:prose-base', className)}>
+    <div
+      className={cn(
+        'prose prose-blog max-w-none dark:prose-invert',
+        className
+      )}
+    >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkFootnotes as unknown as Pluggable]}
+        remarkPlugins={[remarkGfm, remarkFootnotes]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={{
-          h1: ({ children }) => <h1 className="font-display text-3xl font-extrabold tracking-tight">{children}</h1>,
-          h2: ({ children, id }) => <h2 id={id} className="font-display text-2xl font-bold tracking-tight mt-10 mb-4">{children}</h2>,
-          h3: ({ children, id }) => <h3 id={id} className="font-display text-xl font-bold mt-6 mb-3">{children}</h3>,
-          h4: ({ children, id }) => <h4 id={id} className="font-display text-lg font-semibold mt-5 mb-2">{children}</h4>,
-          h5: ({ children, id }) => <h5 id={id} className="font-semibold mt-4 mb-2">{children}</h5>,
-          h6: ({ children, id }) => <h6 id={id} className="font-semibold text-sm mt-3 mb-1 text-muted-foreground">{children}</h6>,
-          p: ({ children }) => <p className="leading-relaxed text-foreground/85">{children}</p>,
+          h1: ({ children, id }) => (
+            <h1 id={id} className="article-h1">
+              {children}
+            </h1>
+          ),
+          h2: ({ children, id }) => (
+            <h2 id={id} className="article-h2">
+              {children}
+            </h2>
+          ),
+          h3: ({ children, id }) => (
+            <h3 id={id} className="article-h3">
+              {children}
+            </h3>
+          ),
+          h4: ({ children, id }) => (
+            <h4 id={id} className="article-h4">
+              {children}
+            </h4>
+          ),
+          h5: ({ children, id }) => (
+            <h5 id={id} className="article-h5">
+              {children}
+            </h5>
+          ),
+          h6: ({ children, id }) => (
+            <h6 id={id} className="article-h6">
+              {children}
+            </h6>
+          ),
+          p: ({ children }) => <p className="article-p">{children}</p>,
           a: ({ href, children }) => {
             const isExternal = href?.startsWith('http');
             if (isExternal) {
               return (
-                <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="article-link"
+                >
                   {children}
                 </a>
               );
             }
-            return <Link href={href ?? '#'} className="text-primary underline underline-offset-2 hover:text-primary/80">{children}</Link>;
+            return (
+              <Link href={href ?? '#'} className="article-link">
+                {children}
+              </Link>
+            );
           },
-          ul: ({ children }) => <ul className="list-disc space-y-1.5 pl-6 marker:text-primary/60">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal space-y-1.5 pl-6 marker:text-primary/60">{children}</ol>,
-          li: ({ children }) => <li className="pl-1 leading-relaxed">{children}</li>,
+          strong: ({ children }) => (
+            <strong className="font-semibold text-foreground">{children}</strong>
+          ),
+          em: ({ children }) => <em className="italic">{children}</em>,
+          ul: ({ children, className: ulClassName }) => {
+            const isTaskList = ulClassName?.includes('contains-task-list');
+            return (
+              <ul className={cn('article-ul', isTaskList && 'article-task-list')}>
+                {children}
+              </ul>
+            );
+          },
+          ol: ({ children }) => <ol className="article-ol">{children}</ol>,
+          li: ({ children, className: liClassName }) => {
+            const isTaskItem = liClassName?.includes('task-list-item');
+            return (
+              <li className={cn('article-li', isTaskItem && 'article-task-item')}>
+                {children}
+              </li>
+            );
+          },
           blockquote: ({ children }) => {
             const childArray = React.Children.toArray(children);
             const firstChild = childArray[0];
@@ -88,25 +166,29 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
 
             if (React.isValidElement(firstChild)) {
               const props = firstChild.props as { children?: React.ReactNode };
-              if (typeof props.children === 'string') {
-                const match = props.children.trim().match(CALLOUT_RE);
-                if (match) {
-                  calloutType = match[1].toLowerCase();
-                  const remaining = (props.children as string).replace(CALLOUT_RE, '').trim();
-                  restChildren = [
-                    React.cloneElement(firstChild, { children: remaining } as React.HTMLAttributes<HTMLParagraphElement>),
-                    ...childArray.slice(1),
-                  ];
-                }
+              const firstText = extractText(props.children).trim();
+              const match = firstText.match(CALLOUT_RE);
+              if (match) {
+                calloutType = match[1].toLowerCase();
+                const remaining = firstText.replace(CALLOUT_RE, '').trim();
+                const newFirst = React.cloneElement(
+                  firstChild,
+                  { children: remaining } as React.HTMLAttributes<HTMLParagraphElement>
+                );
+                restChildren = [newFirst, ...childArray.slice(1)];
               }
             }
 
             if (calloutType) {
-              return <div className={cn('callout', `callout-${calloutType}`)}>{restChildren}</div>;
+              return (
+                <div className={cn('callout', `callout-${calloutType}`)}>
+                  {restChildren}
+                </div>
+              );
             }
-            return <blockquote className="border-l-4 border-primary/40 pl-4 italic text-foreground/80 my-4">{children}</blockquote>;
+            return <blockquote className="article-blockquote">{children}</blockquote>;
           },
-          hr: () => <hr className="my-8 border-border" />,
+          hr: () => <hr className="article-hr" />,
           img: ({ src, alt }) => {
             const srcStr = typeof src === 'string' ? src : '';
             const altStr = alt ?? '';
@@ -114,33 +196,45 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             return <ImageZoom src={srcStr} alt={altStr} />;
           },
           table: ({ children }) => (
-            <div className="my-6 overflow-x-auto rounded-xl border border-border">
-              <table className="w-full border-collapse text-sm">{children}</table>
+            <div className="article-table-wrap">
+              <table className="article-table">{children}</table>
             </div>
           ),
-          thead: ({ children }) => <thead className="bg-muted/60">{children}</thead>,
-          th: ({ children }) => <th className="border-b border-border px-4 py-2.5 text-left font-semibold">{children}</th>,
-          td: ({ children }) => <td className="border-b border-border px-4 py-2.5">{children}</td>,
+          thead: ({ children }) => <thead className="article-thead">{children}</thead>,
+          tbody: ({ children }) => <tbody className="article-tbody">{children}</tbody>,
+          tr: ({ children }) => <tr className="article-tr">{children}</tr>,
+          th: ({ children }) => <th className="article-th">{children}</th>,
+          td: ({ children }) => <td className="article-td">{children}</td>,
           code: ({ className, children }) => {
-            const isBlock = className?.startsWith('language-');
+            const isBlock = /language-/.test(className ?? '');
             if (isBlock) {
-              return <CodeBlock className={className}>{children}</CodeBlock>;
+              const lang = className?.match(/language-(\w+)/)?.[1] || 'text';
+              return <CodeBlock language={lang}>{children}</CodeBlock>;
             }
-            return <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-semibold">{children}</code>;
+            return <code className="article-code-inline">{children}</code>;
           },
           pre: ({ children }) => <>{children}</>,
-          input: ({ checked, ...props }) => (
-            <input
-              type="checkbox"
-              checked={checked}
-              readOnly
-              className="mr-2 h-4 w-4 rounded border-border accent-primary"
-              {...props}
-            />
+          input: ({ checked, type, className }) => {
+            if (type === 'checkbox') {
+              return (
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  readOnly
+                  className={cn('article-checkbox', className)}
+                />
+              );
+            }
+            return <input type={type} className={className} />;
+          },
+          section: ({ children, className }) => (
+            <section className={cn('article-footnotes-section', className)}>
+              {children}
+            </section>
           ),
         }}
       >
-        {content}
+        {memoized}
       </ReactMarkdown>
     </div>
   );

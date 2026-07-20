@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const CartClient = dynamic(
   () => import('@/components/cart/cart-client').then((m) => m.CartClient)
@@ -121,15 +122,22 @@ export default function RootLayout({
         className={`${inter.variable} ${beVietnam.variable} font-sans`}
         suppressHydrationWarning
       >
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
 
-        <CartClient />
-        <BackToTop />
-        <Toaster position="top-center" richColors />
+          <CartClient />
+          <BackToTop />
+          <Toaster position="top-center" richColors />
+        </ThemeProvider>
       </body>
     </html>
   );
