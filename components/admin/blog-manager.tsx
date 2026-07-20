@@ -457,19 +457,18 @@ export function BlogManager() {
               />
             </div>
 
-            {/* ĐOẠN CODE MỚI ĐÃ SỬA LỖI ĐỊNH KIỂU */}
-<ImageUpload
-  value={form.image}
-  onChange={(url) => setForm({ ...form, image: url as string })} // <--- Thêm chữ "as string" ở đây ní nhé
-  label="Ảnh bìa"
-/>
-
+            <ImageUpload
+              value={form.image}
+              onChange={(url) => setForm({ ...form, image: url as string })}
+              label="Ảnh bìa"
+            />
 
             <div className="space-y-2">
               <Label>Nội dung</Label>
               <RichTextEditor
                 value={form.content}
-                onChange={(html) => setForm({ ...form, content: html })}
+                onChange={(markdown) => setForm({ ...form, content: markdown })}
+                draftKey={editingId ? `blog-draft-${editingId}` : 'blog-draft-new'}
               />
             </div>
 
