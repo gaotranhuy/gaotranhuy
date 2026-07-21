@@ -10,7 +10,9 @@ import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { TableOfContents } from '@/components/blog/table-of-contents';
 import { BackToTop } from '@/components/blog/back-to-top';
 import { ReadingProgress } from '@/components/blog/reading-progress';
-import { fetchNewsBySlug } from '@/lib/supabase-data';
+import { ArticleNavigation } from '@/components/blog/article-navigation';
+import { ShareButtons } from '@/components/blog/share-buttons';
+import { fetchNewsBySlug, fetchAdjacentNews } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong, calculateReadingTime } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
@@ -39,6 +41,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
   ];
 
   const readingTime = article.readingTime || calculateReadingTime(article.content);
+  const { prev, next } = await fetchAdjacentNews(article);
 
   return (
     <>
@@ -119,6 +122,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
                 </span>
               ))}
             </div>
+
+            <ShareButtons slug={article.slug} title={article.title} />
+
+            <ArticleNavigation prev={prev} next={next} />
 
             <div className="mt-8 border-t pt-6">
               <Button asChild variant="outline">
