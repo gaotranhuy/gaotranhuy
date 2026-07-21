@@ -18,7 +18,7 @@ export function TableOfContents() {
   React.useEffect(() => {
     const article = document.querySelector('[data-article-body]');
     if (!article) return;
-    const headings = Array.from(article.querySelectorAll('h2, h3, h4'));
+    const headings = Array.from(article.querySelectorAll('h2, h3, h4, h5, h6'));
     const toc: TocItem[] = headings
       .filter((h) => h.id)
       .map((h) => ({
