@@ -243,6 +243,39 @@ export async function fetchRelatedNews(article: NewsArticle, limit = 3): Promise
   return (data as BlogRow[]).map(mapBlogRow);
 }
 
+export async function fetchAdjacentNews(
+  article: NewsArticle
+): Promise<{ prev: NewsArticle | null; next: NewsArticle | null }> {
+  const supabase = getSupabase();
+  const publishedAt = article.publishedAt;
+
+  const [prevResult, nextResult] = await Promise.all([
+    supabase
+      .from('blog_posts')
+      .select('*')
+      .lt('published_at', publishedAt)
+      .order('published_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('blog_posts')
+      .select('*')
+      .gt('published_at', publishedAt)
+      .order('published_at', { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const prev = prevResult.data && !prevResult.error
+    ? mapBlogRow(prevResult.data as BlogRow)
+    : null;
+  const next = nextResult.data && !nextResult.error
+    ? mapBlogRow(nextResult.data as BlogRow)
+    : null;
+
+  return { prev, next };
+}
+
 export function getAllCategories(): Category[] {
   return [...categories].sort((a, b) => a.order - b.order);
 }

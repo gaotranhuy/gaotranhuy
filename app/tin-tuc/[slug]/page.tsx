@@ -9,9 +9,12 @@ import { RelatedNews } from '@/components/news/related-news';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { TableOfContents } from '@/components/blog/table-of-contents';
 import { BackToTop } from '@/components/blog/back-to-top';
-import { fetchNewsBySlug } from '@/lib/supabase-data';
+import { ReadingProgress } from '@/components/blog/reading-progress';
+import { ArticleNavigation } from '@/components/blog/article-navigation';
+import { ShareButtons } from '@/components/blog/share-buttons';
+import { fetchNewsBySlug, fetchAdjacentNews } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
-import { formatDateLong } from '@/lib/format';
+import { formatDateLong, calculateReadingTime } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
 
 export const revalidate = 3600;
@@ -36,6 +39,9 @@ export default async function NewsDetailPage({ params }: PageProps) {
     { name: 'Tin tức', url: '/tin-tuc' },
     { name: article.title, url: `/tin-tuc/${article.slug}` },
   ];
+
+  const readingTime = article.readingTime || calculateReadingTime(article.content);
+  const { prev, next } = await fetchAdjacentNews(article);
 
   return (
     <>
@@ -75,7 +81,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
-              {article.readingTime} phút đọc
+              {readingTime} phút đọc
             </span>
           </div>
 
@@ -117,6 +123,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
               ))}
             </div>
 
+            <ShareButtons slug={article.slug} title={article.title} />
+
+            <ArticleNavigation prev={prev} next={next} />
+
             <div className="mt-8 border-t pt-6">
               <Button asChild variant="outline">
                 <Link href="/tin-tuc">
@@ -140,6 +150,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </div>
       </article>
 
+      <ReadingProgress />
       <BackToTop />
     </>
   );
