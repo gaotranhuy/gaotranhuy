@@ -2,20 +2,23 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { RelatedNews } from '@/components/news/related-news';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { TableOfContents } from '@/components/blog/table-of-contents';
-import { BackToTop } from '@/components/blog/back-to-top';
-import { ReadingProgress } from '@/components/blog/reading-progress';
 import { ArticleNavigation } from '@/components/blog/article-navigation';
-import { ShareButtons } from '@/components/blog/share-buttons';
-import { fetchNewsBySlug, fetchAdjacentNews } from '@/lib/supabase-data';
+import { BlogCta } from '@/components/blog/blog-cta';
+import { fetchNewsBySlug, fetchAdjacentNews, fetchCtaProducts } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong, calculateReadingTime } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
+
+const BackToTop = dynamic(() => import('@/components/blog/back-to-top').then((m) => m.BackToTop));
+const ReadingProgress = dynamic(() => import('@/components/blog/reading-progress').then((m) => m.ReadingProgress));
+const ShareButtons = dynamic(() => import('@/components/blog/share-buttons').then((m) => m.ShareButtons));
 
 export const revalidate = 3600;
 
@@ -41,7 +44,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
   ];
 
   const readingTime = article.readingTime || calculateReadingTime(article.content);
-  const { prev, next } = await fetchAdjacentNews(article);
+  const [{ prev, next }, ctaProducts] = await Promise.all([
+    fetchAdjacentNews(article),
+    fetchCtaProducts(article, 4),
+  ]);
 
   return (
     <>
@@ -66,7 +72,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             {article.category}
           </span>
-          <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+          <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-2xl">
             {article.title}
           </h1>
 
@@ -143,6 +149,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
               <TableOfContents />
             </div>
           </aside>
+        </div>
+
+        <div className="mx-auto mt-12 max-w-5xl">
+          <BlogCta products={ctaProducts} />
         </div>
 
         <div className="mx-auto mt-12 max-w-5xl">

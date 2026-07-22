@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Facebook, Link2, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface ShareButtonsProps {
@@ -38,15 +37,17 @@ export function ShareButtons({ slug, title }: ShareButtonsProps) {
       label: 'X',
       icon: XIcon,
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-      color: 'hover:bg-black hover:text-white hover:border-black',
+      color: 'hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black dark:hover:border-white',
     },
   ];
 
   const handleCopyLink = async () => {
     try {
+      const { toast } = await import('sonner');
       await navigator.clipboard.writeText(articleUrl);
       toast.success('Đã sao chép liên kết');
     } catch {
+      const { toast } = await import('sonner');
       toast.error('Không sao chép được liên kết');
     }
   };

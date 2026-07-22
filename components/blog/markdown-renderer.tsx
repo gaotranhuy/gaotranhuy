@@ -2,13 +2,15 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import ReactMarkdown from 'react-markdown';
+import dynamic from 'next/dynamic';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 import { Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ImageZoom } from './image-zoom';
+
+const ImageZoom = dynamic(() => import('./image-zoom').then((m) => m.ImageZoom), { ssr: false });
 
 interface MarkdownRendererProps {
   content: string;
@@ -74,14 +76,9 @@ function CodeBlock({
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
   const memoized = React.useMemo(() => content ?? '', [content]);
 
-  return (
-    <div className={cn('prose prose-blog max-w-none dark:prose-invert', className)}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSlug, rehypeHighlight]}
-        components={{
+  const components = React.useMemo<Components>(() => ({
           h1: ({ children, id }) => (
-            <h1 id={id} className="article-h1">{children}</h1>
+            <h2 id={id} className="article-h2">{children}</h2>
           ),
           h2: ({ children, id }) => (
             <h2 id={id} className="article-h2">{children}</h2>
@@ -214,7 +211,14 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
               {children}
             </section>
           ),
-        }}
+        }), []);
+
+  return (
+    <div className={cn('prose prose-blog max-w-none dark:prose-invert', className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSlug, rehypeHighlight]}
+        components={components}
       >
         {memoized}
       </ReactMarkdown>

@@ -6,6 +6,7 @@ const SITE_URL = 'https://gaotranhuy.vn';
 const SITE_NAME = 'Gạo Trần Huy';
 
 export function absoluteUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) return path;
   return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
@@ -27,12 +28,11 @@ export function productJsonLd(product: Product) {
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
-      // 👇 Thêm chính sách vận chuyển
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
-          value: 30000,        // 30.000 VND (thay đổi theo thực tế)
+          value: 30000,
           currency: 'VND'
         },
         shippingDestination: {
@@ -55,24 +55,28 @@ export function productJsonLd(product: Product) {
           }
         }
       },
-      // 👇 Thêm chính sách đổi trả
       hasMerchantReturnPolicy: {
         '@type': 'MerchantReturnPolicy',
         applicableCountry: 'VN',
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 7,        // 7 ngày đổi trả
-        returnMethod: 'https://schema.org/ReturnByMail',
-        returnFees: 'https://schema.org/FreeReturn'  // hoặc 'ReturnShippingFees' nếu khách trả phí
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByShipping',
+        returnFees: 'https://schema.org/FreeReturnShipping'
       }
     }
   };
 
-  // Chỉ thêm đánh giá nếu có review thực tế (>0)
-  if (product.reviewCount > 0) {
+  if (product.oldPrice) {
+    result.offers.price = product.price;
+  }
+
+  if (product.rating > 0) {
     result.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: product.rating,
       reviewCount: product.reviewCount,
+      bestRating: 5,
+      worstRating: 1
     };
   }
 
@@ -87,8 +91,22 @@ export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: absoluteUrl(item.url),
-    })),
+      item: absoluteUrl(item.url)
+    }))
+  };
+}
+
+export function organizationJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: absoluteUrl('/logo.png'),
+    sameAs: [
+      'https://www.facebook.com/gaotranhuy',
+      'https://zalo.me/gaotranhuy'
+    ]
   };
 }
 
@@ -100,64 +118,38 @@ export function articleJsonLd(article: NewsArticle) {
     description: article.excerpt,
     image: [absoluteUrl(article.image)],
     datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
     author: { '@type': 'Organization', name: article.author },
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
+      logo: {
+        '@type': 'ImageObject',
+        url: absoluteUrl('/logo.png')
+      }
     },
-    mainEntityOfPage: absoluteUrl(`/tin-tuc/${article.slug}`),
-  };
-}
-
-export function organizationJsonLd() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Store',
-    name: SITE_NAME,
-    url: SITE_URL,
-    logo: absoluteUrl('/logo.png'),
-    sameAs: [
-      'https://facebook.com/gaotranhuy',
-      'https://tiktok.com/@gaotranhuy',
-    ],
+    mainEntityOfPage: absoluteUrl(`/tin-tuc/${article.slug}`)
   };
 }
 
 export function productMetadata(product: Product): Metadata {
-  const title = `${product.name} - ${formatPrice(product.price)}`;
-  const description = product.shortDescription;
   return {
-    title,
-    description,
+    title: product.name,
+    description: product.shortDescription || product.description,
     alternates: { canonical: `/san-pham/${product.slug}` },
     openGraph: {
       type: 'website',
       url: absoluteUrl(`/san-pham/${product.slug}`),
       title: `${product.name} | ${SITE_NAME}`,
-      description,
-      images: [{ url: product.image, alt: product.name }],
+      description: product.shortDescription || product.description,
+      images: [{ url: product.image, alt: product.name }]
     },
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} | ${SITE_NAME}`,
-      description,
-      images: [product.image],
-    },
-  };
-}
-
-export function categoryMetadata(category: Category): Metadata {
-  return {
-    title: category.name,
-    description: category.description,
-    alternates: { canonical: `/danh-muc/${category.slug}` },
-    openGraph: {
-      type: 'website',
-      url: absoluteUrl(`/danh-muc/${category.slug}`),
-      title: `${category.name} | ${SITE_NAME}`,
-      description: category.description,
-      images: [{ url: category.image, alt: category.name }],
-    },
+      description: product.shortDescription || product.description,
+      images: [product.image]
+    }
   };
 }
 
@@ -172,7 +164,32 @@ export function articleMetadata(article: NewsArticle): Metadata {
       title: `${article.title} | ${SITE_NAME}`,
       description: article.excerpt,
       publishedTime: article.publishedAt,
-      images: [{ url: article.image, alt: article.title }],
+      images: [{ url: article.image, alt: article.title }]
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${article.title} | ${SITE_NAME}`,
+      description: article.excerpt,
+      images: [article.image]
+    }
+  };
+}
+
+export function categoryMetadata(category: Category): Metadata {
+  return {
+    title: category.name,
+    description: category.description,
+    alternates: { canonical: `/danh-muc/${category.slug}` },
+    openGraph: {
+      type: 'website',
+      url: absoluteUrl(`/danh-muc/${category.slug}`),
+      title: `${category.name} | ${SITE_NAME}`,
+      description: category.description
+    },
+    twitter: {
+      card: 'summary',
+      title: `${category.name} | ${SITE_NAME}`,
+      description: category.description
+    }
   };
 }

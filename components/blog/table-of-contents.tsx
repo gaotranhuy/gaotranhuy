@@ -66,6 +66,8 @@ export function TableOfContents() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="toc-mobile-list"
           className="flex w-full items-center justify-between rounded-lg border border-border bg-muted/40 px-4 py-3 font-semibold"
         >
           <span className="flex items-center gap-2">
@@ -75,7 +77,7 @@ export function TableOfContents() {
           <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
         </button>
         {open && (
-          <ul className="mt-2 space-y-1.5 rounded-lg border border-border bg-background p-4">
+          <ul id="toc-mobile-list" className="mt-2 space-y-1.5 rounded-lg border border-border bg-background p-4">
             {items.map((item) => (
               <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 0.75}rem` }}>
                 <a

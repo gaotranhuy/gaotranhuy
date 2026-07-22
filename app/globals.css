@@ -101,6 +101,11 @@
   html {
     scroll-behavior: smooth;
   }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }
 
 @layer components {
@@ -197,6 +202,10 @@
   }
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--muted));
+}
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -464,8 +473,10 @@
 .dark .hljs-string, .dark .hljs-attr, .dark .hljs-meta-string { color: #86efac; }
 .dark .hljs-number, .dark .hljs-literal { color: #fdba74; }
 .dark .hljs-title, .dark .hljs-section, .dark .hljs-name { color: #c4b5fd; }
-.dark .hljs-attribute, .dark .hljs-variable { color: #fcd34d; }
-.dark .hljs-type { color: #67e8f9; }
+.dark .hljs-attribute, .dark .hljs-variable, .dark .hljs-template-variable { color: #fcd34d; }
+.dark .hljs-type, .dark .hljs-class .hljs-title { color: #67e8f9; }
+.dark .hljs-meta, .dark .hljs-tag { color: #9ca3af; }
+.dark .hljs-function .hljs-title { color: #c4b5fd; }
 .dark .hljs-symbol, .dark .hljs-bullet, .dark .hljs-link { color: #f9a8d4; }
 
 /* Code block wrapper */

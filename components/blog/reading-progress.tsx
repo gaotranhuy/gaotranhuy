@@ -41,7 +41,7 @@ export function ReadingProgress() {
       aria-hidden="true"
     >
       <div
-        className="h-full bg-primary transition-[width] duration-75 ease-out"
+        className="h-full bg-primary transition-[width] duration-150 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

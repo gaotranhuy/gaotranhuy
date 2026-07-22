@@ -11,7 +11,7 @@ export function ArticleNavigation({ prev, next }: ArticleNavigationProps) {
   if (!prev && !next) return null;
 
   return (
-    <nav className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <nav aria-label="Điều hướng bài viết" className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
       {prev ? (
         <Link
           href={`/tin-tuc/${prev.slug}`}

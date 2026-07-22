@@ -11,20 +11,33 @@ export const metadata: Metadata = {
   description:
     'Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon.',
   alternates: { canonical: '/tin-tuc' },
+  openGraph: {
+    type: 'website',
+    url: '/tin-tuc',
+    title: 'Tin tức | Gạo Trần Huy',
+    description: 'Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon.',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Tin tức | Gạo Trần Huy',
+    description: 'Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon.',
+  },
 };
 
 export default async function NewsPage() {
   const articles = await fetchAllNews();
 
+  const breadcrumbItems = [{ name: 'Tin tức', href: '/tin-tuc' }];
+
   return (
     <>
       <PageHeader
-        eyebrow="Tin tức"
-        title="Mẹo vặt & kiến thức"
-        description="Bí quyết nấu ăn, bảo quản gạo và kiến thức về đặc sản nông sản Việt Nam."
+        eyebrow="Tin tức & Kiến thức"
+        title="Tin tức"
+        description="Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon."
       />
       <div className="container-page py-8">
-        <Breadcrumb items={[{ name: 'Tin tức' }]} className="mb-6" />
+        <Breadcrumb items={breadcrumbItems} className="mb-6" />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
             <NewsCard key={article.slug} article={article} />

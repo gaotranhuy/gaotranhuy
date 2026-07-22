@@ -20,9 +20,12 @@ const nextConfig = {
       },
     ],
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   experimental: {
-    inlineCss: true, // Tự động chèn CSS trực tiếp vào HTML nhằm giải quyết lỗi chặn hiển thị 370ms
-    optimizePackageImports: ['lucide-react'], // Gom nhỏ và tối ưu hóa import từ thư viện icon
+    inlineCss: true,
+    optimizePackageImports: ['lucide-react', 'react-markdown', 'remark-gfm', 'rehype-slug', 'rehype-highlight'],
   },
   async headers() {
     return [
