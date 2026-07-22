@@ -12,7 +12,8 @@ import { BackToTop } from '@/components/blog/back-to-top';
 import { ReadingProgress } from '@/components/blog/reading-progress';
 import { ArticleNavigation } from '@/components/blog/article-navigation';
 import { ShareButtons } from '@/components/blog/share-buttons';
-import { fetchNewsBySlug, fetchAdjacentNews } from '@/lib/supabase-data';
+import { BlogCta } from '@/components/blog/blog-cta';
+import { fetchNewsBySlug, fetchAdjacentNews, fetchCtaProducts } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong, calculateReadingTime } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
@@ -42,6 +43,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   const readingTime = article.readingTime || calculateReadingTime(article.content);
   const { prev, next } = await fetchAdjacentNews(article);
+  const ctaProducts = await fetchCtaProducts(article, 4);
 
   return (
     <>
@@ -143,6 +145,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
               <TableOfContents />
             </div>
           </aside>
+        </div>
+
+        <div className="mx-auto mt-12 max-w-5xl">
+          <BlogCta products={ctaProducts} />
         </div>
 
         <div className="mx-auto mt-12 max-w-5xl">
