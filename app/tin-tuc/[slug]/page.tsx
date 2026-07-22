@@ -2,21 +2,23 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Calendar, Clock, ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { RelatedNews } from '@/components/news/related-news';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { TableOfContents } from '@/components/blog/table-of-contents';
-import { BackToTop } from '@/components/blog/back-to-top';
-import { ReadingProgress } from '@/components/blog/reading-progress';
 import { ArticleNavigation } from '@/components/blog/article-navigation';
-import { ShareButtons } from '@/components/blog/share-buttons';
 import { BlogCta } from '@/components/blog/blog-cta';
 import { fetchNewsBySlug, fetchAdjacentNews, fetchCtaProducts } from '@/lib/supabase-data';
 import { articleMetadata, articleJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 import { formatDateLong, calculateReadingTime } from '@/lib/format';
 import { cloudinaryBanner } from '@/lib/cloudinary';
+
+const BackToTop = dynamic(() => import('@/components/blog/back-to-top').then((m) => m.BackToTop));
+const ReadingProgress = dynamic(() => import('@/components/blog/reading-progress').then((m) => m.ReadingProgress));
+const ShareButtons = dynamic(() => import('@/components/blog/share-buttons').then((m) => m.ShareButtons));
 
 export const revalidate = 3600;
 
