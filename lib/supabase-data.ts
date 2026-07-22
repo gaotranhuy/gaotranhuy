@@ -276,6 +276,48 @@ export async function fetchAdjacentNews(
   return { prev, next };
 }
 
+export async function fetchCtaProducts(article: NewsArticle, limit = 4): Promise<Product[]> {
+  const supabase = getSupabase();
+
+  if (article.tags.length > 0) {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .overlaps('tags', article.tags)
+      .eq('in_stock', true)
+      .order('is_featured', { ascending: false })
+      .limit(limit);
+
+    if (!error && data && data.length > 0) {
+      return (data as ProductRow[]).map(mapProductRow);
+    }
+  }
+
+  const { data: featured, error: featError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('is_featured', true)
+    .eq('in_stock', true)
+    .limit(limit);
+
+  if (!featError && featured && featured.length > 0) {
+    return (featured as ProductRow[]).map(mapProductRow);
+  }
+
+  const { data: fallback, error: fbError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('in_stock', true)
+    .order('sold_count', { ascending: false })
+    .limit(limit);
+
+  if (!fbError && fallback) {
+    return (fallback as ProductRow[]).map(mapProductRow);
+  }
+
+  return [];
+}
+
 export function getAllCategories(): Category[] {
   return [...categories].sort((a, b) => a.order - b.order);
 }
