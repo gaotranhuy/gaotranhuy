@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getSupabase } from '@/lib/supabase-server';
 import { categories } from '@/data/categories';
 import type { Product, NewsArticle, Category } from '@/types';
@@ -115,7 +116,7 @@ export async function fetchProductCount(): Promise<number> {
 
   return count ?? 0;
 }
-export async function fetchProductBySlug(slug: string): Promise<Product | null> {
+export const fetchProductBySlug = cache(async (slug: string): Promise<Product | null> => {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('products')
@@ -125,7 +126,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
 
   if (error || !data) return null;
   return mapProductRow(data as ProductRow);
-}
+});
 
 export async function fetchProductsByCategory(categorySlug: string): Promise<Product[]> {
   const supabase = getSupabase();
@@ -200,14 +201,14 @@ export async function fetchAllNews(): Promise<NewsArticle[]> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('blog_posts')
-    .select('*')
+    .select('slug,title,excerpt,content,category,image,author,published_at,reading_time,tags,created_at')
     .order('published_at', { ascending: false });
 
   if (error || !data) return [];
   return (data as BlogRow[]).map(mapBlogRow);
 }
 
-export async function fetchNewsBySlug(slug: string): Promise<NewsArticle | null> {
+export const fetchNewsBySlug = cache(async (slug: string): Promise<NewsArticle | null> => {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('blog_posts')
@@ -217,7 +218,7 @@ export async function fetchNewsBySlug(slug: string): Promise<NewsArticle | null>
 
   if (error || !data) return null;
   return mapBlogRow(data as BlogRow);
-}
+});
 
 export async function fetchFeaturedNews(limit = 3): Promise<NewsArticle[]> {
   const supabase = getSupabase();
@@ -235,8 +236,9 @@ export async function fetchRelatedNews(article: NewsArticle, limit = 3): Promise
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('blog_posts')
-    .select('*')
+    .select('slug,title,excerpt,category,image,author,published_at,reading_time,tags,created_at')
     .neq('slug', article.slug)
+    .order('published_at', { ascending: false })
     .limit(limit);
 
   if (error || !data) return [];
@@ -252,14 +254,14 @@ export async function fetchAdjacentNews(
   const [prevResult, nextResult] = await Promise.all([
     supabase
       .from('blog_posts')
-      .select('*')
+      .select('slug,title,published_at')
       .lt('published_at', publishedAt)
       .order('published_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
     supabase
       .from('blog_posts')
-      .select('*')
+      .select('slug,title,published_at')
       .gt('published_at', publishedAt)
       .order('published_at', { ascending: true })
       .limit(1)
