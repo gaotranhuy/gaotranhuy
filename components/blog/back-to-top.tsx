@@ -6,12 +6,23 @@ import { cn } from '@/lib/utils';
 
 export function BackToTop() {
   const [visible, setVisible] = React.useState(false);
+  const rafRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
+    const update = () => {
+      rafRef.current = null;
+      setVisible(window.scrollY > 400);
+    };
+    const onScroll = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(update);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   if (!visible) return null;
