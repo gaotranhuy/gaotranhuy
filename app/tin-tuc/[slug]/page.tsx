@@ -42,8 +42,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
   ];
 
   const readingTime = article.readingTime || calculateReadingTime(article.content);
-  const { prev, next } = await fetchAdjacentNews(article);
-  const ctaProducts = await fetchCtaProducts(article, 4);
+  const [{ prev, next }, ctaProducts] = await Promise.all([
+    fetchAdjacentNews(article),
+    fetchCtaProducts(article, 4),
+  ]);
 
   return (
     <>
@@ -68,7 +70,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             {article.category}
           </span>
-          <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+          <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-2xl">
             {article.title}
           </h1>
 

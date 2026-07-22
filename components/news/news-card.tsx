@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { formatDate, formatNumber } from '@/lib/format';
+import { formatDate, formatNumber, calculateReadingTime } from '@/lib/format';
 import { cloudinaryCard, cloudinaryBanner } from '@/lib/cloudinary';
 import type { NewsArticle } from '@/types';
 import { cn } from '@/lib/utils';
@@ -39,7 +39,7 @@ export function NewsCard({
             </span>
             <span className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              {article.readingTime} phút đọc
+              {article.readingTime || calculateReadingTime(article.content)} phút đọc
             </span>
           </div>
           <h3 className="mt-3 font-display text-xl font-bold leading-tight transition-colors group-hover:text-primary sm:text-2xl">
@@ -86,7 +86,7 @@ export function NewsCard({
           </span>
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
-            {article.readingTime} phút
+            {article.readingTime || calculateReadingTime(article.content)} phút
           </span>
         </div>
         <h3 className="mt-2 line-clamp-2 font-display text-base font-bold leading-tight transition-colors group-hover:text-primary">

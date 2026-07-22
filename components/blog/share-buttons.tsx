@@ -38,7 +38,7 @@ export function ShareButtons({ slug, title }: ShareButtonsProps) {
       label: 'X',
       icon: XIcon,
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-      color: 'hover:bg-black hover:text-white hover:border-black',
+      color: 'hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black dark:hover:border-white',
     },
   ];
 

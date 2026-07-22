@@ -23,7 +23,7 @@ export function BlogCta({ products }: BlogCtaProps) {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => {
           const discount = calculateDiscount(product.price, product.oldPrice);
           return (
@@ -45,12 +45,12 @@ export function BlogCta({ products }: BlogCtaProps) {
                 />
                 <div className="absolute left-2 top-2 flex flex-col gap-1">
                   {product.isBestSeller && (
-                    <Badge className="bg-amber-500 hover:bg-amber-500 text-[10px] px-2 py-0.5 border-none">
+                    <Badge className="bg-amber-500 hover:bg-amber-500 text-xs px-2 py-0.5 border-none">
                       Bán chạy
                     </Badge>
                   )}
                   {discount && (
-                    <Badge className="bg-rose-500 hover:bg-rose-500 text-[10px] px-2 py-0.5 border-none">
+                    <Badge className="bg-rose-500 hover:bg-rose-500 text-xs px-2 py-0.5 border-none">
                       -{discount}%
                     </Badge>
                   )}
