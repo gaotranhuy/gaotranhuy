@@ -34,7 +34,7 @@ export default async function NewsPage() {
       <PageHeader
         eyebrow="Tin tức & Kiến thức"
         title="Tin tức"
-        subtitle="Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon."
+        description="Mẹo vặt nấu ăn, bảo quản gạo, kiến thức về đặc sản Việt và cách chọn gạo ngon."
       />
       <div className="container-page py-8">
         <Breadcrumb items={breadcrumbItems} className="mb-6" />
