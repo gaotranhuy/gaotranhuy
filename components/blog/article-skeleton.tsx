@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function ArticleHeroSkeleton() {
+function ArticleHeroSkeleton() {
   return (
     <div className="mx-auto max-w-3xl">
       <Skeleton className="h-6 w-24 rounded-full" />
@@ -24,7 +24,7 @@ export function ArticleHeroSkeleton() {
   );
 }
 
-export function ArticleBodySkeleton() {
+function ArticleBodySkeleton() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-5 w-full" />
@@ -49,7 +49,7 @@ export function ArticleBodySkeleton() {
   );
 }
 
-export function TocSkeleton() {
+function TocSkeleton() {
   return (
     <nav aria-label="Mục lục" className="text-sm">
       <div className="hidden lg:block">

@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function NewsCardSkeleton() {
+function NewsCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card">
       <div className="relative aspect-video overflow-hidden bg-muted">
@@ -27,18 +27,5 @@ export function NewsListSkeleton({ count = 6 }: { count?: number }) {
         <NewsCardSkeleton key={i} />
       ))}
     </div>
-  );
-}
-
-export function RelatedNewsSkeleton() {
-  return (
-    <section>
-      <Skeleton className="mb-6 h-7 w-64" />
-      <div className="grid gap-5 md:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <NewsCardSkeleton key={i} />
-        ))}
-      </div>
-    </section>
   );
 }
