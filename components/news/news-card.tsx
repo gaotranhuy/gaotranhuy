@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { formatDate, formatNumber, calculateReadingTime } from '@/lib/format';
+import { formatDate, calculateReadingTime } from '@/lib/format';
 import { cloudinaryCard, cloudinaryBanner } from '@/lib/cloudinary';
 import type { NewsArticle } from '@/types';
 import { cn } from '@/lib/utils';

@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { fetchAllProducts } from '@/lib/supabase-data';
-import { getAllCategories } from '@/lib/supabase-data';
-import { fetchAllNews } from '@/lib/supabase-data';
+import { fetchAllProducts, fetchAllNews } from '@/lib/supabase-data';
+import { getAllCategories } from '@/lib/products';
 
 const SITE_URL = 'https://gaotranhuy.vn';
 

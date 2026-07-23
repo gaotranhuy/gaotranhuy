@@ -7,8 +7,8 @@ import { ContactCTA } from '@/components/common/contact-cta';
 import {
   getCategoryBySlug,
   getAllCategories,
-  fetchProductsByCategory,
-} from '@/lib/supabase-data';
+} from '@/lib/products';
+import { fetchProductsByCategory } from '@/lib/supabase-data';
 import { categoryMetadata, breadcrumbJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
