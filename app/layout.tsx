@@ -32,6 +32,22 @@ const SITE_URL = 'https://gaotranhuy.vn';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+
+    icon: [
+
+      { url: '/icon.png', type: 'image/png', sizes: '192x192' },
+
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+
+    ],
+
+    shortcut: '/icon.png',
+
+    apple: '/icon.png',
+
+  },
+
   title: {
     default: 'Gạo Trần Huy | Gạo Thơm Dẻo, Nước Mắm Nam Ô, Đặc sản Việt',
     template: '%s | Gạo Trần Huy',
