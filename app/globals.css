@@ -259,19 +259,6 @@
   letter-spacing: -0.01em;
 }
 
-/* H1: 2rem mobile -> 2.5rem desktop */
-.article-h1 {
-  font-size: 2rem;
-  line-height: 1.25;
-  font-weight: 800;
-  margin-top: 2.5rem;
-  margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
-}
-@media (min-width: 768px) {
-  .article-h1 { font-size: 2.5rem; }
-}
-
 /* H2: 1.5rem mobile -> 1.875rem desktop */
 .article-h2 {
   font-size: 1.5rem;
