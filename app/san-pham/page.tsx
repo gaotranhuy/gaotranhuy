@@ -3,7 +3,8 @@ import { Suspense } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { Breadcrumb } from '@/components/common/breadcrumb';
 import { ProductFilters } from '@/components/product/product-filters';
-import { fetchAllProducts, getAllCategories } from '@/lib/supabase-data';
+import { fetchAllProducts } from '@/lib/supabase-data';
+import { getAllCategories } from '@/lib/products';
 
 export const revalidate = 3600;
 

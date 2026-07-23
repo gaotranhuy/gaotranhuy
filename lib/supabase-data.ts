@@ -1,7 +1,6 @@
 import { cache } from 'react';
 import { getSupabase } from '@/lib/supabase-server';
-import { categories } from '@/data/categories';
-import type { Product, NewsArticle, Category } from '@/types';
+import type { Product, NewsArticle } from '@/types';
 
 interface ProductRow {
   id: string;
@@ -102,20 +101,6 @@ export async function fetchAllProducts(): Promise<Product[]> {
   return (data as ProductRow[]).map(mapProductRow);
 }
 
-export async function fetchProductCount(): Promise<number> {
-  const supabase = getSupabase();
-
-  const { count, error } = await supabase
-    .from('products')
-    .select('id', {
-      head: true,
-      count: 'exact',
-    });
-
-  if (error) return 0;
-
-  return count ?? 0;
-}
 export const fetchProductBySlug = cache(async (slug: string): Promise<Product | null> => {
   const supabase = getSupabase();
   const { data, error } = await supabase
@@ -318,23 +303,4 @@ export async function fetchCtaProducts(article: NewsArticle, limit = 4): Promise
   }
 
   return [];
-}
-
-export function getAllCategories(): Category[] {
-  return [...categories].sort((a, b) => a.order - b.order);
-}
-
-export function getCategoryBySlug(slug: string): Category | undefined {
-  return categories.find((c) => c.slug === slug);
-}
-
-export async function getCategoryProductCount(slug: string): Promise<number> {
-  const supabase = getSupabase();
-  const { count, error } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true })
-    .eq('category_slug', slug);
-
-  if (error) return 0;
-  return count || 0;
 }

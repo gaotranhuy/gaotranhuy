@@ -24,7 +24,6 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
-    inlineCss: true,
     optimizePackageImports: ['lucide-react', 'react-markdown', 'remark-gfm', 'rehype-slug', 'rehype-highlight'],
   },
   async headers() {

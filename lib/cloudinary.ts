@@ -86,7 +86,7 @@ function replaceCloudinaryTransform(
   return `${prefix}${transform}/${afterUpload.slice(slashIdx + 1)}`;
 }
 
-export function optimizeCloudinaryUrl(
+function optimizeCloudinaryUrl(
   url: string,
   options: CloudinaryTransformOptions = {}
 ): string {
@@ -102,13 +102,6 @@ export function optimizeCloudinaryUrl(
   }
 
   return url;
-}
-
-export function getPlaceholderImage(): string {
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${buildTransform({
-    width: 600,
-    crop: 'limit',
-  })}/v1/placeholder-product`;
 }
 
 export const cloudinaryThumb = (url: string) =>

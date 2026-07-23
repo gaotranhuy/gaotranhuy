@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllCategories } from '@/lib/supabase-data';
+import { getAllCategories } from '@/lib/products';
 
 interface Category {
   name: string;

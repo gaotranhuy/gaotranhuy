@@ -10,8 +10,35 @@ export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
+interface ProductJsonLd {
+  '@context': string;
+  '@type': string;
+  name: string;
+  description: string;
+  image: string[];
+  sku: string;
+  brand: { '@type': string; name: string };
+  offers: {
+    '@type': string;
+    url: string;
+    priceCurrency: string;
+    price: number;
+    availability: string;
+    itemCondition: string;
+    shippingDetails: Record<string, unknown>;
+    hasMerchantReturnPolicy: Record<string, unknown>;
+  };
+  aggregateRating?: {
+    '@type': string;
+    ratingValue: number;
+    reviewCount: number;
+    bestRating: number;
+    worstRating: number;
+  };
+}
+
 export function productJsonLd(product: Product) {
-  const result: any = {
+  const result: ProductJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,

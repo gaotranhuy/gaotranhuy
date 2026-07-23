@@ -6,8 +6,8 @@ import { Breadcrumb } from '@/components/common/breadcrumb';
 import { ContactCTA } from '@/components/common/contact-cta';
 import {
   fetchProductBySlug,
-  getCategoryBySlug,
 } from '@/lib/supabase-data';
+import { getCategoryBySlug } from '@/lib/products';
 import {
   productMetadata,
   productJsonLd,
